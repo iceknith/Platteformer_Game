@@ -5,9 +5,18 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
-    public boolean isRightPressed;
-    public boolean isLeftPressed;
-    public boolean isJumpPressed;
+    final int rightKey = KeyEvent.VK_D;
+    final int leftKey = KeyEvent.VK_A;
+    final int jumpKey = KeyEvent.VK_SPACE;
+
+
+    public static boolean isRightPressed;
+    public static boolean isLeftPressed;
+    public static boolean isJumpPressed;
+
+    public static long rightPressedTime = 0;
+    public static long leftPressedTime = 0;
+    public static long noMovementTime = 0;
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
@@ -17,28 +26,38 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
-        if (k == KeyEvent.VK_D){
-            isRightPressed = true;
-        }
-        if (k == KeyEvent.VK_A){
-            isLeftPressed = true;
-        }
-        if (k == KeyEvent.VK_SPACE){
-            isJumpPressed = true;
+        switch (k) {
+            case rightKey -> {
+                isRightPressed = true;
+                if (rightPressedTime == 0) {
+                    rightPressedTime = System.nanoTime();
+                }
+            }
+            case leftKey -> {
+                isLeftPressed = true;
+                if (leftPressedTime == 0) {
+                    leftPressedTime = System.nanoTime();
+                }
+            }
+            case jumpKey -> isJumpPressed = true;
         }
     }
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
-        if (k == KeyEvent.VK_D){
-            isRightPressed = false;
-        }
-        if (k == KeyEvent.VK_A){
-            isLeftPressed = false;
-        }
-        if (k == KeyEvent.VK_SPACE){
-            isJumpPressed = false;
+        switch (k) {
+            case rightKey -> {
+                isRightPressed = false;
+                rightPressedTime = 0;
+                noMovementTime = System.nanoTime();
+            }
+            case leftKey -> {
+                isLeftPressed = false;
+                leftPressedTime = 0;
+                noMovementTime = System.nanoTime();
+            }
+            case jumpKey -> isJumpPressed = false;
         }
     }
 }

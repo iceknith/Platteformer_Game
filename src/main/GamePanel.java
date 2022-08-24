@@ -1,4 +1,5 @@
 package main;
+import GameObjects.Platform;
 import GameObjects.Player;
 import handlers.KeyHandler;
 
@@ -9,18 +10,17 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable {
 
     // Screen Settings
-    final int width = 750;
-    final int height = 500;
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    final int width = dim.width;
+    final int height = dim.height;
 
     // game loop variables
     final int fps = 60;
-    final double frameInterval = 1000000000/fps;
-    double deltaTime = 0;
+    final double frameInterval = 1000000000f / fps;
+    public static double deltaTime = 0;
     long lastFrameTime = System.nanoTime();
     long currentFrameTime = System.nanoTime();
     boolean is_game_running = true;
-    long timer;
-    int displayedFPS = 0;
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
@@ -41,46 +41,36 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
 
-    //temporary
-    public static Player player = new Player();
+    Player player;
 
     @Override
     public void run() {
 
+        //temporary
+        player = new Player();
+        new Platform("rectangle",width-200,300, 100, height-150, Color.LIGHT_GRAY);
+        new Platform("rectangle", 100, 50, 300, height-350, Color.GRAY);
+        new Platform("rectangle", 75, 25, 500, height-250, Color.GRAY);
+
         lastFrameTime = System.nanoTime();
-        timer = System.nanoTime();
         // game loop
         while (is_game_running) {
 
             currentFrameTime = System.nanoTime();
-            deltaTime += (currentFrameTime - lastFrameTime) / frameInterval;
+            deltaTime += currentFrameTime - lastFrameTime;
             lastFrameTime = currentFrameTime;
 
-            if(deltaTime >= 1){
+            if(deltaTime >= frameInterval){
+                deltaTime = deltaTime / 100000000;
                 update();
                 repaint();
                 deltaTime = 0;
-            }
-            if (System.nanoTime() - timer >= 1000000000){
-                System.out.println(displayedFPS+" fps");
-                timer = System.nanoTime();
-                displayedFPS = 0;
             }
         }
     }
 
     public void update(){
-        if (keyHandler.isRightPressed){
-            player.move(1);
-        }
-        if (keyHandler.isLeftPressed){
-            player.move(-1);
-        }
-        if (keyHandler.isJumpPressed){
-            player.jump();
-        }
-        player.forceY += 0.1;
-        //player.pos[1] += player.forceY;
+        player.updatePlayer();
     }
 
     public void paintComponent(Graphics g){
@@ -89,13 +79,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2D = (Graphics2D) g;
 
-        g2D.setColor(player.color);
+        g2D.setColor(player.getColor());
+        g2D.fill(player.getHitbox());
 
-        g2D.fill(player);
-
-        System.out.println(player.getX()+" au temps : "+ System.nanoTime());
+        for (Platform p : Platform.visiblePlatforms) {
+            g2D.setColor(p.getColor());
+            g2D.fill(p.getHitbox());
+        }
+        Toolkit.getDefaultToolkit().sync(); //IMPORTANT prevents visual lag
 
         g2D.dispose();
-        displayedFPS++;
     }
 }

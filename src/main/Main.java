@@ -13,7 +13,6 @@ public class Main {
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
 
-        window.setLocationRelativeTo(null); // renders the window in the center of the screen
         window.pack();
         window.setVisible(true);
 
