@@ -1,4 +1,5 @@
 package main;
+import GameObjects.GameGrid;
 import GameObjects.Platform;
 import GameObjects.Player;
 import handlers.KeyHandler;
@@ -11,8 +12,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     // Screen Settings
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    final int width = dim.width;
-    final int height = dim.height;
+    final int width = 750; //dim.width;
+    final int height = 500; //dim.height;
 
     // game loop variables
     final int fps = 60;
@@ -24,6 +25,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
+
+    public static GameGrid grid;
 
     public GamePanel() {
 
@@ -41,7 +44,8 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
 
-    Player player;
+    //temporary
+    public static Player player;
 
     @Override
     public void run() {
@@ -51,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
         new Platform("rectangle",width-200,300, 100, height-150, Color.LIGHT_GRAY);
         new Platform("rectangle", 100, 50, 300, height-350, Color.GRAY);
         new Platform("rectangle", 75, 25, 500, height-250, Color.GRAY);
+        grid = new GameGrid(width, height, 0, 0);
 
         lastFrameTime = System.nanoTime();
         // game loop
