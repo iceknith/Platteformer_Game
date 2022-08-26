@@ -11,10 +11,13 @@ public class Entity extends GameObject2D{
     double acceleration;
     double friction;
 
+    double airMaxSpeed;
+    double airAcceleration;
+    double airFriction;
+
     double speedConversionPercent;
 
     double jumpForce;
-    double maxJumpTime;
     double jumpingTime;
     double gravity;
 
@@ -27,9 +30,9 @@ public class Entity extends GameObject2D{
     boolean isOnGround;
     boolean isJumping;
 
-    void walk(int direction, long time){
+    void walk(int direction, double maxSpeed, double acceleration, double speedConversion){
         if (direction == - Math.signum(velocityX)){
-            velocityX = -velocityX * speedConversionPercent / 100;
+            velocityX = -velocityX * speedConversion / 100;
             return;
         }
         if (velocityX * direction < maxSpeed){
@@ -40,28 +43,34 @@ public class Entity extends GameObject2D{
         }
     }
 
-    void stop(int direction, long time){
+    void stop(int direction, double friction){
         velocityX -= direction * friction;
-        if (velocityX * direction < 0){ //if forceX has crossed 0 since we stopped moving
+        if (velocityX * direction <= 0){ //if forceX has crossed 0 since we stopped moving
             velocityX = 0;
         }
     }
 
-    void jump(){
+    void jump(double jumpForce){
+
         if (isJumping){
             jumpingTime++;
-            if (jumpingTime >= maxJumpTime){
+            if (velocityY <= 0){
                 isJumping = false;
             }
         }
+
         else{
             isJumping = true;
             jumpingTime = 0;
         }
-        velocityY = jumpForce;
+
+        velocityY = jumpForce - jumpingTime * gravity;
     }
 
-    void fall(){
+    void fall(double gravity){
+        if (isOnGround){ //increases the gravity when player is likely to be on ground,
+            gravity = 6; //to make the player stay on ground and not bump up and down
+        }
         velocityY -= gravity;
     }
 

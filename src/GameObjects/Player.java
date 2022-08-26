@@ -17,17 +17,20 @@ public class Player extends Entity{
         velocityY = 0;
         velocityX = 0;
 
-        maxSpeed = 40;
-        acceleration = 6;
-        friction = 7.5;
+        maxSpeed = 45;
+        acceleration = 3;
+        friction = 5;
 
-        jumpForce = 45;
-        maxJumpTime = 10;
+        airMaxSpeed = 35;
+        airAcceleration = 2;
+        airFriction = 2.5;
+
+        jumpForce = 70;
         gravity = 2.5;
 
         maxJumps = 1;
 
-        speedConversionPercent = 50;
+        speedConversionPercent = 35;
 
         color = Color.white;
     }
@@ -35,33 +38,51 @@ public class Player extends Entity{
     public void updatePlayer(){
 
         //movement
+
+        double s = maxSpeed;
+        double a = acceleration;
+        double f = friction;
+
+        if(isOnGround){
+            jumps = maxJumps;
+
+        }else{
+            s = airMaxSpeed;
+            a = airAcceleration;
+            f = airFriction;
+        }
+
         if (KeyHandler.isRightPressed && KeyHandler.isLeftPressed){
             //making the last input the dominant one
             KeyHandler.isRightPressed = KeyHandler.rightPressedTime > KeyHandler.leftPressedTime;
             KeyHandler.isLeftPressed = !KeyHandler.isRightPressed;
         }
+
         if (KeyHandler.isRightPressed){
-            walk(1,(System.nanoTime() - KeyHandler.rightPressedTime) / 100000000);
+            walk(1, s, a, speedConversionPercent);
         }
+
         if (KeyHandler.isLeftPressed){
-            walk(-1,(System.nanoTime() - KeyHandler.leftPressedTime) / 100000000);
+            walk(-1, s, a, speedConversionPercent);
         }
+
         if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed && velocityX != 0){
             int direction = (int) Math.signum(velocityX);
-            stop(direction, (System.nanoTime() - KeyHandler.noMovementTime) / 100000000);
+            stop(direction, f);
         }
+
         if (KeyHandler.isJumpPressed && jumps > 0|| isJumping){
             jumps -= 1;
-            jump();
+            jump(jumpForce);
         }
-        if(isOnGround){
-            jumps = maxJumps;
-        }
-        if (!KeyHandler.isJumpPressed){
+
+        if (!KeyHandler.isJumpPressed && isJumping){
+            velocityY /= 2;
             isJumping = false;
         }
-        if (!isOnGround && !isJumping){
-            fall();
+
+        if (!isJumping){
+            fall(gravity);
         }
 
         move();

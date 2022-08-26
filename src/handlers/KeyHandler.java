@@ -16,7 +16,6 @@ public class KeyHandler implements KeyListener {
 
     public static long rightPressedTime = 0;
     public static long leftPressedTime = 0;
-    public static long noMovementTime = 0;
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
@@ -50,12 +49,10 @@ public class KeyHandler implements KeyListener {
             case rightKey -> {
                 isRightPressed = false;
                 rightPressedTime = 0;
-                noMovementTime = System.nanoTime();
             }
             case leftKey -> {
                 isLeftPressed = false;
                 leftPressedTime = 0;
-                noMovementTime = System.nanoTime();
             }
             case jumpKey -> isJumpPressed = false;
         }
