@@ -85,9 +85,9 @@ public class GameGrid {
     public void visualiseGrid(){
         int i = 0;
         int j = 0;
-        for (ArrayList y: grid.get(0)) {
+        for (ArrayList<GameObject2D> y: grid.get(0)) {
             i = 0;
-            for (ArrayList x: grid){
+            for (ArrayList<ArrayList<GameObject2D>> x: grid){
                 System.out.print(grid.get(i).get(j) + " ");
                 i++;
             }

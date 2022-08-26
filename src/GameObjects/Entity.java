@@ -7,39 +7,62 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Entity extends GameObject2D{
-    double speed;
-    double jumpForce;
-    double gravity;
+    double maxSpeed;
+    double acceleration;
     double friction;
+
+    double speedConversionPercent;
+
+    double jumpForce;
+    double maxJumpTime;
+    double jumpingTime;
+    double gravity;
+
+    int jumps;
+    int maxJumps;
 
     double velocityY;
     double velocityX;
 
     boolean isOnGround;
+    boolean isJumping;
 
     void walk(int direction, long time){
-        if (time < Math.PI / 2){
-            velocityX = speed * direction * Math.sin(time) * GamePanel.deltaTime;
+        if (direction == - Math.signum(velocityX)){
+            velocityX = -velocityX * speedConversionPercent / 100;
+            return;
+        }
+        if (velocityX * direction < maxSpeed){
+            velocityX += direction * acceleration;
         }
         else{
-            velocityX = speed * direction * GamePanel.deltaTime;
+            velocityX = maxSpeed * direction;
         }
     }
 
     void stop(int direction, long time){
-        velocityX -= speed * direction * GamePanel.deltaTime * Math.sqrt(time) / friction;
+        velocityX -= direction * friction;
         if (velocityX * direction < 0){ //if forceX has crossed 0 since we stopped moving
             velocityX = 0;
         }
     }
 
     void jump(){
-        velocityY += jumpForce * GamePanel.deltaTime;
-        isOnGround = false;
+        if (isJumping){
+            jumpingTime++;
+            if (jumpingTime >= maxJumpTime){
+                isJumping = false;
+            }
+        }
+        else{
+            isJumping = true;
+            jumpingTime = 0;
+        }
+        velocityY = jumpForce;
     }
 
     void fall(){
-        velocityY -= GamePanel.deltaTime * gravity;
+        velocityY -= gravity;
     }
 
     void collisionX(Rectangle intersection){
@@ -91,7 +114,7 @@ public class Entity extends GameObject2D{
     void move(){
 
         //x movement
-        setX((int) (getX() + velocityX));
+        setX((int) (getX() + velocityX * GamePanel.deltaTime));
 
         GamePanel.grid.deleteRectInGrid(this);
         GamePanel.grid.addRectInGrid(this);
@@ -104,7 +127,7 @@ public class Entity extends GameObject2D{
 
 
         //y movement
-        setY((int) (getY() - velocityY));
+        setY((int) (getY() - velocityY * GamePanel.deltaTime));
         isOnGround = false;
 
         GamePanel.grid.deleteRectInGrid(this);
