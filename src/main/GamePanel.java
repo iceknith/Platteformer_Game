@@ -1,10 +1,10 @@
 package main;
-import GameObjects.GameGrid;
-import GameObjects.Platform;
-import GameObjects.Player;
+import GameObjects.*;
 import handlers.KeyHandler;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.swing.JPanel;
 
@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
 
-    public static GameGrid grid;
+    public static Camera camera;
 
     public GamePanel() {
 
@@ -46,16 +46,21 @@ public class GamePanel extends JPanel implements Runnable {
 
     //temporary
     public static Player player;
+    static {
+        try {
+            player = new Player();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public void run() {
-
-        //temporary
-        player = new Player();
-        new Platform("rectangle",width-200,300, 100, height-150, Color.LIGHT_GRAY);
-        new Platform("rectangle", 100, 50, 300, height-350, Color.GRAY);
-        new Platform("rectangle", 75, 25, 500, height-250, Color.GRAY);
-        grid = new GameGrid(width, height, 0, 0);
+        try {
+            camera = new Camera(width, height, 0, 0);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         lastFrameTime = System.nanoTime();
         // game loop
@@ -66,31 +71,54 @@ public class GamePanel extends JPanel implements Runnable {
             lastFrameTime = currentFrameTime;
 
             if(deltaTime >= frameInterval){
-                deltaTime = deltaTime / 100000000;
-                update();
+                deltaTime = deltaTime / 100000000; //in tenth of a second
+
+                try {
+                    update();
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
                 repaint();
                 deltaTime = 0;
             }
         }
     }
 
-    public void update(){
+    public void update() throws FileNotFoundException {
         player.updatePlayer();
+        camera.updateCamera();
     }
 
     public void paintComponent(Graphics g){
 
         super.paintComponent(g);
 
+        if(camera == null){
+            return;
+        }
+
         Graphics2D g2D = (Graphics2D) g;
 
-        g2D.setColor(player.getColor());
-        g2D.fill(player.getHitbox());
 
-        for (Platform p : Platform.visiblePlatforms) {
-            g2D.setColor(p.getColor());
-            g2D.fill(p.getHitbox());
+        for (GameObject2D go : GameObject2D.getVisible()) {
+            g2D.setColor(go.getColor());
+            g2D.fillRect(go.getX(), go.getY(), //g2D.drawImage(go.getSprite(),go.getX() - camera.getX, go.getY() - camera.getY(),
+                    go.getWidth(), go.getHeight()); //go.getWidth(), go.getHeight(), this);
         }
+
+        g2D.setColor(player.getColor());
+        g2D.draw(player.getHitbox());
+        g2D.drawImage(player.getSprite(),player.getX(), player.getY(),
+                player.getWidth(), player.getHeight(), this);
+
+        //temporary
+        g2D.setColor(Color.red);
+        for (Rectangle b: camera.borders) {
+            g2D.draw(b);
+        }
+
+
         Toolkit.getDefaultToolkit().sync(); //IMPORTANT prevents visual lag
 
         g2D.dispose();

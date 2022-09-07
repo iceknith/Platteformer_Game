@@ -1,13 +1,22 @@
 package GameObjects;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import handlers.KeyHandler;
+import main.GamePanel;
+
+import javax.imageio.ImageIO;
 
 public class Player extends Entity{
 
+    ArrayList<BufferedImage> idle;
 
-    public Player() {
+
+    public Player() throws IOException {
         int width = 50;
         int height = 75;
         int x = 100;
@@ -33,12 +42,15 @@ public class Player extends Entity{
         speedConversionPercent = 35;
 
         color = Color.white;
+
+        sprite = ImageIO.read(new File("assets/Player/idle/0.png"));
+        idle = getAnimationList("Player", "idle", 17);
+        setAnimation(idle);
+
+        visible.add(this);
     }
 
-    public void updatePlayer(){
-
-        //movement
-
+    void movementHandler(){
         double s = maxSpeed;
         double a = acceleration;
         double f = friction;
@@ -84,7 +96,14 @@ public class Player extends Entity{
         if (!isJumping){
             fall(gravity);
         }
+    }
 
+    double animTime = 0;
+
+    public void updatePlayer(){
+
+        animate();
+        movementHandler();
         move();
 
         //System.out.println("X:" + getX() + " V: " + velocityX);

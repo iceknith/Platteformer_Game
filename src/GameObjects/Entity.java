@@ -102,12 +102,12 @@ public class Entity extends GameObject2D{
 
     ArrayList<GameObject2D> getNear(){
 
-        ArrayList<int[]> thisEntityGridCells = GamePanel.grid.findRectPosInGrid(this);
+        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(this);
         ArrayList<GameObject2D> result = new ArrayList<>();
 
         for ( int[] pos: thisEntityGridCells) {
 
-            ArrayList<GameObject2D> cell = GamePanel.grid.getCellContent(pos[0], pos[1]);
+            ArrayList<GameObject2D> cell = GamePanel.camera.getCellContent(pos[0], pos[1]);
 
             for (GameObject2D object: cell) {
 
@@ -123,10 +123,11 @@ public class Entity extends GameObject2D{
     void move(){
 
         //x movement
+        GamePanel.camera.deleteGOInGrid(this);
+
         setX((int) (getX() + velocityX * GamePanel.deltaTime));
 
-        GamePanel.grid.deleteRectInGrid(this);
-        GamePanel.grid.addRectInGrid(this);
+        GamePanel.camera.addGOInGrid(this);
 
         for (GameObject2D r: getNear()) {
             if (this.hitbox.intersects(r.hitbox)){
@@ -136,11 +137,12 @@ public class Entity extends GameObject2D{
 
 
         //y movement
+        GamePanel.camera.deleteGOInGrid(this);
+
         setY((int) (getY() - velocityY * GamePanel.deltaTime));
         isOnGround = false;
 
-        GamePanel.grid.deleteRectInGrid(this);
-        GamePanel.grid.addRectInGrid(this);
+        GamePanel.camera.addGOInGrid(this);
 
         for (GameObject2D r: getNear()) {
             if (this.hitbox.intersects(r.hitbox)){
