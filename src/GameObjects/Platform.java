@@ -11,6 +11,5 @@ public class Platform extends GameObject2D{
     public Platform(int w, int h, int x, int y, Color c){
         hitbox = new Rectangle(x, y, w, h);
         color = c;
-        visible.add(this);
     }
 }

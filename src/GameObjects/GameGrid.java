@@ -5,6 +5,7 @@ import main.GamePanel;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
@@ -22,7 +23,13 @@ public class GameGrid {
     int cellWidth;
     int cellHeight;
 
-    public GameGrid(int width, int height, int gridX, int gridY) throws FileNotFoundException {
+    int width;
+    int height;
+
+    public GameGrid(int w, int h, int gridX, int gridY) throws IOException {
+
+        width = w;
+        height = h;
 
         cellWidth = (int) (width / cellXNum);
         cellHeight = (int) (height / cellYNum);
@@ -32,7 +39,7 @@ public class GameGrid {
 
         grid = new ArrayList<>();
 
-        updateGrid();
+        updateGrid(0,0);
     }
 
 
@@ -96,7 +103,21 @@ public class GameGrid {
         return result;
     }
 
-    public ArrayList<GameObject2D> loadVisibleGO(String lvlName) throws FileNotFoundException {
+    public boolean isInGridPos(int posX, int posY, int w, int h){
+        //if one rect is on the left of the other
+        if(x > posX + w || posX > x + width){
+            return false;
+        }
+
+        //if one rect is above the other
+        if(y > posY + h || posY > y + height){
+            return false;
+        }
+
+        return true;
+    }
+
+    public ArrayList<GameObject2D> loadVisibleGO(String lvlName, double movementX, double movementY) throws IOException {
         ArrayList<GameObject2D> result = new ArrayList<>();
 
         Scanner lvlReader = new Scanner(new File("assets/level/"+lvlName+".txt"));
@@ -106,16 +127,30 @@ public class GameGrid {
             String line = lvlReader.nextLine();
             String[] infoGO = line.split(";");
 
-            if(Objects.equals(infoGO[0], "Platform")){
+            if(Objects.equals(infoGO[0], "Platform")) {
+                int posX = Integer.parseInt(infoGO[3]);
+                int posY = Integer.parseInt(infoGO[4]);
+                int w = Integer.parseInt(infoGO[1]);
+                int h = Integer.parseInt(infoGO[2]);
 
                 //add conditions for optimisation
-                Platform p = new Platform(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]),
-                        Integer.parseInt(infoGO[3]) - x, Integer.parseInt(infoGO[4]) - y,
-                        Color.decode(infoGO[5]));
-
-                result.add(p);
-
+                if(isInGridPos(posX, posY, w, h)){
+                    Platform p = new Platform(w, h, posX - x, posY - y, Color.decode(infoGO[5]));
+                    result.add(p);
+                }
             }
+
+            if(Objects.equals(infoGO[0], "Player")){
+
+                if(GamePanel.player == null){
+                    GamePanel.player = new Player(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]));
+                }else {
+                    GamePanel.player.setX((int) (GamePanel.player.getX() + movementX));
+                    GamePanel.player.setY((int) (GamePanel.player.getY() + movementY));
+                }
+                result.add(GamePanel.player);
+            }
+
         }
 
         lvlReader.close();
@@ -123,20 +158,21 @@ public class GameGrid {
         return result;
     }
 
-    public void updateGrid() throws FileNotFoundException {
+    public void updateGrid(double movementX, double movementY) throws IOException {
 
-        GameObject2D.resetVisible();
         grid.clear();
 
         initialise(cellXNum, cellYNum);
 
         //temporary
-        ArrayList<GameObject2D> x = loadVisibleGO("1");
+        ArrayList<GameObject2D> loaded = loadVisibleGO("1", movementX, movementY);
 
-        for (GameObject2D obj: x) {
+        GameObject2D.resetVisible();
+        GameObject2D.setVisible(loaded);
+
+        for (GameObject2D obj: loaded) {
             addGOInGrid(obj);
         }
-        addGOInGrid(GamePanel.player);
 
 
         //visualiseGrid();

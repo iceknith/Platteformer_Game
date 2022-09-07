@@ -46,19 +46,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     //temporary
     public static Player player;
-    static {
-        try {
-            player = new Player();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public void run() {
         try {
             camera = new Camera(width, height, 0, 0);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -75,7 +68,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 try {
                     update();
-                } catch (FileNotFoundException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -85,9 +78,9 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void update() throws FileNotFoundException {
-        player.updatePlayer();
+    public void update() throws IOException {
         camera.updateCamera();
+        player.updatePlayer();
     }
 
     public void paintComponent(Graphics g){
@@ -107,8 +100,7 @@ public class GamePanel extends JPanel implements Runnable {
                     go.getWidth(), go.getHeight()); //go.getWidth(), go.getHeight(), this);
         }
 
-        g2D.setColor(player.getColor());
-        g2D.draw(player.getHitbox());
+
         g2D.drawImage(player.getSprite(),player.getX(), player.getY(),
                 player.getWidth(), player.getHeight(), this);
 

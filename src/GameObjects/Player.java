@@ -16,12 +16,10 @@ public class Player extends Entity{
     ArrayList<BufferedImage> idle;
 
 
-    public Player() throws IOException {
+    public Player(int posX, int posY) throws IOException {
         int width = 50;
         int height = 75;
-        int x = 100;
-        int y = 100;
-        hitbox = new Rectangle(x, y, width, height);
+        hitbox = new Rectangle(posX, posY, width, height);
 
         velocityY = 0;
         velocityX = 0;
@@ -46,8 +44,6 @@ public class Player extends Entity{
         sprite = ImageIO.read(new File("assets/Player/idle/0.png"));
         idle = getAnimationList("Player", "idle", 17);
         setAnimation(idle);
-
-        visible.add(this);
     }
 
     void movementHandler(){

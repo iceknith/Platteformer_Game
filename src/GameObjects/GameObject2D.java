@@ -28,6 +28,8 @@ public class GameObject2D{
         visible = new ArrayList<>();
     }
 
+    public static void setVisible(ArrayList<GameObject2D> newV){visible = newV;}
+
     public int getX() {
         return hitbox.x;
     }
