@@ -51,6 +51,10 @@ public class GameGrid {
 
     public int getY() {return y;}
 
+    public void setX(int posX) {x = posX;}
+
+    public void setY(int posY) {y = posY;}
+
 
     public void initialise(double w, double h){
         for (int x = 0; x < w; x ++){
@@ -82,10 +86,10 @@ public class GameGrid {
 
     public ArrayList<int[]> findRectPosInGrid(GameObject2D r){
 
-        int x1 = r.getX() / cellWidth;
-        int y1 = r.getY() / cellHeight;
-        int x2 = (r.getX() + r.getWidth()) / cellWidth;
-        int y2 = (r.getY() + r.getHeight()) / cellHeight;
+        int x1 = (r.getX() - getX()) / cellWidth;
+        int y1 = (r.getY() - getY()) / cellHeight;
+        int x2 = (r.getX() - getX() + r.getWidth()) / cellWidth;
+        int y2 = (r.getY() - getY() + r.getHeight()) / cellHeight;
 
 
         ArrayList<int[]> result = new ArrayList<>();
@@ -135,7 +139,7 @@ public class GameGrid {
 
                 //add conditions for optimisation
                 if(isInGridPos(posX, posY, w, h)){
-                    Platform p = new Platform(w, h, posX - x, posY - y, Color.decode(infoGO[5]));
+                    Platform p = new Platform(w, h, posX, posY, Color.decode(infoGO[5]));
                     result.add(p);
                 }
             }
@@ -144,9 +148,6 @@ public class GameGrid {
 
                 if(GamePanel.player == null){
                     GamePanel.player = new Player(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]));
-                }else {
-                    GamePanel.player.setX((int) (GamePanel.player.getX() + movementX));
-                    GamePanel.player.setY((int) (GamePanel.player.getY() + movementY));
                 }
                 result.add(GamePanel.player);
             }

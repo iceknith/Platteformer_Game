@@ -125,7 +125,7 @@ public class Entity extends GameObject2D{
         //x movement
         GamePanel.camera.deleteGOInGrid(this);
 
-        setX((int) (getX() + velocityX * GamePanel.deltaTime));
+        setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
 
         GamePanel.camera.addGOInGrid(this);
 
@@ -139,7 +139,7 @@ public class Entity extends GameObject2D{
         //y movement
         GamePanel.camera.deleteGOInGrid(this);
 
-        setY((int) (getY() - velocityY * GamePanel.deltaTime));
+        setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
         isOnGround = false;
 
         GamePanel.camera.addGOInGrid(this);

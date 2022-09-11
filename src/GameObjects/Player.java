@@ -92,6 +92,14 @@ public class Player extends Entity{
         if (!isJumping){
             fall(gravity);
         }
+
+        if (getY() + GamePanel.camera.getY() > 1000){
+            velocityY = 0;
+            velocityX = 0;
+            GamePanel.camera.move(0, 0);
+            setX(200);
+            setY(100);
+        }
     }
 
     double animTime = 0;

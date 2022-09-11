@@ -96,20 +96,25 @@ public class GamePanel extends JPanel implements Runnable {
 
         for (GameObject2D go : GameObject2D.getVisible()) {
             g2D.setColor(go.getColor());
-            g2D.fillRect(go.getX(), go.getY(), //g2D.drawImage(go.getSprite(),go.getX() - camera.getX, go.getY() - camera.getY(),
+            g2D.fillRect(go.getX() - camera.getX(), go.getY() - camera.getY(), //g2D.drawImage(go.getSprite(),go.getX() - camera.getX, go.getY() - camera.getY(),
                     go.getWidth(), go.getHeight()); //go.getWidth(), go.getHeight(), this);
         }
 
 
-        g2D.drawImage(player.getSprite(),player.getX(), player.getY(),
+        g2D.drawImage(player.getSprite(),player.getX() - camera.getX(), player.getY()- camera.getY(),
                 player.getWidth(), player.getHeight(), this);
 
         //temporary
-        g2D.setColor(Color.red);
-        for (Rectangle b: camera.borders) {
-            g2D.draw(b);
-        }
+        //g2D.setColor(Color.red);
+        //for (Rectangle b: camera.borders) {
+        //    g2D.drawRect(b.x - camera.getX(), b.y - camera.getY(), b.width, b.height);
+        //}
 
+
+        //g2D.setColor(Color.blue);
+        //g2D.draw(new Rectangle(width/2-50,0,100,height));
+        //g2D.setColor(Color.green);
+        //g2D.draw(new Rectangle(0,height/2-100,width,200));
 
         Toolkit.getDefaultToolkit().sync(); //IMPORTANT prevents visual lag
 
