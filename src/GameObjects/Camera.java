@@ -2,68 +2,72 @@ package GameObjects;
 
 import main.GamePanel;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Camera extends GameGrid {
 
-    double speedX = 0.25;
-    double speedY = 0.2;
+    double speedX;
+    double speedY;
 
-    double stoppingSpeedX = 0.5;
-    double stoppingSpeedY = 5;
+    double stoppingSpeedX;
+    double stoppingSpeedY;
 
-    double velocityX = 0;
-    double velocityY = 0;
+    double velocityX;
+    double velocityY;
 
-    public ArrayList<Rectangle> borders = new ArrayList<Rectangle>();
+    int hardBorderX;
+    int hardBorderY;
+
+    int softBorderX;
+    int softBorderY;
 
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
-        borders.add(new Rectangle((int) (- 0.2 * screenW) , 0, (int) (0.4 * screenW), screenH));
+        speedX = 0.25;
+        speedY = 0.2;
 
-        borders.add(new Rectangle((int) (0.8 * screenW), 0, (int) (0.4 * screenW), screenH));
+        stoppingSpeedX = 0.5;
+        stoppingSpeedY = 5;
 
-        borders.add(new Rectangle(0 , (int) (-0.1 * screenH), screenW, (int) (0.2 * screenH)));
+        velocityX = 0;
+        velocityY = 0;
 
-        borders.add(new Rectangle(0, (int) (0.9 * screenH), screenW, (int) (0.2 * screenH)));
+        hardBorderX = (int) (0.4 * screenW);
+        hardBorderY = (int) (0.4 * screenH);
+
+        softBorderX = 100;
+        softBorderY = 200;
     }
 
-    public void updateCamera() throws IOException {
+    public void update() throws IOException {
 
         boolean intersectX = false;
         boolean intersectY = false;
+
         Player p = GamePanel.player;
 
-        for (Rectangle b: borders) {
-            if (b.intersects(p.getHitbox())) {
+        int variationX = getX() + width/2 - p.getX() - p.getWidth()/2;
+        int variationY = getY() + height/2 - p.getY() - p.getHeight()/2;
 
-                int i = borders.indexOf(b);
-                if (i - 2 < 0){
-                    int m = (int) Math.signum((p.getX() + p.getWidth()/2f) - (b.x + b.width/2f));
-                    movementX(m, b.intersection(p.getHitbox()));
-                    intersectX = true;
-                }
-                else{
-                    movementY((int) Math.signum(p.getY() - b.y), b.intersection(p.getHitbox()));
-                    intersectY = true;
-                }
-            }
+        if (Math.abs(variationX) > hardBorderX){
+            velocityX = -p.getVelocityX();
+            intersectX = true;
         }
 
+        if (Math.abs(variationY) > hardBorderY){
+            velocityY = p.getVelocityY();
+            intersectY = true;
+        }
 
         if(!intersectX){
-            int variationX = getX() + width/2 - p.getX() - p.getWidth()/2;
-            if (Math.abs(variationX) > 100){
+            if (Math.abs(variationX) > softBorderX){
                 movementX(variationX);
                 intersectX = true;
             }
         }
         if(!intersectY){
-            int variationY = getY() + height/2 - p.getY() - p.getHeight()/2;
-            if (Math.abs(variationY) > 200){
+            if (Math.abs(variationY) > softBorderY){
                 movementY(variationY);
                 intersectY = true;
             }
@@ -76,18 +80,17 @@ public class Camera extends GameGrid {
             if(!intersectY){
                 stopMovementY();
             }
-            move();
-            updateGrid();
         }
+        move();
     }
 
-    void movementX(int movement, Rectangle intersection) {
-        velocityX = movement*intersection.width/GamePanel.deltaTime;
-    }
+    public int getHardBorderX(){return hardBorderX;}
 
-    void movementY(int movement, Rectangle intersection) {
-        velocityY = movement*intersection.height/GamePanel.deltaTime;
-    }
+    public int getHardBorderY(){return hardBorderY;}
+
+    public int getSoftBorderX(){return softBorderX;}
+
+    public int getSoftBorderY(){return softBorderY;}
 
     void movementX(int movement){
         velocityX = movement * speedX;
@@ -97,30 +100,15 @@ public class Camera extends GameGrid {
         velocityY = movement * speedY;
     }
 
-    void move(){
+    void move() throws IOException {
         x -= Math.round(velocityX * GamePanel.deltaTime);
         y -= Math.round(velocityY * GamePanel.deltaTime);
-        for (Rectangle r: borders) {
-            r.x -= Math.round(velocityX * GamePanel.deltaTime);
-            r.y -= Math.round(velocityY * GamePanel.deltaTime);
-        }
+        updateGrid();
     }
 
-    public void move(int posX, int posY) throws IOException {
+    public void move(int posX, int posY){
         x = posX;
         y = posY;
-
-        borders.clear();
-
-        borders.add(new Rectangle((int) (- 0.2 * width) + x , y, (int) (0.4 * width), height));
-
-        borders.add(new Rectangle((int) (0.8 * width) + x, y, (int) (0.4 * width), height));
-
-        borders.add(new Rectangle(x , (int) (-0.1 * height) + y, width, (int) (0.2 * height)));
-
-        borders.add(new Rectangle(x, (int) (0.7 * height) + y, width, (int) (0.6 * height)));
-
-        updateGrid();
     }
 
     void stopMovementX(){

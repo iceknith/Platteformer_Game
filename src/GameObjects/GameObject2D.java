@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 public class GameObject2D{
 
-    static ArrayList<GameObject2D> visible = new ArrayList<>();
-
     String name;
     String type;
 
@@ -30,26 +28,6 @@ public class GameObject2D{
     double nextAnimationSpeed;
     double animateTime = 0;
     int animationPriority;
-
-    public static ArrayList<GameObject2D> getVisible(){
-        return visible;
-    }
-
-    public static void resetVisible(){
-        visible = new ArrayList<>();
-    }
-
-    public static void setVisible(ArrayList<GameObject2D> newVisible){
-        for (int i = 0;i < newVisible.size(); i++){
-            for (GameObject2D go: visible) {
-                if (newVisible.get(i).getName().equals(go.getName())){ //temporary check
-                    newVisible.remove(i);
-                    newVisible.add(i, go);
-                }
-            }
-        }
-        visible = newVisible;
-    }
 
     public int getX() {
         return hitbox.x;

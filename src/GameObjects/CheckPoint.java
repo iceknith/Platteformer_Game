@@ -22,7 +22,7 @@ public class CheckPoint extends GameObject2D{
 
     boolean isActivated;
 
-    public CheckPoint(int x, int y, boolean isActive, String id) throws IOException {
+    public CheckPoint(int x, int y, String id) throws IOException {
         type = "Checkpoint";
         name = type + id;
 
@@ -30,23 +30,16 @@ public class CheckPoint extends GameObject2D{
         int height = 75;
 
         hasPhysicalCollisions = false;
+        isActivated = false;
 
         hitbox = new Rectangle(x, y, width, height);
-
-        sprite = new Sprite(ImageIO.read(new File("assets/Checkpoint/no_flag/0.png")), 2.5);
 
         no_flag = getAnimationList("Checkpoint", "no_flag", 0);
         flag_appears = getAnimationList("Checkpoint", "flag_appears", 7);
         flag = getAnimationList("Checkpoint", "flag", 8);
 
-        isActivated = isActive;
-
-        if (isActivated){
-            setAnimation(flag, flagAnimationSpeed);
-        }else{
-            setAnimation(no_flag, no_flagAnimationSpeed);
-        }
-
+        sprite = new Sprite(ImageIO.read(new File("assets/Checkpoint/no_flag/0.png")), 2.5);
+        setAnimation(no_flag, no_flagAnimationSpeed);
     }
 
     @Override

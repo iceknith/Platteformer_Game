@@ -31,6 +31,10 @@ public class Entity extends GameObject2D{
     boolean isOnGround;
     boolean isJumping;
 
+    public double getVelocityX(){return velocityX;}
+
+    public double getVelocityY(){return velocityY;}
+
     void walk(int direction, double maxSpeed, double acceleration, double speedConversion){
         if (direction == - Math.signum(velocityX)){
             velocityX = -velocityX * speedConversion / 100;
@@ -123,12 +127,12 @@ public class Entity extends GameObject2D{
 
         GamePanel.camera.addGOInGrid(this);
 
-        for (GameObject2D r: getNear()) {
-            if (this.hitbox.intersects(r.hitbox) ){
-                if (r.hasPhysicalCollisions){
-                    collisionX(this.hitbox.intersection(r.hitbox));
+        for (GameObject2D go: getNear()) {
+            if (this.hitbox.intersects(go.hitbox) ){
+                if (go.hasPhysicalCollisions){
+                    collisionX(this.hitbox.intersection(go.hitbox));
                 }
-                r.collision(this);
+                go.collision(this);
             }
         }
 
@@ -141,12 +145,12 @@ public class Entity extends GameObject2D{
 
         GamePanel.camera.addGOInGrid(this);
 
-        for (GameObject2D r: getNear()) {
-            if (this.hitbox.intersects(r.hitbox)){
-                if (r.hasPhysicalCollisions){
-                    collisionY(this.hitbox.intersection(r.hitbox));
+        for (GameObject2D go: getNear()) {
+            if (this.hitbox.intersects(go.hitbox)){
+                if (go.hasPhysicalCollisions){
+                    collisionY(this.hitbox.intersection(go.hitbox));
                 }
-                r.collision(this);
+                go.collision(this);
             }
         }
     }

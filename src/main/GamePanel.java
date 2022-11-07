@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         try {
             camera = new Camera(width, height, 0, 0);
-            //camera.move(-615, -915);
+            camera.loadLevel("1");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -79,8 +79,8 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() throws IOException {
-        camera.updateCamera();
-        for (GameObject2D go: GameObject2D.getVisible()) {
+        camera.update();
+        for (GameObject2D go: camera.getVisible()) {
             go.update();
         }
     }
@@ -92,33 +92,37 @@ public class GamePanel extends JPanel implements Runnable {
         if(camera == null){
             return;
         }
-
         Graphics2D g2D = (Graphics2D) g;
+
+        for (GameObject2D go : camera.getVisible()) {
+            g2D.drawImage(go.getSprite().getImage(),
+                        go.getSprite().getOffsetX(go.getHitbox()) - camera.getX() ,
+                        go.getSprite().getOffsetY(go.getHitbox()) - camera.getY(),
+                        go.getSprite().getWidth(), go.getSprite().getHeight(), this);
+        }
 
         if (KeyHandler.isDebugKeyPressed){
             //camera borders
+            //hard borders
             g2D.setColor(Color.red);
-            for (Rectangle b: camera.borders) {
-                g2D.drawRect(b.x - camera.getX(), b.y - camera.getY(), b.width, b.height);
-            }
-            g2D.setColor(Color.blue);
-            g2D.draw(new Rectangle(width/2-100,0,200,height));
+            g2D.draw(new Rectangle(width/2-camera.getHardBorderX(),0,2*camera.getHardBorderX(),height));
+            g2D.draw(new Rectangle(0,height/2-camera.getHardBorderY(),width,2*camera.getHardBorderY()));
 
+            //soft borders
             g2D.setColor(Color.green);
-            g2D.draw(new Rectangle(0,height/2-200,width,400));
+            g2D.draw(new Rectangle(width/2-camera.getSoftBorderX(),0,2*camera.getSoftBorderX(),height));
+            g2D.draw(new Rectangle(0,height/2-camera.getSoftBorderY(),width,2*camera.getSoftBorderY()));
 
             //hitboxes
             g2D.setColor(Color.white);
-            for (GameObject2D go : GameObject2D.getVisible()){
+            for (GameObject2D go : camera.getVisible()){
                 g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
             }
-        }
 
-        for (GameObject2D go : GameObject2D.getVisible()) {
-            g2D.drawImage(go.getSprite().getImage(),
-                    go.getSprite().getOffsetX(go.getHitbox()) - camera.getX() ,
-                    go.getSprite().getOffsetY(go.getHitbox()) - camera.getY(),
-                    go.getSprite().getWidth(), go.getSprite().getHeight(), this);
+            //center of screen
+            g2D.setColor(Color.blue);
+            g2D.drawOval(width/2-5,height/2-5,10,10);
+
         }
 
         Toolkit.getDefaultToolkit().sync(); //IMPORTANT prevents visual lag

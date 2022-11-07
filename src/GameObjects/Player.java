@@ -61,7 +61,7 @@ public class Player extends Entity{
         jumpForce = 70;
         gravity = 2.25;
 
-        maxJumps = 1000000000;
+        maxJumps = 1;
 
         spawnPointPos = new int[] {posX, posY};
 

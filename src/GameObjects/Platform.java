@@ -28,8 +28,6 @@ public class Platform extends GameObject2D{
     }
 
     public void collision(Entity e) throws IOException {
-        if (e.getType().equals("Player")){
-            GamePanel.player.death(GamePanel.player.spawnPointPos);
-        }
+
     }
 }

@@ -2,7 +2,6 @@ package GameObjects;
 
 import main.GamePanel;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +13,9 @@ public class GameGrid {
 
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
     ArrayList<CheckPoint> activatedCheckpoints = new ArrayList<>();
+
+    ArrayList<GameObject2D> visible = new ArrayList<>();
+    ArrayList<GameObject2D> level = new ArrayList<>();
 
     int x;
     int y;
@@ -27,7 +29,7 @@ public class GameGrid {
     int width;
     int height;
 
-    public GameGrid(int w, int h, int gridX, int gridY) throws IOException {
+    public GameGrid(int w, int h, int gridX, int gridY) {
 
         width = w;
         height = h;
@@ -39,8 +41,6 @@ public class GameGrid {
         y = gridY;
 
         grid = new ArrayList<>();
-
-        updateGrid();
     }
 
     public ArrayList<GameObject2D> getCellContent(int cellX, int cellY){
@@ -51,6 +51,11 @@ public class GameGrid {
 
     public int getY() {return y;}
 
+    public boolean hasActivatedCheckpoints(){return ! activatedCheckpoints.isEmpty();}
+
+    public ArrayList<GameObject2D> getVisible(){return visible;}
+
+
     public void setX(int posX) {x = posX;}
 
     public void setY(int posY) {y = posY;}
@@ -60,9 +65,6 @@ public class GameGrid {
             activatedCheckpoints.add(c);
         }
     }
-
-    public boolean hasActivatedCheckpoints(){return ! activatedCheckpoints.isEmpty();}
-
 
     public void initialise(double w, double h){
         for (int x = 0; x < w; x ++){
@@ -115,23 +117,35 @@ public class GameGrid {
         return result;
     }
 
-    public boolean isInGridPos(int posX, int posY, int w, int h){
+    public boolean isInGrid(GameObject2D go){
         //if one rect is on the left of the other
-        if(x > posX + w || posX > x + width){
+        if(x > go.getX() + go.getWidth() || go.getX() > x + width){
             return false;
         }
 
         //if one rect is above the other
-        if(y > posY + h || posY > y + height){
+        if(y > go.getY() + go.getHeight() || go.getY() > y + height){
             return false;
         }
 
         return true;
     }
 
-    public ArrayList<GameObject2D> loadVisibleGO(String lvlName) throws IOException {
-        ArrayList<GameObject2D> result = new ArrayList<>();
+    public void loadVisible(){
 
+        visible.clear();
+        grid.clear();
+        initialise(cellXNum, cellYNum);
+
+        for (GameObject2D go: level) {
+            if (isInGrid(go)){
+                visible.add(go);
+                addGOInGrid(go);
+            }
+        }
+    }
+
+    public void loadLevel(String lvlName) throws  IOException{
         Scanner lvlReader = new Scanner(new File("assets/level/"+lvlName+".txt"));
 
         while (lvlReader.hasNextLine()) {
@@ -146,61 +160,37 @@ public class GameGrid {
                 int h = Integer.parseInt(infoGO[2]);
 
                 //add conditions for optimisation
-                if(isInGridPos(posX, posY, w, h)){
-                    Platform p = new Platform(w, h, posX, posY, infoGO[5], infoGO[6]);
-                    result.add(p);
-                }
+                Platform p = new Platform(w, h, posX, posY, infoGO[5], infoGO[6]);
+                level.add(p);
             }
 
             if(Objects.equals(infoGO[0], "Checkpoint")){
                 int posX = Integer.parseInt(infoGO[1]);
                 int posY = Integer.parseInt(infoGO[2]);
 
-                if(isInGridPos(posX, posY, 20, 75)){
-                    boolean isActivated = false;
-                    for (CheckPoint c: activatedCheckpoints) {
-                        if (c.getX() == posX && c.getY() == posY){
-                            isActivated = true;
-                            break;
-                        }
-                    }
-                    CheckPoint c = new CheckPoint(posX, posY, isActivated, infoGO[3]);
-                    result.add(c);
-                }
+                CheckPoint c = new CheckPoint(posX, posY, infoGO[3]);
+                level.add(c);
             }
 
             if(Objects.equals(infoGO[0], "Player")){
+                int x = Integer.parseInt(infoGO[1]);
+                int y = Integer.parseInt(infoGO[2]);
 
-                if(GamePanel.player == null){
-                    GamePanel.player = new Player(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]), infoGO[3]);
-                }
-                result.add(GamePanel.player);
+                GamePanel.player = new Player(x, y, infoGO[3]);
+                level.add(GamePanel.player);
+                setX(x - width/2);
+                setY(y - height/2);
             }
 
         }
 
         lvlReader.close();
-
-        return result;
+        loadVisible();
     }
 
     public void updateGrid() throws IOException {
 
-        grid.clear();
-
-        initialise(cellXNum, cellYNum);
-
-        //temporary
-        ArrayList<GameObject2D> loaded = loadVisibleGO("1");
-
-        //GameObject2D.resetVisible();
-        GameObject2D.setVisible(loaded);
-
-        for (GameObject2D obj: GameObject2D.getVisible()) {
-            addGOInGrid(obj);
-        }
-
-
+        loadVisible();
         //visualiseGrid();
     }
 
