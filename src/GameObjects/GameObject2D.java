@@ -12,13 +12,24 @@ public class GameObject2D{
 
     static ArrayList<GameObject2D> visible = new ArrayList<>();
 
-    Rectangle hitbox;
-    Color color;
+    String name;
+    String type;
 
-    BufferedImage sprite;
+    Rectangle hitbox;
+    Color hitboxColor;
+
+    public boolean hasPhysicalCollisions = true;
+
+    Sprite sprite;
 
     ArrayList<BufferedImage> currentAnimation;
+    ArrayList<BufferedImage> nextAnimation;
+
+    int animationIndex;
+    double animationSpeed;
+    double nextAnimationSpeed;
     double animateTime = 0;
+    int animationPriority;
 
     public static ArrayList<GameObject2D> getVisible(){
         return visible;
@@ -28,7 +39,17 @@ public class GameObject2D{
         visible = new ArrayList<>();
     }
 
-    public static void setVisible(ArrayList<GameObject2D> newV){visible = newV;}
+    public static void setVisible(ArrayList<GameObject2D> newVisible){
+        for (int i = 0;i < newVisible.size(); i++){
+            for (GameObject2D go: visible) {
+                if (newVisible.get(i).getName().equals(go.getName())){ //temporary check
+                    newVisible.remove(i);
+                    newVisible.add(i, go);
+                }
+            }
+        }
+        visible = newVisible;
+    }
 
     public int getX() {
         return hitbox.x;
@@ -46,30 +67,33 @@ public class GameObject2D{
         return hitbox.height;
     }
 
-    public Color getColor() {
-        return color;
+    public Color getHitboxColor() {
+        return hitboxColor;
     }
 
     public Rectangle getHitbox(){
         return hitbox;
     }
 
-    public BufferedImage getSprite(){return sprite;}
+    public Sprite getSprite(){return sprite;}
 
     public ArrayList<BufferedImage> getAnimation(){return currentAnimation;}
 
     public ArrayList<BufferedImage> getAnimationList(String objName, String animName, int framesCount) throws IOException {
-        int i = 0;
+        int i = -1;
         ArrayList<BufferedImage> result = new ArrayList<>();
 
         while(i < framesCount){
+            i++;
             File f = new File("assets/"+objName+"/"+animName+"/"+i+".png");
             result.add(ImageIO.read(f));
-            i++;
         }
         return result;
     }
 
+    public String getName(){return name;}
+
+    public String getType(){return type;}
 
 
     void setX(int x){
@@ -80,26 +104,62 @@ public class GameObject2D{
         hitbox.y = y;
     }
 
-    void setSprite(BufferedImage newSprite){sprite = newSprite;}
+    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio){
+        if (animationPriority <= animPrio) {
+            currentAnimation = animation;
+            animationSpeed = animSpeed;
+            animationIndex = 0;
+            animationPriority = animPrio;
+            sprite.setImage(getAnimation().get(animationIndex));
+        }
+    }
 
-    void setAnimation(ArrayList<BufferedImage> animation){currentAnimation = animation;}
+    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed){
+        if (animationPriority <= 0) {
+            currentAnimation = animation;
+            animationSpeed = animSpeed;
+            animationIndex = 0;
+            sprite.setImage(getAnimation().get(animationIndex));
+        }
+    }
+
+    void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed){
+        nextAnimation = animation;
+        nextAnimationSpeed = animSpeed;
+    }
 
     void animate(){
         animateTime += GamePanel.deltaTime;
 
-        if(animateTime >= 1){
+        if(animateTime >= animationSpeed){
             animateTime = 0;
 
-            int spriteNum = getAnimation().indexOf(getSprite());
-            spriteNum++;
+            animationIndex++;
 
-            if (spriteNum >= getAnimation().size()){
-                spriteNum = 0;
+            if (animationIndex >= getAnimation().size()){
+                if (nextAnimation != null){
+                    currentAnimation = nextAnimation;
+                    animationSpeed = nextAnimationSpeed;
+                    animationPriority = 0;
+                    nextAnimation = null;
+                    nextAnimationSpeed = 0;
+                }
+                animationIndex = 0;
             }
 
-            setSprite(getAnimation().get(spriteNum));
+            sprite.setImage(getAnimation().get(animationIndex));
         }
 
+    }
+
+    public void update()throws IOException{
+        //is overwritten after
+        return;
+    }
+
+    public void collision(Entity e) throws IOException {
+        //is overwritten after in more specific context
+        return;
     }
 
 }

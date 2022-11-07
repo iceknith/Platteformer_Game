@@ -4,6 +4,7 @@ import handlers.KeyHandler;
 import main.GamePanel;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Entity extends GameObject2D{
@@ -52,16 +53,9 @@ public class Entity extends GameObject2D{
 
     void jump(double jumpForce){
 
-        if (isJumping){
-            jumpingTime++;
-            if (velocityY <= 0){
-                isJumping = false;
-            }
-        }
-
-        else{
-            isJumping = true;
-            jumpingTime = 0;
+        jumpingTime++;
+        if (velocityY < 0){
+            isJumping = false;
         }
 
         velocityY = jumpForce - jumpingTime * gravity;
@@ -120,7 +114,7 @@ public class Entity extends GameObject2D{
         return result;
     }
 
-    void move(){
+    void move() throws IOException {
 
         //x movement
         GamePanel.camera.deleteGOInGrid(this);
@@ -130,8 +124,11 @@ public class Entity extends GameObject2D{
         GamePanel.camera.addGOInGrid(this);
 
         for (GameObject2D r: getNear()) {
-            if (this.hitbox.intersects(r.hitbox)){
-                collisionX(this.hitbox.intersection(r.hitbox));
+            if (this.hitbox.intersects(r.hitbox) ){
+                if (r.hasPhysicalCollisions){
+                    collisionX(this.hitbox.intersection(r.hitbox));
+                }
+                r.collision(this);
             }
         }
 
@@ -146,7 +143,10 @@ public class Entity extends GameObject2D{
 
         for (GameObject2D r: getNear()) {
             if (this.hitbox.intersects(r.hitbox)){
-                collisionY(this.hitbox.intersection(r.hitbox));
+                if (r.hasPhysicalCollisions){
+                    collisionY(this.hitbox.intersection(r.hitbox));
+                }
+                r.collision(this);
             }
         }
     }

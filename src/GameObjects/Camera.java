@@ -56,14 +56,14 @@ public class Camera extends GameGrid {
 
         if(!intersectX){
             int variationX = getX() + width/2 - p.getX() - p.getWidth()/2;
-            if (Math.abs(variationX) > 50){
+            if (Math.abs(variationX) > 100){
                 movementX(variationX);
                 intersectX = true;
             }
         }
         if(!intersectY){
             int variationY = getY() + height/2 - p.getY() - p.getHeight()/2;
-            if (Math.abs(variationY) > 100){
+            if (Math.abs(variationY) > 200){
                 movementY(variationY);
                 intersectY = true;
             }
@@ -77,7 +77,7 @@ public class Camera extends GameGrid {
                 stopMovementY();
             }
             move();
-            updateGrid(velocityX, velocityY);
+            updateGrid();
         }
     }
 
@@ -106,7 +106,7 @@ public class Camera extends GameGrid {
         }
     }
 
-    public void move(int posX, int posY){
+    public void move(int posX, int posY) throws IOException {
         x = posX;
         y = posY;
 
@@ -119,6 +119,8 @@ public class Camera extends GameGrid {
         borders.add(new Rectangle(x , (int) (-0.1 * height) + y, width, (int) (0.2 * height)));
 
         borders.add(new Rectangle(x, (int) (0.7 * height) + y, width, (int) (0.6 * height)));
+
+        updateGrid();
     }
 
     void stopMovementX(){
@@ -130,7 +132,6 @@ public class Camera extends GameGrid {
     }
 
     void stopMovementY(){
-        System.out.println(velocityY);
         if(Math.abs(velocityY) >= stoppingSpeedY){
             velocityY -= stoppingSpeedY * Math.signum(velocityY);
         }else {

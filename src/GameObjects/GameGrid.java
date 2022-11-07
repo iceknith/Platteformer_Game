@@ -4,15 +4,16 @@ import main.GamePanel;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class GameGrid {
 
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
+    ArrayList<CheckPoint> activatedCheckpoints = new ArrayList<>();
 
     int x;
     int y;
@@ -39,9 +40,8 @@ public class GameGrid {
 
         grid = new ArrayList<>();
 
-        updateGrid(0,0);
+        updateGrid();
     }
-
 
     public ArrayList<GameObject2D> getCellContent(int cellX, int cellY){
         return grid.get(cellX).get(cellY);
@@ -54,6 +54,14 @@ public class GameGrid {
     public void setX(int posX) {x = posX;}
 
     public void setY(int posY) {y = posY;}
+
+    public void addActivatedCheckpoint(CheckPoint c){
+        if (! activatedCheckpoints.contains(c)){
+            activatedCheckpoints.add(c);
+        }
+    }
+
+    public boolean hasActivatedCheckpoints(){return ! activatedCheckpoints.isEmpty();}
 
 
     public void initialise(double w, double h){
@@ -121,14 +129,14 @@ public class GameGrid {
         return true;
     }
 
-    public ArrayList<GameObject2D> loadVisibleGO(String lvlName, double movementX, double movementY) throws IOException {
+    public ArrayList<GameObject2D> loadVisibleGO(String lvlName) throws IOException {
         ArrayList<GameObject2D> result = new ArrayList<>();
 
         Scanner lvlReader = new Scanner(new File("assets/level/"+lvlName+".txt"));
 
         while (lvlReader.hasNextLine()) {
 
-            String line = lvlReader.nextLine();
+            String line = new String(Base64.getDecoder().decode(lvlReader.nextLine()));
             String[] infoGO = line.split(";");
 
             if(Objects.equals(infoGO[0], "Platform")) {
@@ -139,15 +147,32 @@ public class GameGrid {
 
                 //add conditions for optimisation
                 if(isInGridPos(posX, posY, w, h)){
-                    Platform p = new Platform(w, h, posX, posY, Color.decode(infoGO[5]));
+                    Platform p = new Platform(w, h, posX, posY, infoGO[5], infoGO[6]);
                     result.add(p);
+                }
+            }
+
+            if(Objects.equals(infoGO[0], "Checkpoint")){
+                int posX = Integer.parseInt(infoGO[1]);
+                int posY = Integer.parseInt(infoGO[2]);
+
+                if(isInGridPos(posX, posY, 20, 75)){
+                    boolean isActivated = false;
+                    for (CheckPoint c: activatedCheckpoints) {
+                        if (c.getX() == posX && c.getY() == posY){
+                            isActivated = true;
+                            break;
+                        }
+                    }
+                    CheckPoint c = new CheckPoint(posX, posY, isActivated, infoGO[3]);
+                    result.add(c);
                 }
             }
 
             if(Objects.equals(infoGO[0], "Player")){
 
                 if(GamePanel.player == null){
-                    GamePanel.player = new Player(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]));
+                    GamePanel.player = new Player(Integer.parseInt(infoGO[1]), Integer.parseInt(infoGO[2]), infoGO[3]);
                 }
                 result.add(GamePanel.player);
             }
@@ -159,19 +184,19 @@ public class GameGrid {
         return result;
     }
 
-    public void updateGrid(double movementX, double movementY) throws IOException {
+    public void updateGrid() throws IOException {
 
         grid.clear();
 
         initialise(cellXNum, cellYNum);
 
         //temporary
-        ArrayList<GameObject2D> loaded = loadVisibleGO("1", movementX, movementY);
+        ArrayList<GameObject2D> loaded = loadVisibleGO("1");
 
-        GameObject2D.resetVisible();
+        //GameObject2D.resetVisible();
         GameObject2D.setVisible(loaded);
 
-        for (GameObject2D obj: loaded) {
+        for (GameObject2D obj: GameObject2D.getVisible()) {
             addGOInGrid(obj);
         }
 
