@@ -34,7 +34,6 @@ public class Player extends Entity{
     ArrayList<BufferedImage> death;
     double deathAnimationSpeed = 1;
 
-    boolean wasJumping;
     boolean isDying;
 
     int[] spawnPointPos;
@@ -58,10 +57,10 @@ public class Player extends Entity{
         airAcceleration = 2;
         airFriction = 2.5;
 
-        jumpForce = 70;
+        jumpForce = 3;
         gravity = 2.25;
 
-        maxJumps = 1;
+        maxJumps = 3;
 
         spawnPointPos = new int[] {posX, posY};
 
@@ -94,12 +93,14 @@ public class Player extends Entity{
             f = airFriction;
         }
 
+
         if (KeyHandler.isRightPressed && KeyHandler.isLeftPressed){
             //making the last input the dominant one
             KeyHandler.isRightPressed = KeyHandler.rightPressedTime > KeyHandler.leftPressedTime;
             KeyHandler.isLeftPressed = !KeyHandler.isRightPressed;
         }
 
+        //right movement
         if (KeyHandler.isRightPressed){
             walk(1, s, a, speedConversionPercent);
             sprite.setDirection(1);
@@ -108,6 +109,7 @@ public class Player extends Entity{
             }
         }
 
+        //left movement
         if (KeyHandler.isLeftPressed){
             walk(-1, s, a, speedConversionPercent);
             sprite.setDirection(-1);
@@ -116,49 +118,55 @@ public class Player extends Entity{
             }
         }
 
+        //stopping
         if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed && velocityX != 0){
             int direction = (int) Math.signum(velocityX);
             stop(direction, f);
-            if (isOnGround){
+            if (isOnGround && getAnimation() != idle){
                 setAnimation(idle, idleAnimationSpeed);
             }
         }
 
+        //landing
         if(isOnGround && (getAnimation() == fall || getAnimation() == fallFast || getAnimation() == jump)){
             setAnimation(land, landAnimationSpeed);
             setNextAnimation(idle, idleAnimationSpeed);
         }
 
+        //jumping logic
         if (KeyHandler.isJumpPressed && jumps > 0 && !wasJumping){
-            wasJumping= true;
             isJumping = true;
+            wasJumping = true;
             jumps -= 1;
             jumpingTime = 0;
-            }
+        }
 
-        if(isJumping){
+        if(isJumping && KeyHandler.isJumpPressed){
             jump(jumpForce);
             setAnimation(jump, jumpAnimationSpeed);
         }
 
-        if (!KeyHandler.isJumpPressed){
-            if (isJumping){
-                velocityY /= 2;
+        if (wasJumping){
+            if(!KeyHandler.isJumpPressed){
                 isJumping = false;
-            }
-            wasJumping = false;
-        }
-
-        if (!isJumping){
-            fall(gravity);
-            if (velocityY < -60){
-                setAnimation(fallFast, fallFastAnimationSpeed);
-            }else{
-                if (velocityY < -10){
-                    setAnimation(fall, fallAnimationSpeed);
+                if (velocityY > 0){
+                    velocityY /= 1.25;
+                }else{
+                    wasJumping = false;
                 }
             }
         }
+
+        //falling
+        fall(gravity);
+        if (velocityY < -60) {
+            setAnimation(fallFast, fallFastAnimationSpeed);
+        } else {
+            if (velocityY < -10) {
+                setAnimation(fall, fallAnimationSpeed);
+            }
+        }
+
 
         if (getY() + GamePanel.camera.getY() > 1000 || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);

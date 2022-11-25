@@ -30,6 +30,7 @@ public class Entity extends GameObject2D{
 
     boolean isOnGround;
     boolean isJumping;
+    boolean wasJumping;
 
     public double getVelocityX(){return velocityX;}
 
@@ -58,11 +59,12 @@ public class Entity extends GameObject2D{
     void jump(double jumpForce){
 
         jumpingTime++;
-        if (velocityY < 0){
+
+        if (jumpingTime > 10){
             isJumping = false;
         }
 
-        velocityY = jumpForce - jumpingTime * gravity;
+        velocityY = jumpForce*20 - jumpingTime;
     }
 
     void fall(double gravity){
