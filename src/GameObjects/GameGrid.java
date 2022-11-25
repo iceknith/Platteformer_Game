@@ -2,12 +2,8 @@ package GameObjects;
 
 import main.GamePanel;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Scanner;
 
 public class GameGrid {
 
@@ -34,8 +30,8 @@ public class GameGrid {
         width = w;
         height = h;
 
-        cellWidth = (int) (width / cellXNum);
-        cellHeight = (int) (height / cellYNum);
+        cellWidth = width / cellXNum;
+        cellHeight = height / cellYNum;
 
         x = gridX;
         y = gridY;
@@ -81,7 +77,6 @@ public class GameGrid {
         for (int[] pos: cellPos) {
             grid.get(pos[0]).get(pos[1]).remove(r);
         }
-        ArrayList<String> x = new ArrayList<>();
     }
 
     public void addGOInGrid(GameObject2D r){
@@ -145,60 +140,76 @@ public class GameGrid {
         }
     }
 
-    public void loadLevel(String lvlName) throws  IOException{
-        Scanner lvlReader = new Scanner(new File("assets/level/"+lvlName+".txt"));
+    public void loadLevel(String lvlName) throws FileNotFoundException {
 
-        while (lvlReader.hasNextLine()) {
+        try {
+            FileInputStream fis = new FileInputStream("assets/level/" + lvlName + ".lvl");
+            BufferedInputStream reader = new BufferedInputStream(fis);
 
-            String line = new String(Base64.getDecoder().decode(lvlReader.nextLine()));
-            String[] infoGO = line.split(";");
-
-            if(Objects.equals(infoGO[0], "Platform")) {
-                int posX = Integer.parseInt(infoGO[3]);
-                int posY = Integer.parseInt(infoGO[4]);
-                int w = Integer.parseInt(infoGO[1]);
-                int h = Integer.parseInt(infoGO[2]);
-
-                //add conditions for optimisation
-                Platform p = new Platform(w, h, posX, posY, infoGO[5], infoGO[6]);
-                level.add(p);
+            StringBuilder header = new StringBuilder();
+            for (int i = 0; i < 14 ; i ++){
+                header.append((char) reader.read());
+            }
+            if (! header.toString().equals("GameIce->VB0.1")){
+                System.out.println("File not recognised");
+                return;
             }
 
-            if(Objects.equals(infoGO[0], "Checkpoint")){
-                int posX = Integer.parseInt(infoGO[1]);
-                int posY = Integer.parseInt(infoGO[2]);
+            int ch;
+            int i = 0;
+            while ((ch = reader.read()) != -1) {
+                i++;
+                switch ((char) ch) {
+                    case 'J' -> { //Player
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
 
-                CheckPoint c = new CheckPoint(posX, posY, infoGO[3]);
-                level.add(c);
+                        GamePanel.player = new Player(x, y,"#" + i);
+                        level.add(GamePanel.player);
+                        setX(x - width/2);
+                        setY(y - height/2);
+                    }
+                    case 'P' -> { //Platform
+                        int w = reader.read()*256 + reader.read() - 32767;
+                        int h = reader.read()*256 + reader.read() - 32767;
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        StringBuilder texture = new StringBuilder();
+                        int cha;
+                        while ((cha = reader.read()) != 10) {
+                            texture.append((char) cha);
+                        }
+
+                        System.out.println(posX);
+                        Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i);
+                        level.add(p);
+                    }
+                    case 'C' ->{ //Checkpoint
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        CheckPoint c = new CheckPoint(posX, posY, "#" + i);
+                        level.add(c);
+                    }
+                }
             }
 
-            if(Objects.equals(infoGO[0], "Player")){
-                int x = Integer.parseInt(infoGO[1]);
-                int y = Integer.parseInt(infoGO[2]);
+            reader.close();
 
-                GamePanel.player = new Player(x, y, infoGO[3]);
-                level.add(GamePanel.player);
-                setX(x - width/2);
-                setY(y - height/2);
-            }
-
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        lvlReader.close();
-        loadVisible();
     }
 
-    public void updateGrid() throws IOException {
-
+    public void updateGrid() {
         loadVisible();
-        //visualiseGrid();
     }
 
     public void visualiseGrid(){
-        int i = 0;
         int j = 0;
         for (ArrayList<GameObject2D> y: grid.get(0)) {
-            i = 0;
+            int i = 0;
             for (ArrayList<ArrayList<GameObject2D>> x: grid){
                 System.out.print(grid.get(i).get(j) + " ");
                 i++;
