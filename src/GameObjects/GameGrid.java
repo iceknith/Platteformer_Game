@@ -181,7 +181,6 @@ public class GameGrid {
                             texture.append((char) cha);
                         }
 
-                        System.out.println(posX);
                         Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i);
                         level.add(p);
                     }
@@ -205,7 +204,7 @@ public class GameGrid {
     public void updateGrid() {
         loadVisible();
     }
-
+    
     public void visualiseGrid(){
         int j = 0;
         for (ArrayList<GameObject2D> y: grid.get(0)) {

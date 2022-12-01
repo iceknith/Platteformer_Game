@@ -15,12 +15,17 @@ public class GamePanel extends JPanel implements Runnable {
     final int height = dim.height;
 
     // game loop variables
-    final int fps = 60;
+    final int fps = 120;
     final double frameInterval = 1000000000f / fps;
     public static double deltaTime = 0;
+
     long lastFrameTime = System.nanoTime();
     long currentFrameTime = System.nanoTime();
     boolean is_game_running = true;
+
+    int activeFps = 0;
+    int displayedFps = 0;
+    double timeFps;
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
@@ -64,8 +69,15 @@ public class GamePanel extends JPanel implements Runnable {
             lastFrameTime = currentFrameTime;
 
             if(deltaTime >= frameInterval){
-                deltaTime = deltaTime / 100000000; //in tenth of a second
+                deltaTime = deltaTime / 100000000; //in seconds
+                timeFps += deltaTime;
+                activeFps += 1;
 
+                if (timeFps >= 10){
+                    displayedFps = activeFps;
+                    timeFps = 0;
+                    activeFps = 0;
+                }
                 try {
                     update();
                 } catch (IOException e) {
@@ -73,6 +85,7 @@ public class GamePanel extends JPanel implements Runnable {
                 }
 
                 repaint();
+
                 deltaTime = 0;
             }
         }
@@ -122,6 +135,23 @@ public class GamePanel extends JPanel implements Runnable {
             //center of screen
             g2D.setColor(Color.blue);
             g2D.drawOval(width/2-5,height/2-5,10,10);
+
+            //fps
+            g2D.setColor(Color.white);
+            g2D.setFont(new Font("Sans Serif", Font.BOLD, 17));
+            g2D.drawString("FPS : " + displayedFps, 15, 25);
+
+            //player info
+            g2D.setFont(new Font("Sans Serif", Font.PLAIN, 12));
+            g2D.drawString("X : " + player.getX(),15,60);
+            g2D.drawString("Y : " + player.getY(),15,75);
+            g2D.drawString("Velocity X : " + player.getVelocityX(),15,100);
+            g2D.drawString("Velocity Y : " + player.getVelocityY(),15,115);
+            g2D.drawString("Is On Ground : " + player.getOnGround(),15,130);
+
+            //camera info
+            g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,155);
+            g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),15,170);
 
         }
 

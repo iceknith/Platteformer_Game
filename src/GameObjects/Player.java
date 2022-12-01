@@ -61,6 +61,7 @@ public class Player extends Entity{
         gravity = 2.25;
 
         maxJumps = 3;
+        maxJumpingTime = 2;
 
         spawnPointPos = new int[] {posX, posY};
 
@@ -79,7 +80,7 @@ public class Player extends Entity{
         setAnimation(idle, idleAnimationSpeed);
     }
 
-    void movementHandler() throws IOException {
+    void movementHandler(){
         double s = maxSpeed;
         double a = acceleration;
         double f = friction;
@@ -158,7 +159,7 @@ public class Player extends Entity{
         }
 
         //falling
-        fall(gravity);
+        fall();
         if (velocityY < -60) {
             setAnimation(fallFast, fallFastAnimationSpeed);
         } else {
@@ -174,7 +175,7 @@ public class Player extends Entity{
 
     }
 
-    void death(int[] spawnPoint) throws IOException {
+    void death(int[] spawnPoint){
         velocityY = 0;
         velocityX = 0;
 

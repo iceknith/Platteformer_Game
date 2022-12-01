@@ -24,6 +24,7 @@ public class Entity extends GameObject2D{
 
     int jumps;
     int maxJumps;
+    double maxJumpingTime;
 
     double velocityY;
     double velocityX;
@@ -35,6 +36,8 @@ public class Entity extends GameObject2D{
     public double getVelocityX(){return velocityX;}
 
     public double getVelocityY(){return velocityY;}
+
+    public boolean getOnGround() {return isOnGround;}
 
     void walk(int direction, double maxSpeed, double acceleration, double speedConversion){
         if (direction == - Math.signum(velocityX)){
@@ -58,25 +61,25 @@ public class Entity extends GameObject2D{
 
     void jump(double jumpForce){
 
-        jumpingTime++;
+        jumpingTime += GamePanel.deltaTime;
 
-        if (jumpingTime > 10){
+        if (jumpingTime > maxJumpingTime){
             isJumping = false;
         }
 
         velocityY = jumpForce*20 - jumpingTime;
     }
 
-    void fall(double gravity){
-        if (isOnGround){ //increases the gravity when player is likely to be on ground,
-            gravity = 6; //to make the player stay on ground and not bump up and down
+    void fall(){
+        if (isOnGround){
+            velocityY = 0;
+        }else{
+            velocityY -= gravity * GamePanel.deltaTime * 6;
         }
-        velocityY -= gravity;
     }
 
     void collisionX(Rectangle intersection){
         int direction = (int) Math.signum(intersection.getCenterX() - (getX() + getWidth()/2f) );
-
         setX(getX() - direction * intersection.width);
         if(!isOnGround){
             velocityX = 0;
@@ -91,13 +94,14 @@ public class Entity extends GameObject2D{
 
     void collisionY(Rectangle intersection){
         int direction = (int) Math.signum(intersection.getCenterY() - (getY() + getHeight()/2f) );
-
-        setY(getY() - direction * intersection.height);
         velocityY = 0;
-
+        if (! isOnGround){
+            setY(getY() - direction * intersection.height);
+        }
         if(direction == 1){ //if we are on ground
             isOnGround = true;
         }
+
     }
 
     ArrayList<GameObject2D> getNear(){
@@ -144,7 +148,6 @@ public class Entity extends GameObject2D{
 
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
         isOnGround = false;
-
         GamePanel.camera.addGOInGrid(this);
 
         for (GameObject2D go: getNear()) {
@@ -153,6 +156,12 @@ public class Entity extends GameObject2D{
                     collisionY(this.hitbox.intersection(go.hitbox));
                 }
                 go.collision(this);
+            }else{
+                if(getY() + getHeight() >= go.getY() && getY() + getHeight() < go.getY() + 1 &&
+                        getX() >= go.getX() && getX() <= go.getX() + go.getWidth() &&
+                        go.hasPhysicalCollisions && !isJumping){
+                    isOnGround = true;
+                }
             }
         }
     }

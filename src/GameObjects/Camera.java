@@ -27,8 +27,8 @@ public class Camera extends GameGrid {
         speedX = 0.25;
         speedY = 0.2;
 
-        stoppingSpeedX = 0.5;
-        stoppingSpeedY = 5;
+        stoppingSpeedX = 3;
+        stoppingSpeedY = 30;
 
         velocityX = 0;
         velocityY = 0;
@@ -40,7 +40,7 @@ public class Camera extends GameGrid {
         softBorderY = 200;
     }
 
-    public void update() throws IOException {
+    public void update(){
 
         boolean intersectX = false;
         boolean intersectY = false;
@@ -100,7 +100,7 @@ public class Camera extends GameGrid {
         velocityY = movement * speedY;
     }
 
-    void move() throws IOException {
+    void move(){
         x -= Math.round(velocityX * GamePanel.deltaTime);
         y -= Math.round(velocityY * GamePanel.deltaTime);
         updateGrid();
@@ -113,7 +113,7 @@ public class Camera extends GameGrid {
 
     void stopMovementX(){
         if(Math.abs(velocityX) >= stoppingSpeedX){
-            velocityX -= stoppingSpeedX * Math.signum(velocityX);
+            velocityX -= stoppingSpeedX * Math.signum(velocityX) * GamePanel.deltaTime;
         }else {
             velocityX = 0;
         }
@@ -121,9 +121,14 @@ public class Camera extends GameGrid {
 
     void stopMovementY(){
         if(Math.abs(velocityY) >= stoppingSpeedY){
-            velocityY -= stoppingSpeedY * Math.signum(velocityY);
+            velocityY -= stoppingSpeedY * Math.signum(velocityY) * GamePanel.deltaTime;
         }else {
             velocityY = 0;
         }
     }
+
+    public double getVelocityX(){return velocityX;}
+
+    public double getVelocityY(){return velocityY;}
+
 }
