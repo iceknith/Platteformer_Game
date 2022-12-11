@@ -27,8 +27,8 @@ public class Camera extends GameGrid {
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
-        speedX = 0.25;
-        speedY = 0.2;
+        speedX = 0.2;
+        speedY = 0.3;
 
         stoppingSpeedX = 3;
         stoppingSpeedY = 30;
@@ -37,10 +37,10 @@ public class Camera extends GameGrid {
         velocityY = 0;
 
         hardBorderX = (int) (0.4 * screenW);
-        hardBorderY = (int) (0.4 * screenH);
+        hardBorderY = (int) (0.25 * screenH);
 
-        softBorderX = 100;
-        softBorderY = 200;
+        softBorderX = 250;
+        softBorderY = 100;
 
         visible = new ArrayList<>();
         isOperational = true;
@@ -48,45 +48,39 @@ public class Camera extends GameGrid {
 
     public void update(){
 
-        boolean intersectX = false;
-        boolean intersectY = false;
 
         Player p = GamePanel.player;
 
+        //variation = the difference between the center of the screen and the center of the player
         int variationX = getX() + width/2 - p.getX() - p.getWidth()/2;
         int variationY = getY() + height/2 - p.getY() - p.getHeight()/2;
 
+        //x tests
         if (Math.abs(variationX) > hardBorderX){
-            velocityX = -p.getVelocityX();
-            intersectX = true;
-        }
-
-        if (Math.abs(variationY) > hardBorderY){
-            velocityY = p.getVelocityY();
-            intersectY = true;
-        }
-
-        if(!intersectX){
+            velocityX = variationX - hardBorderX * (int) Math.signum(variationX);
+        }else{
             if (Math.abs(variationX) > softBorderX){
-                movementX(variationX);
-                intersectX = true;
+                movementX(variationX); //set velocity to relative pos of player to soft border
             }
-        }
-        if(!intersectY){
-            if (Math.abs(variationY) > softBorderY){
-                movementY(variationY);
-                intersectY = true;
-            }
-        }
-
-        if(velocityX != 0 || velocityY != 0){
-            if(!intersectX){
+            else{
                 stopMovementX();
             }
-            if(!intersectY){
+        }
+
+
+        //y tests
+        if (Math.abs(variationY) > hardBorderY){ //hard border
+            velocityY = variationY - hardBorderY * (int) Math.signum(variationY);
+        }
+        else{
+            if (Math.abs(variationY) > softBorderY){ //soft border
+                movementY(variationY); //set velocity to relative pos of player to soft border
+            }
+            else{
                 stopMovementY();
             }
         }
+
         move();
     }
 
@@ -98,12 +92,12 @@ public class Camera extends GameGrid {
 
     public int getSoftBorderY(){return softBorderY;}
 
-    void movementX(int movement){
-        velocityX = movement * speedX;
+    void movementX(int playerPos){
+        velocityX = (playerPos  - softBorderX * (int) Math.signum(playerPos)) * speedX;
     }
 
-    void movementY(int movement){
-        velocityY = movement * speedY;
+    void movementY(int playerPos){
+        velocityY = (playerPos - softBorderY * (int) Math.signum(playerPos)) * speedY;
     }
 
     void move(){
