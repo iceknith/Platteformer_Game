@@ -3,6 +3,7 @@ package GameObjects;
 import main.GamePanel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Camera extends GameGrid {
 
@@ -21,6 +22,8 @@ public class Camera extends GameGrid {
     int softBorderX;
     int softBorderY;
 
+    public boolean isOperational;
+
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
@@ -38,6 +41,9 @@ public class Camera extends GameGrid {
 
         softBorderX = 100;
         softBorderY = 200;
+
+        visible = new ArrayList<>();
+        isOperational = true;
     }
 
     public void update(){

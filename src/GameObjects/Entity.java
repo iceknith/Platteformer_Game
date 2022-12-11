@@ -1,9 +1,7 @@
 package GameObjects;
 
-import handlers.KeyHandler;
 import main.GamePanel;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -29,6 +27,9 @@ public class Entity extends GameObject2D{
     double velocityY;
     double velocityX;
 
+    int prevX;
+    int prevY;
+
     boolean isOnGround;
     boolean isJumping;
     boolean wasJumping;
@@ -36,6 +37,10 @@ public class Entity extends GameObject2D{
     public double getVelocityX(){return velocityX;}
 
     public double getVelocityY(){return velocityY;}
+
+    public int getPreviousX(){return prevX;}
+
+    public int getPreviousY(){return prevY;}
 
     public boolean getOnGround() {return isOnGround;}
 
@@ -71,37 +76,59 @@ public class Entity extends GameObject2D{
     }
 
     void fall(){
-        if (isOnGround){
-            velocityY = 0;
-        }else{
+        if (! isOnGround){
             velocityY -= gravity * GamePanel.deltaTime * 6;
         }
     }
 
-    void collisionX(Rectangle intersection){
-        int direction = (int) Math.signum(intersection.getCenterX() - (getX() + getWidth()/2f) );
-        setX(getX() - direction * intersection.width);
-        if(!isOnGround){
-            velocityX = 0;
-            if(KeyHandler.isLeftPressed){
-                KeyHandler.leftPressedTime = System.nanoTime();
+    void collision(GameObject2D go) throws IOException {
+        if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
+            getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+            return;
+        }
+
+        if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY()){
+            if (go.hasPhysicalCollisions){
+                setY(go.getY() - getHeight() - 1);
+                velocityY = go.getVelocityY();
             }
-            if (KeyHandler.isRightPressed){
-                KeyHandler.rightPressedTime = System.nanoTime();
+            go.collision(this);
+            return;
+        }
+        if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
+            if (go.hasPhysicalCollisions){
+                setY(go.getY() + go.getHeight() + 1);
+                velocityY = go.getVelocityY();
             }
+            go.collision(this);
+            return;
+        }
+        if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
+            if (go.hasPhysicalCollisions){
+                setX(go.getX() - getWidth() - 1);
+                velocityX = go.getVelocityX();
+            }
+            go.collision(this);
+            return;
+        }
+        if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
+            if (go.hasPhysicalCollisions){
+                setX(go.getX() + go.getWidth() + 1);
+                velocityX = go.getVelocityX();
+            }
+            go.collision(this);
         }
     }
 
-    void collisionY(Rectangle intersection){
-        int direction = (int) Math.signum(intersection.getCenterY() - (getY() + getHeight()/2f) );
-        velocityY = 0;
-        if (! isOnGround){
-            setY(getY() - direction * intersection.height);
-        }
-        if(direction == 1){ //if we are on ground
-            isOnGround = true;
+    void checkGround(GameObject2D go){
+        if (getY() + getHeight() + 2 < go.getY() || getY() > go.getY() + go.getHeight() ||
+                getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+            return;
         }
 
+        if(getY() + getHeight() + 2 >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY()){
+            isOnGround = true;
+        }
     }
 
     ArrayList<GameObject2D> getNear(){
@@ -126,43 +153,15 @@ public class Entity extends GameObject2D{
 
     void move() throws IOException {
 
-        //x movement
-        GamePanel.camera.deleteGOInGrid(this);
-
+        prevX = getX();
+        prevY = getY();
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
-
-        GamePanel.camera.addGOInGrid(this);
-
-        for (GameObject2D go: getNear()) {
-            if (this.hitbox.intersects(go.hitbox) ){
-                if (go.hasPhysicalCollisions){
-                    collisionX(this.hitbox.intersection(go.hitbox));
-                }
-                go.collision(this);
-            }
-        }
-
-
-        //y movement
-        GamePanel.camera.deleteGOInGrid(this);
-
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
-        isOnGround = false;
-        GamePanel.camera.addGOInGrid(this);
 
-        for (GameObject2D go: getNear()) {
-            if (this.hitbox.intersects(go.hitbox)){
-                if (go.hasPhysicalCollisions){
-                    collisionY(this.hitbox.intersection(go.hitbox));
-                }
-                go.collision(this);
-            }else{
-                if(getY() + getHeight() >= go.getY() && getY() + getHeight() < go.getY() + 1 &&
-                        getX() >= go.getX() && getX() <= go.getX() + go.getWidth() &&
-                        go.hasPhysicalCollisions && !isJumping){
-                    isOnGround = true;
-                }
-            }
+        isOnGround = false;
+        for (GameObject2D go: getNear()){
+            collision(go);
+            checkGround(go);
         }
     }
 

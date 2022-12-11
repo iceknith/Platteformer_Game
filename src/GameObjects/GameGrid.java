@@ -204,7 +204,7 @@ public class GameGrid {
     public void updateGrid() {
         loadVisible();
     }
-    
+
     public void visualiseGrid(){
         int j = 0;
         for (ArrayList<GameObject2D> y: grid.get(0)) {

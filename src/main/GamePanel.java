@@ -102,7 +102,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         super.paintComponent(g);
 
-        if(camera == null){
+        if(! camera.isOperational){
             return;
         }
         Graphics2D g2D = (Graphics2D) g;

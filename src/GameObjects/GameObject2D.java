@@ -14,7 +14,6 @@ public class GameObject2D{
     String type;
 
     Rectangle hitbox;
-    Color hitboxColor;
 
     public boolean hasPhysicalCollisions = true;
 
@@ -37,16 +36,21 @@ public class GameObject2D{
         return hitbox.y;
     }
 
+    public int getPreviousX(){return hitbox.x;}
+
+    public int getPreviousY(){return hitbox.y;}
+
+    public double getVelocityX(){return 0;}
+
+    public double getVelocityY(){return 0;}
+
+
     public int getWidth() {
         return hitbox.width;
     }
 
     public int getHeight() {
         return hitbox.height;
-    }
-
-    public Color getHitboxColor() {
-        return hitboxColor;
     }
 
     public Rectangle getHitbox(){
@@ -132,12 +136,10 @@ public class GameObject2D{
 
     public void update()throws IOException{
         //is overwritten after
-        return;
     }
 
     public void collision(Entity e) throws IOException {
         //is overwritten after in more specific context
-        return;
     }
 
 }
