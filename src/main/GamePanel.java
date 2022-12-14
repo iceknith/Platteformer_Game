@@ -92,9 +92,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() throws IOException {
-        camera.update();
-        for (GameObject2D go: camera.getVisible()) {
-            go.update();
+        if (!KeyHandler.isDebugKeyPressed || !KeyHandler.isFreezeKeyPressed){
+            camera.update();
+            for (GameObject2D go: camera.getVisible()) {
+                go.update();
+            }
         }
     }
 

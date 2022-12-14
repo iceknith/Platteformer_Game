@@ -126,7 +126,7 @@ public class Entity extends GameObject2D{
             return;
         }
 
-        if(getY() + getHeight() + 2 >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY()){
+        if(getY() + getHeight() + 2 >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY() && go.hasPhysicalCollisions){
             isOnGround = true;
         }
     }

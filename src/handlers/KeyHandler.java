@@ -11,6 +11,7 @@ public class KeyHandler implements KeyListener {
     final int suicideKey = KeyEvent.VK_E;
     final int jumpKey = KeyEvent.VK_SPACE;
     final int debugKey = KeyEvent.VK_F3;
+    final int freezeKey = KeyEvent.VK_F4;
 
     public KeyHandler(){
         InputContext context = InputContext.getInstance();
@@ -23,6 +24,7 @@ public class KeyHandler implements KeyListener {
     public static boolean isJumpPressed;
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
+    public static boolean isFreezeKeyPressed;
 
     public static long rightPressedTime = 0;
     public static long leftPressedTime = 0;
@@ -31,7 +33,6 @@ public class KeyHandler implements KeyListener {
     public void keyTyped(KeyEvent keyEvent) {
 
     }
-
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
@@ -50,6 +51,7 @@ public class KeyHandler implements KeyListener {
             }
             case jumpKey -> isJumpPressed = true;
             case debugKey -> isDebugKeyPressed = ! isDebugKeyPressed;
+            case freezeKey -> isFreezeKeyPressed = ! isFreezeKeyPressed;
             case suicideKey -> isSuicideKeyPressed = true;
         }
     }
