@@ -1,6 +1,7 @@
 package main;
 import GameObjects.*;
 import handlers.KeyHandler;
+import handlers.MouseHandler;
 
 import java.awt.*;
 import java.io.IOException;
@@ -8,6 +9,8 @@ import java.io.IOException;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
+
+    static GamePanel self;
 
     // Screen Settings
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -29,6 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
+    MouseHandler mouseHandler = new MouseHandler();
 
     public static Camera camera;
 
@@ -39,7 +43,13 @@ public class GamePanel extends JPanel implements Runnable {
         this.setBackground(new Color(0, 27, 122));
         this.setDoubleBuffered(false); // optimises rendering by using a buffer
         this.addKeyListener(keyHandler);
+        this.addMouseListener(mouseHandler);
         this.setFocusable(true);
+        self = this;
+    }
+
+    public static GamePanel getGamePannel(){
+        return self;
     }
 
     public void startGameThread() {
@@ -110,10 +120,17 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2D = (Graphics2D) g;
 
         for (GameObject2D go : camera.getVisible()) {
-            g2D.drawImage(go.getSprite().getImage(),
+            if (go.getName().contains("Button")){
+                g2D.drawImage(go.getSprite().getImage(),
+                        go.getSprite().getOffsetX(go.getHitbox()),
+                        go.getSprite().getOffsetY(go.getHitbox()),
+                        go.getSprite().getWidth(), go.getSprite().getHeight(), this);
+            }else{
+                g2D.drawImage(go.getSprite().getImage(),
                         go.getSprite().getOffsetX(go.getHitbox()) - camera.getX() ,
                         go.getSprite().getOffsetY(go.getHitbox()) - camera.getY(),
                         go.getSprite().getWidth(), go.getSprite().getHeight(), this);
+            }
         }
 
         if (KeyHandler.isDebugKeyPressed){

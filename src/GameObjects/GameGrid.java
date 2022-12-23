@@ -133,7 +133,7 @@ public class GameGrid {
         initialise(cellXNum, cellYNum);
 
         for (GameObject2D go: level) {
-            if (isInGrid(go)){
+            if (isInGrid(go) || go.getName().contains("Button")){
                 visible.add(go);
                 addGOInGrid(go);
             }
@@ -150,7 +150,7 @@ public class GameGrid {
             for (int i = 0; i < 14 ; i ++){
                 header.append((char) reader.read());
             }
-            if (! header.toString().equals("GameIce->VB0.1")){
+            if (! header.toString().equals("GameIce->VB0.2")){
                 System.out.println("File not recognised");
                 return;
             }
@@ -170,8 +170,8 @@ public class GameGrid {
                         setY(y - height/2);
                     }
                     case 'P' -> { //Platform
-                        int w = reader.read()*256 + reader.read() - 32767;
-                        int h = reader.read()*256 + reader.read() - 32767;
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
 
@@ -190,6 +190,21 @@ public class GameGrid {
 
                         CheckPoint c = new CheckPoint(posX, posY, "#" + i);
                         level.add(c);
+                    }
+                    case 'B' ->{ //Button
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+                        int posX = reader.read()*256 + reader.read();
+                        int posY = reader.read()*256 + reader.read();
+
+                        StringBuilder texture = new StringBuilder();
+                        int cha;
+                        while ((cha = reader.read()) != 10) {
+                            texture.append((char) cha);
+                        }
+
+                        Button b = new Button(w,h,posX,posY,texture.toString(),"#"+i);
+                        level.add(b);
                     }
                 }
             }

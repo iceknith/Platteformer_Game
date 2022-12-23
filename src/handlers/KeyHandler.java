@@ -2,7 +2,6 @@ package handlers;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.im.InputContext;
 
 public class KeyHandler implements KeyListener {
 
@@ -12,11 +11,6 @@ public class KeyHandler implements KeyListener {
     final int jumpKey = KeyEvent.VK_SPACE;
     final int debugKey = KeyEvent.VK_F3;
     final int freezeKey = KeyEvent.VK_F4;
-
-    public KeyHandler(){
-        InputContext context = InputContext.getInstance();
-        System.out.println(context.getLocale().toString());
-    }
 
 
     public static boolean isRightPressed;
