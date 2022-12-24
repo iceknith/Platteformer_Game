@@ -142,4 +142,18 @@ public class GameObject2D{
         //is overwritten after in more specific context
     }
 
+    //static methods and variables
+    static Player player;
+
+    public static boolean hasNoPlayer(){
+        return player == null;
+    }
+
+    public static Player getPlayer(){
+        return player;
+    }
+
+    public static void setPlayer(Player p){
+        player = p;
+    }
 }

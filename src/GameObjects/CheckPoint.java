@@ -48,7 +48,7 @@ public class CheckPoint extends GameObject2D{
             isActivated = true;
             GamePanel.camera.addActivatedCheckpoint(this);
 
-            GamePanel.player.setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
+            GameObject2D.getPlayer().setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
 
             setAnimation(flag_appears, flag_appearsAnimationSpeed);
             setNextAnimation(flag, flagAnimationSpeed);

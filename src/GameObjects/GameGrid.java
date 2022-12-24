@@ -1,6 +1,5 @@
 package GameObjects;
 
-import main.GamePanel;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,6 +23,10 @@ public class GameGrid {
 
     int width;
     int height;
+
+    public boolean isOperational = false;
+
+    String nextLevel;
 
     public GameGrid(int w, int h, int gridX, int gridY) {
 
@@ -126,11 +129,15 @@ public class GameGrid {
         return true;
     }
 
-    public void loadVisible(){
-
+    public void resetGrid(){
         visible.clear();
         grid.clear();
         initialise(cellXNum, cellYNum);
+    }
+
+    public void loadVisible(){
+
+        resetGrid();
 
         for (GameObject2D go: level) {
             if (isInGrid(go) || go.getName().contains("Button")){
@@ -140,7 +147,21 @@ public class GameGrid {
         }
     }
 
-    public void loadLevel(String lvlName) throws FileNotFoundException {
+    public void setNextLevel(String lvl){
+        nextLevel = lvl;
+    }
+
+    public void deleteNextLevel(){
+        nextLevel = null;
+    }
+
+    public boolean hasNextLevel(){return nextLevel != null;}
+
+    public String getNextLevel(){
+        return nextLevel;
+    }
+
+    void loadLevel(String lvlName){
 
         try {
             FileInputStream fis = new FileInputStream("assets/level/" + lvlName + ".lvl");
@@ -150,8 +171,9 @@ public class GameGrid {
             for (int i = 0; i < 14 ; i ++){
                 header.append((char) reader.read());
             }
+            //check if version is correct
             if (! header.toString().equals("GameIce->VB0.2")){
-                System.out.println("File not recognised");
+                System.out.println("File not recognised" + header);
                 return;
             }
 
@@ -164,8 +186,8 @@ public class GameGrid {
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;
 
-                        GamePanel.player = new Player(x, y,"#" + i);
-                        level.add(GamePanel.player);
+                        GameObject2D.setPlayer(new Player(x, y,"#" + i));
+                        level.add(GameObject2D.getPlayer());
                         setX(x - width/2);
                         setY(y - height/2);
                     }
@@ -192,28 +214,65 @@ public class GameGrid {
                         level.add(c);
                     }
                     case 'B' ->{ //Button
-                        int w = reader.read()*256 + reader.read();
-                        int h = reader.read()*256 + reader.read();
-                        int posX = reader.read()*256 + reader.read();
-                        int posY = reader.read()*256 + reader.read();
+                        int cha = reader.read();
 
-                        StringBuilder texture = new StringBuilder();
-                        int cha;
-                        while ((cha = reader.read()) != 10) {
-                            texture.append((char) cha);
+                        if ((char) cha == 'L'){ //level changing button
+
+                            int w = reader.read()*256 + reader.read();
+                            int h = reader.read()*256 + reader.read();
+                            int posX = reader.read()*256 + reader.read();
+                            int posY = reader.read()*256 + reader.read();
+
+                            StringBuilder lvl = new StringBuilder();
+                            while ((cha = reader.read()) != 59) { //59 == ';'
+                                lvl.append((char) cha);
+                            }
+
+                            StringBuilder texture = new StringBuilder();
+                            while ((cha = reader.read()) != 10) { // 10 == '\n'
+                                texture.append((char) cha);
+                            }
+
+                            LevelChangingButton b = new LevelChangingButton(w,h,posX,posY,texture.toString(),"#"+i, lvl.toString());
+                            level.add(b);
                         }
+                        else{ //regular button
+                            int w = cha*256 + reader.read();
+                            int h = reader.read()*256 + reader.read();
+                            int posX = reader.read()*256 + reader.read();
+                            int posY = reader.read()*256 + reader.read();
 
-                        Button b = new Button(w,h,posX,posY,texture.toString(),"#"+i);
-                        level.add(b);
+                            StringBuilder texture = new StringBuilder();
+                            while ((cha = reader.read()) != 10) {
+                                texture.append((char) cha);
+                            }
+
+                            Button b = new Button(w,h,posX,posY,texture.toString(),"#"+i);
+                            level.add(b);
+                        }
                     }
                 }
             }
 
             reader.close();
+            isOperational = true;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void loadNextLevel() throws FileNotFoundException {
+        resetGrid();
+        level.clear();
+
+        setX(0);
+        setY(0);
+
+        loadLevel(nextLevel);
+        deleteNextLevel();
+
+        loadVisible();
     }
 
     public void updateGrid() {

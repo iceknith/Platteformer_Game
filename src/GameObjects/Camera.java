@@ -2,6 +2,7 @@ package GameObjects;
 
 import main.GamePanel;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -25,8 +26,6 @@ public class Camera extends GameGrid {
     int softBorderXoffset;
     int softBorderYoffset;
 
-    public boolean isOperational;
-
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
@@ -49,13 +48,16 @@ public class Camera extends GameGrid {
         softBorderYoffset = 100;
 
         visible = new ArrayList<>();
-        isOperational = true;
     }
 
     public void update(){
 
+        //do not update camera if no player
+        if (GameObject2D.hasNoPlayer()){
+            return;
+        }
 
-        Player p = GamePanel.player;
+        Player p = GameObject2D.getPlayer();
 
         //variation = the difference between the center of the screen and the furthest corner of the player
         int variationX;
@@ -159,5 +161,13 @@ public class Camera extends GameGrid {
     public double getVelocityX(){return velocityX;}
 
     public double getVelocityY(){return velocityY;}
+
+    @Override
+    public void loadNextLevel() throws FileNotFoundException {
+        GameObject2D.setPlayer(null);
+        velocityX = 0;
+        velocityY = 0;
+        super.loadNextLevel();
+    }
 
 }

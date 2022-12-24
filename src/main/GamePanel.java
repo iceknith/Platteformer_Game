@@ -58,14 +58,13 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
 
-    //temporary
-    public static Player player;
 
     @Override
     public void run() {
         try {
             camera = new Camera(width, height, 0, 0);
-            camera.loadLevel("1");
+            camera.setNextLevel("menu");
+            camera.loadNextLevel();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -88,15 +87,23 @@ public class GamePanel extends JPanel implements Runnable {
                     timeFps = 0;
                     activeFps = 0;
                 }
-                try {
-                    update();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                if (camera.isOperational){
+                    try {
+                        update();
+
+                        if (camera.hasNextLevel()){
+                            camera.loadNextLevel();
+                        }
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    repaint();
+
+                    deltaTime = 0;
                 }
 
-                repaint();
-
-                deltaTime = 0;
             }
         }
     }
@@ -148,7 +155,9 @@ public class GamePanel extends JPanel implements Runnable {
             //hitboxes
             g2D.setColor(Color.white);
             for (GameObject2D go : camera.getVisible()){
-                g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
+                if (! go.getName().contains("Button")){
+                    g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
+                }
             }
 
             //center of screen
@@ -162,11 +171,11 @@ public class GamePanel extends JPanel implements Runnable {
 
             //player info
             g2D.setFont(new Font("Sans Serif", Font.PLAIN, 12));
-            g2D.drawString("X : " + player.getX(),15,60);
-            g2D.drawString("Y : " + player.getY(),15,75);
-            g2D.drawString("Velocity X : " + player.getVelocityX(),15,100);
-            g2D.drawString("Velocity Y : " + player.getVelocityY(),15,115);
-            g2D.drawString("Is On Ground : " + player.getOnGround(),15,130);
+            g2D.drawString("X : " + GameObject2D.getPlayer().getX(),15,60);
+            g2D.drawString("Y : " + GameObject2D.getPlayer().getY(),15,75);
+            g2D.drawString("Velocity X : " + GameObject2D.getPlayer().getVelocityX(),15,100);
+            g2D.drawString("Velocity Y : " + GameObject2D.getPlayer().getVelocityY(),15,115);
+            g2D.drawString("Is On Ground : " + GameObject2D.getPlayer().getOnGround(),15,130);
 
             //camera info
             g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,155);
