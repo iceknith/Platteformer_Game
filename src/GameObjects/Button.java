@@ -20,7 +20,6 @@ public class Button extends GameObject2D{
 
         hasPhysicalCollisions = false;
         hitbox = new Rectangle(x, y, w, h);
-        System.out.println("assets/Button/"+textureName+"/unfocused/0.png");
         sprite = new Sprite(ImageIO.read(new File("assets/Button/"+textureName+"/unfocused/0.png")), hitbox);
     }
 

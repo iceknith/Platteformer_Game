@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class GameGrid {
 
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
-    ArrayList<CheckPoint> activatedCheckpoints = new ArrayList<>();
 
     ArrayList<GameObject2D> visible = new ArrayList<>();
     ArrayList<GameObject2D> level = new ArrayList<>();
@@ -50,20 +49,12 @@ public class GameGrid {
 
     public int getY() {return y;}
 
-    public boolean hasActivatedCheckpoints(){return ! activatedCheckpoints.isEmpty();}
-
     public ArrayList<GameObject2D> getVisible(){return visible;}
 
 
     public void setX(int posX) {x = posX;}
 
     public void setY(int posY) {y = posY;}
-
-    public void addActivatedCheckpoint(CheckPoint c){
-        if (! activatedCheckpoints.contains(c)){
-            activatedCheckpoints.add(c);
-        }
-    }
 
     public void initialise(double w, double h){
         for (int x = 0; x < w; x ++){
@@ -204,6 +195,7 @@ public class GameGrid {
                         }
 
                         Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i);
+                        System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getHeight());
                         level.add(p);
                     }
                     case 'C' ->{ //Checkpoint

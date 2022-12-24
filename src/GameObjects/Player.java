@@ -60,8 +60,8 @@ public class Player extends Entity{
         jumpForce = 3;
         gravity = 2.25;
 
-        maxJumps = 3;
-        maxJumpingTime = 2;
+        maxJumps = 0;
+        maxJumpingTime = 1.2;
 
         spawnPointPos = new int[] {posX, posY};
 
@@ -194,7 +194,11 @@ public class Player extends Entity{
             }}
     }
 
-    public void setSpawnPointPos(int posX, int posY){spawnPointPos = new int[] {posX, posY};}
+    public void setSpawnPointPos(int posX, int posY){
+        spawnPointPos = new int[] {posX, posY};
+        //temporary mechanic
+        maxJumps += 1;
+    }
 
     @Override
     public void update() throws IOException {
