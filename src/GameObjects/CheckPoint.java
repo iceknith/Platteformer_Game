@@ -1,7 +1,5 @@
 package GameObjects;
 
-import main.GamePanel;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -46,7 +44,6 @@ public class CheckPoint extends GameObject2D{
     public void collision(Entity e){
         if (e.getType().equals("Player") && !isActivated){
             isActivated = true;
-            GamePanel.camera.addActivatedCheckpoint(this);
 
             GameObject2D.getPlayer().setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
 
