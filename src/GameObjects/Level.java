@@ -289,10 +289,7 @@ public class Level {
 
     public void subLevelBackHandler(){
         if (subLvlQueue.isEmpty()){
-            setSubLvlUpdate("main", false);
-            setSubLvlUpdate("pause", true);
-            setSubLvlDisplay("pause", true);
-            subLvlQueue.add("pause");
+            openSubLevel("pause",false, true);
         }
         else{
             String subLvlName = subLvlQueue.remove(subLvlQueue.size()-1);
@@ -307,7 +304,7 @@ public class Level {
         }
     }
 
-    public void openSubLevel(String subLvlName){
+    public void openSubLevel(String subLvlName, boolean doLastLvlUpdate, boolean doLastLvlDisplay){
         if (subLvlName.equals("back")){
             subLevelBackHandler();
             return;
@@ -318,9 +315,9 @@ public class Level {
             prevSubLvlName = "main";
         }else{
             prevSubLvlName = subLvlQueue.get(subLvlQueue.size()-1);
-            setSubLvlDisplay(prevSubLvlName, false);
         }
-        setSubLvlUpdate(prevSubLvlName, false);
+        setSubLvlDisplay(prevSubLvlName, doLastLvlDisplay);
+        setSubLvlUpdate(prevSubLvlName, doLastLvlUpdate);
         setSubLvlUpdate(subLvlName, true);
         setSubLvlDisplay(subLvlName, true);
         subLvlQueue.add(subLvlName);

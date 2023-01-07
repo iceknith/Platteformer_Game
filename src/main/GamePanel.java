@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements Runnable {
     final int width = dim.width;
     final int height = dim.height;
 
+
     // game loop variables
     final int fps = 120;
     final double frameInterval = 1000000000f / fps;
@@ -46,6 +47,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.addMouseListener(mouseHandler);
         this.setFocusable(true);
         self = this;
+
+        System.out.println(width + " : " + height);
     }
 
     public static GamePanel getGamePannel(){

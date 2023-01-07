@@ -42,7 +42,7 @@ public class KeyChangingButton extends Button{
         KeyWaitingButton waiter = new KeyWaitingButton(400,200, w-225, h-100, "keyWaiter", "Press any key", "None", buttonKey, s);
         s.objectList.add(waiter);
         GamePanel.camera.level.addSubLvl(s);
-        GamePanel.camera.level.openSubLevel("key waiter");
+        GamePanel.camera.level.openSubLevel("key waiter", false, true);
 
     }
 
@@ -69,7 +69,7 @@ public class KeyChangingButton extends Button{
         keyWidth = GamePanel.getGamePannel().getFontMetrics(f).stringWidth(key);
 
         g2D.setFont(f);
-        g2D.setColor(Color.GRAY);
+        g2D.setColor(new Color(196, 190, 0));
 
         g2D.drawString(key,getX() + (getWidth() - keyWidth)/2,getY() + getHeight()/2 + keyFontSize/2);
     }

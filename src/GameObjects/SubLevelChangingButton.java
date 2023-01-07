@@ -22,7 +22,7 @@ public class SubLevelChangingButton extends Button{
     void releasedHandler() throws FileNotFoundException {
         super.releasedHandler();
 
-        GamePanel.camera.level.openSubLevel(SubLevel);
+        GamePanel.camera.level.openSubLevel(SubLevel, false, false);
     }
 
 
