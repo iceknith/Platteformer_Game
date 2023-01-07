@@ -95,7 +95,7 @@ public class GamePanel extends JPanel implements Runnable {
                             camera.loadNextLevel();
                         }
 
-                    } catch (IOException e) {
+                    } catch (IOException | FontFormatException e) {
                         throw new RuntimeException(e);
                     }
 
@@ -108,13 +108,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void update() throws IOException {
-        if (!KeyHandler.isDebugKeyPressed || !KeyHandler.isFreezeKeyPressed){
-            camera.update();
-            for (GameObject2D go: camera.getVisible()) {
-                go.update();
-            }
-        }
+    public void update() throws IOException, FontFormatException {
+        camera.updateAll();
     }
 
     public void paintComponent(Graphics g){
@@ -127,17 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2D = (Graphics2D) g;
 
         for (GameObject2D go : camera.getVisible()) {
-            if (go.getName().contains("Button")){
-                g2D.drawImage(go.getSprite().getImage(),
-                        go.getSprite().getOffsetX(go.getHitbox()),
-                        go.getSprite().getOffsetY(go.getHitbox()),
-                        go.getSprite().getWidth(), go.getSprite().getHeight(), this);
-            }else{
-                g2D.drawImage(go.getSprite().getImage(),
-                        go.getSprite().getOffsetX(go.getHitbox()) - camera.getX() ,
-                        go.getSprite().getOffsetY(go.getHitbox()) - camera.getY(),
-                        go.getSprite().getWidth(), go.getSprite().getHeight(), this);
-            }
+            go.draw(g2D,this);
         }
 
         if (KeyHandler.isDebugKeyPressed){
@@ -155,7 +140,7 @@ public class GamePanel extends JPanel implements Runnable {
             //hitboxes
             g2D.setColor(Color.white);
             for (GameObject2D go : camera.getVisible()){
-                if (! go.getName().contains("Button")){
+                if (! go.isGUI){
                     g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
                 }
             }

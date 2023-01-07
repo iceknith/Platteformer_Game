@@ -9,7 +9,7 @@ public class GameGrid {
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
 
     ArrayList<GameObject2D> visible = new ArrayList<>();
-    ArrayList<GameObject2D> level = new ArrayList<>();
+    Level level = new Level();
 
     int x;
     int y;
@@ -48,6 +48,10 @@ public class GameGrid {
     public int getX() {return x;}
 
     public int getY() {return y;}
+
+    public int getWidth() {return width;}
+
+    public int getHeight() {return height;}
 
     public ArrayList<GameObject2D> getVisible(){return visible;}
 
@@ -122,18 +126,19 @@ public class GameGrid {
 
     public void resetGrid(){
         visible.clear();
+        level.clearUpdatable();
         grid.clear();
         initialise(cellXNum, cellYNum);
     }
 
     public void loadVisible(){
-
         resetGrid();
 
-        for (GameObject2D go: level) {
-            if (isInGrid(go) || go.getName().contains("Button")){
+        for (GameObject2D go: level.getDisplayedObjects()) {
+            if (isInGrid(go) || go.isGUI){
                 visible.add(go);
                 addGOInGrid(go);
+                level.setUpdatable(go);
             }
         }
     }
@@ -152,119 +157,17 @@ public class GameGrid {
         return nextLevel;
     }
 
-    void loadLevel(String lvlName){
-
-        try {
-            FileInputStream fis = new FileInputStream("assets/level/" + lvlName + ".lvl");
-            BufferedInputStream reader = new BufferedInputStream(fis);
-
-            StringBuilder header = new StringBuilder();
-            for (int i = 0; i < 14 ; i ++){
-                header.append((char) reader.read());
-            }
-            //check if version is correct
-            if (! header.toString().equals("GameIce->VB0.2")){
-                System.out.println("File not recognised" + header);
-                return;
-            }
-
-            int ch;
-            int i = 0;
-            while ((ch = reader.read()) != -1) {
-                i++;
-                switch ((char) ch) {
-                    case 'J' -> { //Player
-                        int x = reader.read()*256 + reader.read() - 32767;
-                        int y = reader.read()*256 + reader.read() - 32767;
-
-                        GameObject2D.setPlayer(new Player(x, y,"#" + i));
-                        level.add(GameObject2D.getPlayer());
-                        setX(x - width/2);
-                        setY(y - height/2);
-                    }
-                    case 'P' -> { //Platform
-                        int w = reader.read()*256 + reader.read();
-                        int h = reader.read()*256 + reader.read();
-                        int posX = reader.read()*256 + reader.read() - 32767;
-                        int posY = reader.read()*256 + reader.read() - 32767;
-
-                        StringBuilder texture = new StringBuilder();
-                        int cha;
-                        while ((cha = reader.read()) != 10) {
-                            texture.append((char) cha);
-                        }
-
-                        Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i);
-                        System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getHeight());
-                        level.add(p);
-                    }
-                    case 'C' ->{ //Checkpoint
-                        int posX = reader.read()*256 + reader.read() - 32767;
-                        int posY = reader.read()*256 + reader.read() - 32767;
-
-                        CheckPoint c = new CheckPoint(posX, posY, "#" + i);
-                        level.add(c);
-                    }
-                    case 'B' ->{ //Button
-                        int cha = reader.read();
-
-                        if ((char) cha == 'L'){ //level changing button
-
-                            int w = reader.read()*256 + reader.read();
-                            int h = reader.read()*256 + reader.read();
-                            int posX = reader.read()*256 + reader.read();
-                            int posY = reader.read()*256 + reader.read();
-
-                            StringBuilder lvl = new StringBuilder();
-                            while ((cha = reader.read()) != 59) { //59 == ';'
-                                lvl.append((char) cha);
-                            }
-
-                            StringBuilder texture = new StringBuilder();
-                            while ((cha = reader.read()) != 10) { // 10 == '\n'
-                                texture.append((char) cha);
-                            }
-
-                            LevelChangingButton b = new LevelChangingButton(w,h,posX,posY,texture.toString(),"#"+i, lvl.toString());
-                            level.add(b);
-                        }
-                        else{ //regular button
-                            int w = cha*256 + reader.read();
-                            int h = reader.read()*256 + reader.read();
-                            int posX = reader.read()*256 + reader.read();
-                            int posY = reader.read()*256 + reader.read();
-
-                            StringBuilder texture = new StringBuilder();
-                            while ((cha = reader.read()) != 10) {
-                                texture.append((char) cha);
-                            }
-
-                            Button b = new Button(w,h,posX,posY,texture.toString(),"#"+i);
-                            level.add(b);
-                        }
-                    }
-                }
-            }
-
-            reader.close();
-            isOperational = true;
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void loadNextLevel() throws FileNotFoundException {
         resetGrid();
-        level.clear();
-
         setX(0);
         setY(0);
 
-        loadLevel(nextLevel);
+        level = new Level(nextLevel);
         deleteNextLevel();
 
         loadVisible();
+        isOperational = true;
     }
 
     public void updateGrid() {

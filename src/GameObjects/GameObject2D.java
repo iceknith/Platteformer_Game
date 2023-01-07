@@ -4,6 +4,7 @@ import main.GamePanel;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class GameObject2D{
     Rectangle hitbox;
 
     public boolean hasPhysicalCollisions = true;
+    public boolean isGUI = false;
 
     Sprite sprite;
 
@@ -134,7 +136,21 @@ public class GameObject2D{
 
     }
 
-    public void update()throws IOException{
+    public void draw(Graphics2D g2D, ImageObserver IO){
+        if (isGUI){
+            g2D.drawImage(getSprite().getImage(),
+                    getSprite().getOffsetX(getHitbox()),
+                    getSprite().getOffsetY(getHitbox()),
+                    getSprite().getWidth(),getSprite().getHeight(), IO);
+        }else{
+            g2D.drawImage(getSprite().getImage(),
+                    getSprite().getOffsetX(getHitbox()) - GamePanel.camera.getX() ,
+                    getSprite().getOffsetY(getHitbox()) - GamePanel.camera.getY(),
+                    getSprite().getWidth(), getSprite().getHeight(), IO);
+        }
+    }
+
+    public void update() throws IOException, FontFormatException {
         //is overwritten after
     }
 

@@ -202,7 +202,6 @@ public class Player extends Entity{
 
     @Override
     public void update() throws IOException {
-
         animate();
         movementHandler();
         move();

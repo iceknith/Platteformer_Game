@@ -2,6 +2,7 @@ package GameObjects;
 
 import main.GamePanel;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,10 +51,18 @@ public class Camera extends GameGrid {
         visible = new ArrayList<>();
     }
 
-    public void update(){
+    public void updateAll() throws IOException, FontFormatException {
+        //update every game object
+        level.update();
 
+        //update itself
+        update();
+    }
+
+    void update(){
         //do not update camera if no player
-        if (GameObject2D.hasNoPlayer()){
+        if (level.hasNoPlayer()){
+            updateGrid();
             return;
         }
 
