@@ -11,8 +11,15 @@ import java.util.ArrayList;
 
 public class GameObject2D{
 
+    GameObject2D(int x, int y, int w, int h, String subLvl){
+        hitbox = new Rectangle(x,y,w,h);
+        subLevelName = subLvl;
+    }
+
     String name;
     String type;
+
+    String subLevelName;
 
     Rectangle hitbox;
 
@@ -88,6 +95,12 @@ public class GameObject2D{
         hitbox.y = y;
     }
 
+    void setWidth(int w){hitbox.width = w;}
+
+    void setHeight(int h){hitbox.height = h;}
+
+    public void setSubLevelName(String name){subLevelName = name;}
+
     void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio){
         if (animationPriority <= animPrio) {
             currentAnimation = animation;
@@ -156,6 +169,10 @@ public class GameObject2D{
 
     public void collision(Entity e) throws IOException {
         //is overwritten after in more specific context
+    }
+
+    public String getDebugInfos(){
+        return "InfoDebug " +name + ": x:" + getX() + ",y:" + getY() + ",w:" + getWidth() + ",h:" + getHeight() + ",Sprite:" + getSprite().toString();
     }
 
     //static methods and variables

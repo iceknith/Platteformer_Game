@@ -34,6 +34,10 @@ public class Entity extends GameObject2D{
     boolean isJumping;
     boolean wasJumping;
 
+    Entity(int x, int y, int w, int h, String subLvl){
+        super(x, y, w, h, subLvl);
+    }
+
     public double getVelocityX(){return velocityX;}
 
     public double getVelocityY(){return velocityY;}
@@ -82,6 +86,7 @@ public class Entity extends GameObject2D{
     }
 
     void collision(GameObject2D go) throws IOException {
+
         if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
             getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
             return;

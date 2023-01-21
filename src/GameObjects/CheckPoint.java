@@ -21,17 +21,14 @@ public class CheckPoint extends GameObject2D{
 
     boolean isActivated;
 
-    public CheckPoint(int x, int y, String id) throws IOException {
+    public CheckPoint(int x, int y, String id, String subLvlName) throws IOException {
+        super(x,y,20,75, subLvlName);
+
         type = "Checkpoint";
         name = type + id;
 
-        int width = 20;
-        int height = 75;
-
         hasPhysicalCollisions = false;
         isActivated = false;
-
-        hitbox = new Rectangle(x, y, width, height);
 
         no_flag = getAnimationList("Checkpoint", "no_flag", 0);
         flag_appears = getAnimationList("Checkpoint", "flag_appears", 7);

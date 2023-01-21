@@ -18,6 +18,7 @@ public class Level {
     ArrayList<GameObject2D> updatable = new ArrayList<>();
 
     boolean wasMenuKeyPressed;
+    boolean forceUpdate;
 
     public Level(String name) throws FileNotFoundException {
         levelName = name;
@@ -50,6 +51,11 @@ public class Level {
         else{if(!KeyHandler.isMenuKeyPressed){
             wasMenuKeyPressed = false;
         }}
+
+        if (forceUpdate){
+            GamePanel.camera.updateGrid();
+            forceUpdate = false;
+        }
 
         for (GameObject2D go: updatable) {
             go.update();
@@ -88,7 +94,7 @@ public class Level {
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;
 
-                        GameObject2D.setPlayer(new Player(x, y,"#" + i));
+                        GameObject2D.setPlayer(new Player(x, y,"#" + i, ""));
                         objectsBuffer.add(GameObject2D.getPlayer());
                         GamePanel.camera.setX(x - GamePanel.camera.getWidth()/2);
                         GamePanel.camera.setY(y - GamePanel.camera.getHeight()/2);
@@ -105,7 +111,7 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i);
+                        Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i, "");
                         //System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getHeight());
                         objectsBuffer.add(p);
                     }
@@ -113,7 +119,7 @@ public class Level {
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
 
-                        CheckPoint c = new CheckPoint(posX, posY, "#" + i);
+                        CheckPoint c = new CheckPoint(posX, posY, "#" + i, "");
                         objectsBuffer.add(c);
                     }
                     case 'B' ->{ //Button
@@ -142,7 +148,7 @@ public class Level {
                                     texture.append((char) cha);
                                 }
 
-                                LevelChangingButton b = new LevelChangingButton(w,h,posX,posY,texture.toString(), messageName.toString(), "#"+i, lvl.toString());
+                                LevelChangingButton b = new LevelChangingButton(w,h,posX,posY,texture.toString(), messageName.toString(), "#"+i, lvl.toString(), "");
                                 objectsBuffer.add(b);
                             }
 
@@ -167,7 +173,7 @@ public class Level {
                                     texture.append((char) cha);
                                 }
 
-                                SubLevelChangingButton b = new SubLevelChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, subLvl.toString());
+                                SubLevelChangingButton b = new SubLevelChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, subLvl.toString(), "");
                                 objectsBuffer.add(b);
                             }
 
@@ -192,7 +198,7 @@ public class Level {
                                     texture.append((char) cha);
                                 }
 
-                                KeyChangingButton b = new KeyChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, keyName.toString());
+                                KeyChangingButton b = new KeyChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, keyName.toString(), "");
                                 objectsBuffer.add(b);
                             }
                         }
@@ -210,7 +216,7 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        Image b = new Image(w,h,posX,posY,texture.toString(),"#"+i);
+                        Image b = new Image(w,h,posX,posY,texture.toString(),"#"+i, "");
                         objectsBuffer.add(b);
                     }
 
@@ -252,6 +258,8 @@ public class Level {
         } catch (IOException | FontFormatException e) {
             throw new RuntimeException(e);
         }
+
+        forceUpdate = true;
     }
 
     public void setSubLvlDisplay(String subLevelName, Boolean doDisplay){
@@ -302,11 +310,16 @@ public class Level {
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);
             }
         }
+
+        forceUpdate = true;
     }
 
     public void openSubLevel(String subLvlName, boolean doLastLvlUpdate, boolean doLastLvlDisplay){
         if (subLvlName.equals("back")){
             subLevelBackHandler();
+            return;
+        }
+        if (! subLvlExists(subLvlName)){
             return;
         }
 
@@ -321,6 +334,17 @@ public class Level {
         setSubLvlUpdate(subLvlName, true);
         setSubLvlDisplay(subLvlName, true);
         subLvlQueue.add(subLvlName);
+
+        forceUpdate = true;
+    }
+
+    public boolean subLvlExists(String subLvlName){
+        for (SubLevel s: subLevels) {
+            if (s.name.equals(subLvlName)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addSubLvl(SubLevel subLvl){
@@ -331,14 +355,14 @@ public class Level {
         subLevels.remove(subLevel);
     }
 
-    public void setUpdatable(GameObject2D go){
-        for (SubLevel subLvl : subLevels) {
-            if (subLvl.isUpdated){
-                if (subLvl.objectList.contains(go)){
-                    updatable.add(go);
-                }
-            }
+    public void addUpdatable(GameObject2D go){
+        if (getSubLvl(go.subLevelName).isUpdated){
+            updatable.add(go);
         }
+    }
+
+    public ArrayList<GameObject2D> getUpdatable(){
+        return updatable;
     }
 
     public void clearUpdatable(){

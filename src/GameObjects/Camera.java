@@ -62,7 +62,7 @@ public class Camera extends GameGrid {
     void update(){
         //do not update camera if no player
         if (level.hasNoPlayer()){
-            updateGrid();
+            //updateGrid();
             return;
         }
 
@@ -143,7 +143,10 @@ public class Camera extends GameGrid {
             y -= Math.signum(velocityY);
         }else{y -= movY;}
 
-        updateGrid();
+
+        if (velocityX != 0 || velocityY != 0){
+            updateGrid();
+        }
     }
 
     public void move(int posX, int posY){

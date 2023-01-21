@@ -53,6 +53,8 @@ public class GameGrid {
 
     public int getHeight() {return height;}
 
+    public ArrayList<GameObject2D> getUpdatable(){return level.getUpdatable();}
+
     public ArrayList<GameObject2D> getVisible(){return visible;}
 
 
@@ -111,17 +113,16 @@ public class GameGrid {
     }
 
     public boolean isInGrid(GameObject2D go){
+        int posX = go.getSprite().getOffsetX(go.getHitbox());
+        int posY = go.getSprite().getOffsetY(go.getHitbox());
+
         //if one rect is on the left of the other
-        if(x > go.getX() + go.getWidth() || go.getX() > x + width){
+        if(x > posX + go.getSprite().getWidth() || posX > x + width){
             return false;
         }
 
         //if one rect is above the other
-        if(y > go.getY() + go.getHeight() || go.getY() > y + height){
-            return false;
-        }
-
-        return true;
+        return y <= posY + go.getSprite().getHeight() && posY <= y + height;
     }
 
     public void resetGrid(){
@@ -137,8 +138,8 @@ public class GameGrid {
         for (GameObject2D go: level.getDisplayedObjects()) {
             if (isInGrid(go) || go.isGUI){
                 visible.add(go);
+                level.addUpdatable(go);
                 addGOInGrid(go);
-                level.setUpdatable(go);
             }
         }
     }

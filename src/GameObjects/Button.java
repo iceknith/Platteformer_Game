@@ -26,14 +26,15 @@ public class Button extends GameObject2D{
     Color buttonMessageColor;
 
 
-    public Button(int w, int h, int x, int y, String textureName, String message, String id) throws IOException, FontFormatException {
+    public Button(int w, int h, int x, int y, String textureName, String message, String id, String subLvlName) throws IOException, FontFormatException {
+        super(x,y,w,h,subLvlName);
+
         type = "Button_" + textureName;
         name = type+id;
 
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        hitbox = new Rectangle(x, y, w, h);
         sprite = new Sprite(ImageIO.read(new File("assets/Button/"+textureName+"/unfocused/0.png")), hitbox);
 
         //text
@@ -122,5 +123,10 @@ public class Button extends GameObject2D{
 
         buttonMessageX = getX() + sizeDiff/2;
         buttonMessageY = getY() + getHeight()/2 + buttonFontSize/2;
+    }
+
+    @Override
+    public String getDebugInfos(){
+        return super.getDebugInfos() + ",isFocused:" + isFocused() + ",isTriggered" + isTriggered();
     }
 }

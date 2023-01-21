@@ -38,13 +38,11 @@ public class Player extends Entity{
 
     int[] spawnPointPos;
 
-    public Player(int posX, int posY, String id) throws IOException {
+    public Player(int posX, int posY, String id, String subLvlName) throws IOException {
+        super(posX,posY,42,81, subLvlName);
+
         type = "Player";
         name = type + id;
-
-        int width = 42;
-        int height = 81;
-        hitbox = new Rectangle(posX, posY, width, height);
 
         velocityY = 0;
         velocityX = 0;

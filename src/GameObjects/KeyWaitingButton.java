@@ -12,8 +12,8 @@ public class KeyWaitingButton extends Button{
 
     SubLevel selfSubLvl;
 
-    public KeyWaitingButton(int w, int h, int x, int y, String textureName, String message, String id, String key, SubLevel subLvl) throws IOException, FontFormatException {
-        super(w, h, x, y, textureName, message, id);
+    public KeyWaitingButton(int w, int h, int x, int y, String textureName, String message, String id, String key, SubLevel subLvl, String subLvlName) throws IOException, FontFormatException {
+        super(w, h, x, y, textureName, message, id, subLvlName);
 
         buttonKey = key;
         selfSubLvl = subLvl;

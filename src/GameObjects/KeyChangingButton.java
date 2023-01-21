@@ -13,8 +13,8 @@ public class KeyChangingButton extends Button{
     String buttonKey;
     boolean isWaitingKey;
 
-    public KeyChangingButton(int w, int h, int x, int y, String textureName, String messageName, String id, String key) throws IOException, FontFormatException {
-        super(w, h, x, y, textureName, messageName, id);
+    public KeyChangingButton(int w, int h, int x, int y, String textureName, String messageName, String id, String key, String subLvlName) throws IOException, FontFormatException {
+        super(w, h, x, y, textureName, messageName, id, subLvlName);
 
         buttonKey = key;
 
@@ -39,7 +39,7 @@ public class KeyChangingButton extends Button{
         int h = GamePanel.camera.getHeight()/2;
 
         SubLevel s = new SubLevel("key waiter");
-        KeyWaitingButton waiter = new KeyWaitingButton(400,200, w-225, h-100, "keyWaiter", "Press any key", "None", buttonKey, s);
+        KeyWaitingButton waiter = new KeyWaitingButton(400,200, w-225, h-100, "keyWaiter", "Press any key", "None", buttonKey, s, "key waiter");
         s.objectList.add(waiter);
         GamePanel.camera.level.addSubLvl(s);
         GamePanel.camera.level.openSubLevel("key waiter", false, true);
