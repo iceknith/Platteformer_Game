@@ -116,7 +116,7 @@ public class Button extends GameObject2D{
     }
 
     void calibrateMessage(int sizeDiff){
-        int textWidth = GamePanel.getGamePannel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
+        int textWidth = GamePanel.getGamePanel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
         buttonFontSize = (int) ((getWidth()-sizeDiff) / ((float) textWidth/buttonFontSize));
 
         buttonFont = new Font(buttonFontName, Font.PLAIN, buttonFontSize);

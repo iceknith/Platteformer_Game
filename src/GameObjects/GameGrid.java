@@ -113,6 +113,7 @@ public class GameGrid {
     }
 
     public boolean isInGrid(GameObject2D go){
+
         int posX = go.getSprite().getOffsetX(go.getHitbox());
         int posY = go.getSprite().getOffsetY(go.getHitbox());
 
@@ -177,9 +178,9 @@ public class GameGrid {
 
     public void visualiseGrid(){
         int j = 0;
-        for (ArrayList<GameObject2D> y: grid.get(0)) {
+        for (ArrayList<GameObject2D> ignored : grid.get(0)) {
             int i = 0;
-            for (ArrayList<ArrayList<GameObject2D>> x: grid){
+            for (ArrayList<ArrayList<GameObject2D>> ignored1 : grid){
                 System.out.print(grid.get(i).get(j) + " ");
                 i++;
             }

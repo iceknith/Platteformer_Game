@@ -59,7 +59,7 @@ public class Camera extends GameGrid {
         update();
     }
 
-    void update(){
+    public void update(){
         //do not update camera if no player
         if (level.hasNoPlayer()){
             //updateGrid();
@@ -131,8 +131,8 @@ public class Camera extends GameGrid {
     }
 
     void move(){
-        int movX = (int) Math.round(velocityX * GamePanel.deltaTime);
-        int movY = (int) Math.round(velocityY * GamePanel.deltaTime);
+        int movX = (int) Math.round(velocityX * GamePanel.getDeltaTime());
+        int movY = (int) Math.round(velocityY * GamePanel.getDeltaTime());
 
         //little logic to make sure that the camera moves, even when it moves slowly
         if (movX == 0 && velocityX != 0){
@@ -156,7 +156,7 @@ public class Camera extends GameGrid {
 
     void stopMovementX(){
         if(Math.abs(velocityX) >= stoppingSpeedX){
-            velocityX -= stoppingSpeedX * Math.signum(velocityX) * GamePanel.deltaTime;
+            velocityX -= stoppingSpeedX * Math.signum(velocityX) * GamePanel.getDeltaTime();
         }else {
             velocityX = 0;
         }
@@ -164,7 +164,7 @@ public class Camera extends GameGrid {
 
     void stopMovementY(){
         if(Math.abs(velocityY) >= stoppingSpeedY){
-            velocityY -= stoppingSpeedY * Math.signum(velocityY) * GamePanel.deltaTime;
+            velocityY -= stoppingSpeedY * Math.signum(velocityY) * GamePanel.getDeltaTime();
         }else {
             velocityY = 0;
         }

@@ -3,6 +3,9 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Platteformer_Game_jar</output-path>
     <root id="archive" name="Platteformer Game.jar">
       <element id="module-output" name="Platteformer Game" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
     </root>
   </artifact>
 </component>

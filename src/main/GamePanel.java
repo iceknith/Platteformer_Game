@@ -4,6 +4,7 @@ import handlers.KeyHandler;
 import handlers.MouseHandler;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
 
@@ -22,23 +23,34 @@ public class GamePanel extends JPanel implements Runnable {
     // game loop variables
     final int fps = 120;
     final double frameInterval = 1000000000f / fps;
-    public static double deltaTime = 0;
 
-    long lastFrameTime = System.nanoTime();
-    long currentFrameTime = System.nanoTime();
-    boolean is_game_running = true;
-    boolean is_painting = false;
-    boolean is_updating = false;
-
+    static double activeDeltaTime = 0;
+    static double deltaTime;
     int activeFps = 0;
     int displayedFps = 0;
     double timeFps;
 
+    final int tps = 20;
+    final double tickInterval = 1000000000f / tps;
+
+    public static double deltaTTime = 0;
+    int activeTps = 0;
+    int displayedTps = 0;
+    double timeTps;
+
+    long lastTime = System.nanoTime();
+    long currentTime = System.nanoTime();
+
+    boolean is_game_running = true;
+    boolean is_painting = false;
+    boolean is_updating = false;
+
+
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler();
-
     public static Camera camera;
+
 
     public GamePanel() {
 
@@ -50,16 +62,15 @@ public class GamePanel extends JPanel implements Runnable {
         this.addMouseListener(mouseHandler);
         this.setFocusable(true);
         this.setIgnoreRepaint(true);
-        self = this;
 
+        self = this;
     }
 
-    public static GamePanel getGamePannel(){
+    public static GamePanel getGamePanel(){
         return self;
     }
 
     public void startGameThread() {
-
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -75,52 +86,92 @@ public class GamePanel extends JPanel implements Runnable {
             throw new RuntimeException(e);
         }
 
-        lastFrameTime = System.nanoTime();
+        lastTime = System.nanoTime();
         // game loop
         while (is_game_running) {
 
-            currentFrameTime = System.nanoTime();
-            deltaTime += currentFrameTime - lastFrameTime;
-            lastFrameTime = currentFrameTime;
+            currentTime = System.nanoTime();
+            activeDeltaTime += currentTime - lastTime;
+            deltaTTime += currentTime - lastTime;
+            lastTime = currentTime;
 
-            if(deltaTime >= frameInterval && (camera.isOperational || !is_painting || !is_updating)){
+            if (camera.isOperational){
 
-                deltaTime = deltaTime / 100000000; //in seconds
-                try {
-                    update();
-
-                    if (camera.hasNextLevel()){
+                //load new level
+                if (camera.hasNextLevel() && !is_updating && !is_painting) {
+                    try {
                         camera.loadNextLevel();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                //tick update
+                if (deltaTTime >= tickInterval && camera.isOperational && !is_updating) {
+
+                    deltaTTime = deltaTTime / 100000000; //in tenth of seconds
+
+                    try {
+                        update();
+                    } catch (IOException | FontFormatException e) {
+                        throw new RuntimeException(e);
                     }
 
-                } catch (IOException | FontFormatException e) {
-                    throw new RuntimeException(e);
+                    activeTps += 1;
+                    timeTps += deltaTTime + (float) (System.nanoTime() - lastTime)/100000000;
+
+                    if (timeTps >= 10){
+                        displayedTps = activeTps;
+                        timeTps = 0;
+                        activeTps = 0;
+                    }
+                    deltaTTime = 0;
                 }
 
-                repaint();
 
-                activeFps += 1;
-                timeFps += deltaTime + (float) (System.nanoTime() - lastFrameTime)/100000000;
+                //frame update
+                if(activeDeltaTime >= frameInterval && camera.isOperational && !is_painting){
 
-                if (timeFps >= 10){
-                    displayedFps = activeFps;
-                    timeFps = 0;
-                    activeFps = 0;
+                    deltaTime = activeDeltaTime / 100000000; //in tenth of seconds
+
+                    /*update player + camera
+                    if (!GameObject2D.hasNoPlayer()){
+                        try {
+                            GameObject2D.getPlayer().updateInputs();
+                            camera.update();
+
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }*/
+
+                    camera.update();
+                    repaint();
+
+                    activeFps += 1;
+                    timeFps += (activeDeltaTime + System.nanoTime() - lastTime)/100000000;
+                    activeDeltaTime = 0;
+
+                    if (timeFps >= 10){
+                        displayedFps = activeFps;
+                        timeFps = 0;
+                        activeFps = 0;
+                    }
                 }
-
-                deltaTime = 0;
             }
         }
     }
 
+    public static double getDeltaTime(){
+        return deltaTime;
+    }
+
     public void update() throws IOException, FontFormatException {
-        if (!is_painting){
-            is_updating = true;
+        is_updating = true;
 
-            camera.updateAll();
+        camera.updateAll();
 
-            is_updating = false;
-        }
+        is_updating = false;
     }
 
     public void paintComponent(Graphics g){
@@ -129,8 +180,8 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        super.paintComponent(g);
         is_painting = true;
+        super.paintComponent(g);
 
         Graphics2D g2D = (Graphics2D) g;
 
@@ -172,6 +223,9 @@ public class GamePanel extends JPanel implements Runnable {
             g2D.setFont(new Font("Sans Serif", Font.BOLD, 17));
             g2D.drawString("FPS : " + displayedFps, 15, 25);
 
+            //tps
+            g2D.drawString("TPS : " + displayedTps, 115, 25);
+
             g2D.setFont(new Font("Sans Serif", Font.PLAIN, 12));
             if (!GameObject2D.hasNoPlayer()){
                 //player info
@@ -183,8 +237,10 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             //camera info
-            g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,155);
-            g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),15,170);
+            g2D.drawString("Camera X : " + camera.getX(),15,155);
+            g2D.drawString("Camera Y : " + camera.getY(),15,170);
+            g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),165,155);
+            g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),165,170);
 
         }
 

@@ -1,6 +1,5 @@
 package GameObjects;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -189,7 +188,8 @@ public class Player extends Entity{
                 setY(spawnPoint[1]);
 
                 isDying = false;
-            }}
+            }
+        }
     }
 
     public void setSpawnPointPos(int posX, int posY){

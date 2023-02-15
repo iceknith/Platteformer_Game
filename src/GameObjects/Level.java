@@ -58,7 +58,9 @@ public class Level {
         }
 
         for (GameObject2D go: updatable) {
-            go.update();
+            if (!go.getName().equals("Player")){
+                go.update();
+            }
         }
     }
 

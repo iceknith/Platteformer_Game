@@ -126,7 +126,7 @@ public class GameObject2D{
     }
 
     void animate(){
-        animateTime += GamePanel.deltaTime;
+        animateTime += GamePanel.getDeltaTime();
 
         if(animateTime >= animationSpeed){
             animateTime = 0;
