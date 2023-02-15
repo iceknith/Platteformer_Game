@@ -183,7 +183,7 @@ public class Player extends Entity{
         }
         else{
             if (getAnimation() != death){
-                GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.width/2, spawnPoint[1] - GamePanel.camera.height/2);
+                GamePanel.camera.instantMove(spawnPoint[0] - GamePanel.camera.width/2, spawnPoint[1] - GamePanel.camera.height/2);
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
 
@@ -203,8 +203,5 @@ public class Player extends Entity{
         animate();
         movementHandler();
         move();
-
-        //System.out.println("X:" + getX() + " V: " + velocityX);
-        //System.out.println("Y:" + getY() + " V: " + velocityY);
     }
 }

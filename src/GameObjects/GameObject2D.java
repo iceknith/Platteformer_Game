@@ -28,7 +28,7 @@ public class GameObject2D{
 
     Sprite sprite;
 
-    ArrayList<BufferedImage> currentAnimation;
+    ArrayList<BufferedImage> currentAnimation = new ArrayList<>();
     ArrayList<BufferedImage> nextAnimation;
 
     int animationIndex;
@@ -89,11 +89,17 @@ public class GameObject2D{
 
     void setX(int x){
         hitbox.x = x;
+        sprite.setX(x, hitbox);
     }
 
     void setY(int y){
         hitbox.y = y;
+        sprite.setY(y, hitbox);
     }
+
+    void setVisualX(int x) {sprite.setX(x,hitbox);}
+
+    void setVisualY(int y) {sprite.setY(y,hitbox);}
 
     void setWidth(int w){hitbox.width = w;}
 
@@ -152,19 +158,24 @@ public class GameObject2D{
     public void draw(Graphics2D g2D, ImageObserver IO){
         if (isGUI){
             g2D.drawImage(getSprite().getImage(),
-                    getSprite().getOffsetX(getHitbox()),
-                    getSprite().getOffsetY(getHitbox()),
+                    getSprite().getX(), getSprite().getY(),
                     getSprite().getWidth(),getSprite().getHeight(), IO);
         }else{
             g2D.drawImage(getSprite().getImage(),
-                    getSprite().getOffsetX(getHitbox()) - GamePanel.camera.getX() ,
-                    getSprite().getOffsetY(getHitbox()) - GamePanel.camera.getY(),
+                    getSprite().getX() - GamePanel.camera.getX() ,
+                    getSprite().getY() - GamePanel.camera.getY(),
                     getSprite().getWidth(), getSprite().getHeight(), IO);
         }
     }
 
     public void update() throws IOException, FontFormatException {
         //is overwritten after
+    }
+
+    public void graphicalUpdate(){
+        if (!currentAnimation.isEmpty()){
+            animate();
+        }
     }
 
     public void collision(Entity e) throws IOException {

@@ -33,7 +33,8 @@ public class GamePanel extends JPanel implements Runnable {
     final int tps = 20;
     final double tickInterval = 1000000000f / tps;
 
-    public static double deltaTTime = 0;
+    static double activeTDeltaTime = 0;
+    static double tDeltaTime;
     int activeTps = 0;
     int displayedTps = 0;
     double timeTps;
@@ -92,7 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             currentTime = System.nanoTime();
             activeDeltaTime += currentTime - lastTime;
-            deltaTTime += currentTime - lastTime;
+            activeTDeltaTime += currentTime - lastTime;
             lastTime = currentTime;
 
             if (camera.isOperational){
@@ -107,9 +108,9 @@ public class GamePanel extends JPanel implements Runnable {
                 }
 
                 //tick update
-                if (deltaTTime >= tickInterval && camera.isOperational && !is_updating) {
+                if (activeTDeltaTime >= tickInterval && camera.isOperational && !is_updating) {
 
-                    deltaTTime = deltaTTime / 100000000; //in tenth of seconds
+                    tDeltaTime = activeTDeltaTime / 100000000; //in tenth of seconds
 
                     try {
                         update();
@@ -118,14 +119,14 @@ public class GamePanel extends JPanel implements Runnable {
                     }
 
                     activeTps += 1;
-                    timeTps += deltaTTime + (float) (System.nanoTime() - lastTime)/100000000;
+                    timeTps += (activeTDeltaTime + System.nanoTime() - lastTime)/100000000;
+                    activeTDeltaTime = 0;
 
                     if (timeTps >= 10){
                         displayedTps = activeTps;
                         timeTps = 0;
                         activeTps = 0;
                     }
-                    deltaTTime = 0;
                 }
 
 
@@ -134,18 +135,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                     deltaTime = activeDeltaTime / 100000000; //in tenth of seconds
 
-                    /*update player + camera
-                    if (!GameObject2D.hasNoPlayer()){
-                        try {
-                            GameObject2D.getPlayer().updateInputs();
-                            camera.update();
-
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }*/
-
-                    camera.update();
+                    camera.graphicalUpdate();
                     repaint();
 
                     activeFps += 1;
@@ -166,11 +156,13 @@ public class GamePanel extends JPanel implements Runnable {
         return deltaTime;
     }
 
+    public static double getTDeltaTime(){
+        return tDeltaTime;
+    }
+
     public void update() throws IOException, FontFormatException {
         is_updating = true;
-
         camera.updateAll();
-
         is_updating = false;
     }
 

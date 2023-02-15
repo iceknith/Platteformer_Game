@@ -114,8 +114,8 @@ public class GameGrid {
 
     public boolean isInGrid(GameObject2D go){
 
-        int posX = go.getSprite().getOffsetX(go.getHitbox());
-        int posY = go.getSprite().getOffsetY(go.getHitbox());
+        int posX = go.getSprite().getOffsetPosX(go.getHitbox());
+        int posY = go.getSprite().getOffsetPosY(go.getHitbox());
 
         //if one rect is on the left of the other
         if(x > posX + go.getSprite().getWidth() || posX > x + width){

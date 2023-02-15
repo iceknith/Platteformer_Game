@@ -54,12 +54,16 @@ public class Camera extends GameGrid {
     public void updateAll() throws IOException, FontFormatException {
         //update every game object
         level.update();
-
-        //update itself
         update();
     }
 
-    public void update(){
+    public void graphicalUpdate(){
+        //updates every ongoing graphical change
+        level.graphicalUpdate();
+        move();
+    }
+
+    void update(){
         //do not update camera if no player
         if (level.hasNoPlayer()){
             //updateGrid();
@@ -110,8 +114,9 @@ public class Camera extends GameGrid {
             }
         }else{stopMovementY();}
 
-
-        move();
+        if (velocityX != 0 || velocityY != 0){
+            updateGrid();
+        }
     }
 
     public int getHardBorderX(){return hardBorderX;}
@@ -131,8 +136,8 @@ public class Camera extends GameGrid {
     }
 
     void move(){
-        int movX = (int) Math.round(velocityX * GamePanel.getDeltaTime());
-        int movY = (int) Math.round(velocityY * GamePanel.getDeltaTime());
+        int movX = (int) Math.round(velocityX * GamePanel.getTDeltaTime());
+        int movY = (int) Math.round(velocityY * GamePanel.getTDeltaTime());
 
         //little logic to make sure that the camera moves, even when it moves slowly
         if (movX == 0 && velocityX != 0){
@@ -142,14 +147,9 @@ public class Camera extends GameGrid {
         if (movY == 0 && velocityY != 0){
             y -= Math.signum(velocityY);
         }else{y -= movY;}
-
-
-        if (velocityX != 0 || velocityY != 0){
-            updateGrid();
-        }
     }
 
-    public void move(int posX, int posY){
+    public void instantMove(int posX, int posY){
         x = posX;
         y = posY;
     }

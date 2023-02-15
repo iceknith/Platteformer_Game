@@ -71,7 +71,7 @@ public class Entity extends GameObject2D{
 
     void jump(double jumpForce){
 
-        jumpingTime += GamePanel.deltaTTime;
+        jumpingTime += GamePanel.getTDeltaTime();
 
         if (jumpingTime > maxJumpingTime){
             isJumping = false;
@@ -82,7 +82,7 @@ public class Entity extends GameObject2D{
 
     void fall(){
         if (! isOnGround){
-            velocityY -= gravity * GamePanel.deltaTTime * 6;
+            velocityY -= gravity * GamePanel.getTDeltaTime() * 6;
         }
     }
 
@@ -162,8 +162,8 @@ public class Entity extends GameObject2D{
         prevX = getX();
         prevY = getY();
 
-        setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTTime)));
-        setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTTime)));
+        setX((int) (getX() + Math.round(velocityX * GamePanel.getTDeltaTime())));
+        setY((int) (getY() - Math.round(velocityY * GamePanel.getTDeltaTime())));
 
         isOnGround = false;
         for (GameObject2D go: getNear()){
@@ -172,4 +172,13 @@ public class Entity extends GameObject2D{
         }
     }
 
+    void visualMovement(){
+        setVisualX((int) (getX() + Math.round(velocityX * GamePanel.getDeltaTime())));
+        setVisualY((int) (getY() - Math.round(velocityY * GamePanel.getDeltaTime())));
+    }
+
+    public void graphicalUpdate(){
+        super.graphicalUpdate();
+        visualMovement();
+    }
 }

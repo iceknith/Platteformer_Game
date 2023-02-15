@@ -64,6 +64,12 @@ public class Level {
         }
     }
 
+    public void graphicalUpdate(){
+        for (GameObject2D go: GamePanel.camera.visible){
+            go.graphicalUpdate();
+        }
+    }
+
     public void loadLevel() throws FileNotFoundException {
         if (levelName.isEmpty()){
             throw new FileNotFoundException("No level selected");

@@ -9,6 +9,8 @@ public class Sprite {
 
     int width;
     int height;
+    int x;
+    int y;
     int offsetX;
     int offsetY;
     int direction;
@@ -39,12 +41,20 @@ public class Sprite {
 
     public int getHeight(){return height;}
 
-    public int getOffsetX(Rectangle hitbox){
+    public int getX(){return x;}
+
+    public int getY(){return y;}
+
+    public int getOffsetPosX(Rectangle hitbox){
         setDirection(direction);
         return hitbox.x - offsetX +  hitbox.width/2 - width/2;
     }
 
-    public int getOffsetY(Rectangle hitbox){return hitbox.y - offsetY  +  hitbox.height/2 - height/2;}
+    public int getOffsetPosY(Rectangle hitbox){return hitbox.y - offsetY  +  hitbox.height/2 - height/2;}
+
+    public void setX(int posX, Rectangle hitbox){x = posX - offsetX + hitbox.width/2 - width/2;}
+
+    public void setY(int posY, Rectangle hitbox){y = posY - offsetY + hitbox.width/2 - width/2;}
 
     void setImage(BufferedImage newSprite){
         image = newSprite;
