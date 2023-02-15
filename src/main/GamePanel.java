@@ -27,7 +27,7 @@ public class GamePanel extends JPanel implements Runnable {
     static double activeDeltaTime = 0;
     static double deltaTime;
     int activeFps = 0;
-    int displayedFps = 0;
+    static int displayedFps = 0;
     double timeFps;
 
     final int tps = 20;
@@ -160,6 +160,8 @@ public class GamePanel extends JPanel implements Runnable {
         return tDeltaTime;
     }
 
+    public static double getDisplayedFPS(){return displayedFps;}
+
     public void update() throws IOException, FontFormatException {
         is_updating = true;
         camera.updateAll();
@@ -198,10 +200,13 @@ public class GamePanel extends JPanel implements Runnable {
             g2D.draw(new Rectangle(0,height/2-camera.getSoftBorderY(),width,2*camera.getSoftBorderY()));
 
             //hitboxes
-            g2D.setColor(Color.white);
             for (int i = 0; i < camera.getVisible().size(); i++) {
                 GameObject2D go = camera.getVisible().get(i);
                 if (! go.isGUI){
+                    g2D.setColor(Color.red);
+                    g2D.drawRect(go.getSprite().getX()- camera.getX(),go.getSprite().getY() - camera.getY(),
+                            go.getSprite().getWidth(), go.getSprite().getHeight());
+                    g2D.setColor(Color.white);
                     g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
                 }
             }

@@ -22,10 +22,9 @@ public class Sprite {
         direction = 1;
 
         setImage(img, hitbox);
-
     }
 
-    public Sprite(BufferedImage img, double resizeFact){
+    public Sprite(BufferedImage img, double resizeFact, Rectangle hitbox){
         resizeFactor = resizeFact;
         offsetX = 0;
         offsetY = 0;
@@ -33,6 +32,8 @@ public class Sprite {
 
         setImage(img);
 
+        x = hitbox.x - offsetX + hitbox.width/2 - width/2;
+        y = hitbox.y - offsetY  +  hitbox.height/2 - height/2;
     }
 
     public BufferedImage getImage(){return image;}
@@ -52,15 +53,26 @@ public class Sprite {
 
     public int getOffsetPosY(Rectangle hitbox){return hitbox.y - offsetY  +  hitbox.height/2 - height/2;}
 
-    public void setX(int posX, Rectangle hitbox){x = posX - offsetX + hitbox.width/2 - width/2;}
+    public void setX(int posX, Rectangle hitbox){
+        setDirection(direction);
+        x = posX - offsetX + hitbox.width/2 - width/2;
+    }
 
-    public void setY(int posY, Rectangle hitbox){y = posY - offsetY + hitbox.width/2 - width/2;}
+    public void setY(int posY, Rectangle hitbox){
+        y = posY + hitbox.height/2 - height/2;
+    }
 
     void setImage(BufferedImage newSprite){
         image = newSprite;
 
-        width = (int) (image.getWidth()* resizeFactor);
-        height = (int) (image.getHeight()* resizeFactor);
+        int w = (int) (image.getWidth()* resizeFactor);
+        int h = (int) (image.getHeight()* resizeFactor);
+
+        x = x + width/2 - w/2;
+        y = y + height/2 - h/2;
+
+        width = w;
+        height = h;
     }
 
     void setImage(BufferedImage newSprite, Rectangle hitbox){
@@ -68,6 +80,9 @@ public class Sprite {
 
         width = hitbox.width;
         height = hitbox.height;
+
+        x = hitbox.x - offsetX;
+        y = hitbox.y - offsetY;
     }
 
     void setDirection(int newDir){

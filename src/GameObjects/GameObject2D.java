@@ -97,6 +97,10 @@ public class GameObject2D{
         sprite.setY(y, hitbox);
     }
 
+    void setPhysicalX(int x){hitbox.x = x;}
+
+    void setPhysicalY(int y){hitbox.y = y;}
+
     void setVisualX(int x) {sprite.setX(x,hitbox);}
 
     void setVisualY(int y) {sprite.setY(y,hitbox);}

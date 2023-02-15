@@ -64,7 +64,7 @@ public class Player extends Entity{
 
         speedConversionPercent = 35;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
+        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5, hitbox);
 
         idle = getAnimationList("Player", "idle", 3);
         run = getAnimationList("Player", "run", 7);

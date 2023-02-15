@@ -27,8 +27,13 @@ public class Entity extends GameObject2D{
     double velocityY;
     double velocityX;
 
+    double movementX;
+    double movementY;
+
     int prevX;
     int prevY;
+
+    int visualUpdateCounter;
 
     boolean isOnGround;
     boolean isJumping;
@@ -159,9 +164,12 @@ public class Entity extends GameObject2D{
 
     void move() throws IOException {
 
+        visualUpdateCounter = 0;
         prevX = getX();
         prevY = getY();
 
+        setVisualX(getX());
+        setVisualY(getY());
         setX((int) (getX() + Math.round(velocityX * GamePanel.getTDeltaTime())));
         setY((int) (getY() - Math.round(velocityY * GamePanel.getTDeltaTime())));
 
@@ -170,13 +178,19 @@ public class Entity extends GameObject2D{
             collision(go);
             checkGround(go);
         }
+
+        movementX = (getX() - prevX)/GamePanel.getDisplayedFPS();
+        movementY = (getY() - prevY)/GamePanel.getDisplayedFPS();
     }
 
     void visualMovement(){
-        setVisualX((int) (getX() + Math.round(velocityX * GamePanel.getDeltaTime())));
-        setVisualY((int) (getY() - Math.round(velocityY * GamePanel.getDeltaTime())));
+        visualUpdateCounter += 1;
+
+        setVisualX((int) (prevX + Math.round(movementX * visualUpdateCounter * GamePanel.getDeltaTime())));
+        setVisualY((int) (prevY + Math.round(movementY * visualUpdateCounter * GamePanel.getDeltaTime())));
     }
 
+    @Override
     public void graphicalUpdate(){
         super.graphicalUpdate();
         visualMovement();
