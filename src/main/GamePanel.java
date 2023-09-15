@@ -4,6 +4,7 @@ import handlers.KeyHandler;
 import handlers.MouseHandler;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
 
@@ -72,7 +73,12 @@ public class GamePanel extends JPanel implements Runnable {
             camera = new Camera(width, height, 0, 0);
             camera.setNextLevel("menu");
             camera.loadNextLevel();
-        } catch (IOException e) {
+
+            //initialise font
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("assets/font/EightBitDragon-anqx.ttf")));
+
+        } catch (IOException | FontFormatException e) {
             throw new RuntimeException(e);
         }
 

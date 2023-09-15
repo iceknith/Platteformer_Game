@@ -43,7 +43,7 @@ public class ScoreDisplay extends GameObject2D {
         else {
             timerText = "Your time: " + GamePanel.inGameTimer/60000 + " min " + (GamePanel.inGameTimer/1000)%60 + " s " + GamePanel.inGameTimer%1000 + " ms";
         }
-        g2D.setFont(new Font("Sans Serif", Font.BOLD, 30));
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 30));
 
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
         g2D.fillRect(x-g2D.getFontMetrics().stringWidth(timerText)/2-20,y-g2D.getFontMetrics().getHeight()-15, g2D.getFontMetrics().stringWidth(timerText)+40, g2D.getFontMetrics().getHeight()+40);

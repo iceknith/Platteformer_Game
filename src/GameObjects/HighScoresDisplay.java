@@ -65,18 +65,18 @@ public class HighScoresDisplay extends GameObject2D {
         g2D.fillRect(x, y, GamePanel.camera.width/4, GamePanel.camera.height/2);
 
         g2D.setColor(Color.white);
-        g2D.setFont(new Font("Sans Serif", Font.BOLD, 30));
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 30));
         int yOffset = g2D.getFontMetrics().getHeight();
 
         g2D.drawString("Scores :", x+GamePanel.camera.width/8-g2D.getFontMetrics().stringWidth("Scores :")/2, y+yOffset);
 
-        g2D.setFont(new Font("Sans Serif", Font.BOLD, 20));
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
 
         //System.out.println("Nombre de lignes maximal "+(GamePanel.camera.height/2)/g2D.getFontMetrics().getHeight());
-        for (int i = 0; i < Math.min(highScoresNames.size(), (GamePanel.camera.height/2 - yOffset)/g2D.getFontMetrics().getHeight()); i++){
+        for (int i = 0; i < Math.min(highScoresNames.size(), (GamePanel.camera.height/2 - yOffset)/(g2D.getFontMetrics().getHeight() + 10)); i++){
 
             int posX = x+30+g2D.getFontMetrics().stringWidth(highScoresNames.get(i) + " : ");
-            int posY = y+40+yOffset+i*g2D.getFontMetrics().getHeight();
+            int posY = y+40+yOffset+i*(g2D.getFontMetrics().getHeight() + 10);
             String score = highScoresTimes.get(i)/60000 + " min " + (highScoresTimes.get(i)/1000)%60 + " s " + highScoresTimes.get(i)%1000 + " ms";
 
             //draw names

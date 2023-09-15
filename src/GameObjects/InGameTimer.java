@@ -33,7 +33,7 @@ public class InGameTimer extends GameObject2D{
     public void draw(Graphics2D g2D, ImageObserver IO) {
         String timerText = "Timer: " + GamePanel.inGameTimer/60000 + " min " + (GamePanel.inGameTimer/1000)%60 + " s " + GamePanel.inGameTimer%1000 + " ms";
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
-        g2D.setFont(new Font("Sans Serif", Font.BOLD, 20));
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
         g2D.fillRect(0,0, g2D.getFontMetrics().stringWidth(timerText)+20, g2D.getFontMetrics().getHeight()+30);
 
         g2D.setColor(Color.white);

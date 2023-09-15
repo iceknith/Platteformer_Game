@@ -28,7 +28,7 @@ public class Button extends GameObject2D{
 
 
     public Button(int w, int h, int x, int y, String textureName, String message, String id, String subLvlName) throws IOException, FontFormatException {
-        super(x,y,w,h,subLvlName);
+        super(x-w/2,y-h/2,w,h,subLvlName);
 
         type = "Button_" + textureName;
         name = type+id;
@@ -40,7 +40,6 @@ public class Button extends GameObject2D{
 
         //text
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("assets/font/EightBitDragon-anqx.ttf")));
 
         buttonFontName = "Eight Bit Dragon";
         buttonFontSize = 100;

@@ -143,8 +143,8 @@ public class Level {
                             case 'L' -> { //levelChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = reader.read()*256 + reader.read();
-                                int posY = reader.read()*256 + reader.read();
+                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder lvl = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -169,8 +169,8 @@ public class Level {
                             case 'S' -> { //subLevelChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = reader.read()*256 + reader.read();
-                                int posY = reader.read()*256 + reader.read();
+                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder subLvl = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -195,8 +195,8 @@ public class Level {
                             case 'K' -> {//KeyChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = reader.read()*256 + reader.read();
-                                int posY = reader.read()*256 + reader.read();
+                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder keyName = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -220,8 +220,8 @@ public class Level {
                             case 'E' -> { //ExitButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = reader.read()*256 + reader.read();
-                                int posY = reader.read()*256 + reader.read();
+                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder messageName = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -243,8 +243,19 @@ public class Level {
                     case 'I' -> { //image
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
-                        int posX = reader.read()*256 + reader.read();
-                        int posY = reader.read()*256 + reader.read();
+                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+
+                        System.out.println(w + " - " + h);
+                        if (w == 0 && h == 0){
+                            w = GamePanel.camera.width;
+                            h = GamePanel.camera.height;
+
+                            posX += w/2;
+                            posY += h/2;
+
+                            System.out.println(posX);
+                        }
 
                         int cha;
 
@@ -252,28 +263,29 @@ public class Level {
                         while ((cha = reader.read()) != 10) { // 10 == '\n'
                             texture.append((char) cha);
                         }
+                        System.out.println(texture);
 
                         Image b = new Image(w,h,posX,posY,texture.toString(),"#"+i, "");
                         objectsBuffer.add(b);
                     }
 
                     case 'S' -> { //Score Display
-                        int posX = reader.read()*256 + reader.read();
-                        int posY = reader.read()*256 + reader.read();
+                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                         ScoreDisplay s = new ScoreDisplay(posX, posY, "");
                         objectsBuffer.add(s);
                     }
                     case 'H' -> { //High Score Display
-                        int posX = reader.read()*256 + reader.read();
-                        int posY = reader.read()*256 + reader.read();
+                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                         HighScoresDisplay h = new HighScoresDisplay(posX, posY, "");
                         objectsBuffer.add(h);
                     }
                     case 'R' -> { //High Score Register
-                        int posX = reader.read()*256 + reader.read();
-                        int posY = reader.read()*256 + reader.read();
+                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
                         ScoreRegister r = new ScoreRegister(posX, posY, "");
                         objectsBuffer.add(r);
@@ -356,7 +368,7 @@ public class Level {
 
     public void subLevelBackHandler(){
         if (subLvlQueue.isEmpty()){
-            openSubLevel("pause",false, true);
+            openSubLevel("win",false, true);
         }
         else{
             String subLvlName = subLvlQueue.remove(subLvlQueue.size()-1);
