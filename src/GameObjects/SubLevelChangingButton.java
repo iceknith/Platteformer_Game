@@ -3,7 +3,6 @@ package GameObjects;
 import main.GamePanel;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class SubLevelChangingButton extends Button{
@@ -19,7 +18,7 @@ public class SubLevelChangingButton extends Button{
     }
 
     @Override
-    void releasedHandler() throws FileNotFoundException {
+    void releasedHandler() throws IOException {
         super.releasedHandler();
 
         GamePanel.camera.level.openSubLevel(SubLevel, false, false);

@@ -21,7 +21,7 @@ public class KeyChangingButton extends Button{
         buttonFontSize = getHeight()/2;
         buttonFont = new Font(buttonFontName, Font.PLAIN, buttonFontSize);
 
-        int textWidth = GamePanel.getGamePanel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
+        int textWidth = GamePanel.getGamePannel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
 
         buttonMessageX = getX() - textWidth - getWidth()/10;
         buttonMessageY = getY() + getHeight()/2 + buttonFontSize/2;
@@ -55,7 +55,7 @@ public class KeyChangingButton extends Button{
         super.draw(g2D, imageObserver);
 
         String key = KeyEvent.getKeyText(KeyHandler.getKey(buttonKey));
-        int keyWidth = GamePanel.getGamePanel().getFontMetrics(buttonFont).stringWidth(key);
+        int keyWidth = GamePanel.getGamePannel().getFontMetrics(buttonFont).stringWidth(key);
         int keyFontSize = Math.min((int) (getWidth() / ((float) keyWidth/buttonFontSize)), getHeight()-30);
 
         if (isFocused()){
@@ -66,7 +66,7 @@ public class KeyChangingButton extends Button{
         }
 
         Font f = new Font(buttonFontName, Font.PLAIN, keyFontSize);
-        keyWidth = GamePanel.getGamePanel().getFontMetrics(f).stringWidth(key);
+        keyWidth = GamePanel.getGamePannel().getFontMetrics(f).stringWidth(key);
 
         g2D.setFont(f);
         g2D.setColor(new Color(196, 190, 0));

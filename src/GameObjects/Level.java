@@ -16,6 +16,7 @@ public class Level {
     ArrayList<SubLevel> subLevels = new ArrayList<>();
     ArrayList<String> subLvlQueue = new ArrayList<>();
     ArrayList<GameObject2D> updatable = new ArrayList<>();
+    ArrayList<Button> buttons = new ArrayList<>();
 
     boolean wasMenuKeyPressed;
     boolean forceUpdate;
@@ -58,15 +59,10 @@ public class Level {
         }
 
         for (GameObject2D go: updatable) {
-            if (!go.getName().equals("Player")){
-                go.update();
-            }
+            go.update();
         }
-    }
-
-    public void graphicalUpdate(){
-        for (GameObject2D go: GamePanel.camera.visible){
-            go.graphicalUpdate();
+        for (SubLevel sl: subLevels){
+            sl.update();
         }
     }
 
@@ -74,10 +70,16 @@ public class Level {
         if (levelName.isEmpty()){
             throw new FileNotFoundException("No level selected");
         }
-        loadLevel(levelName);
+        loadLevel(levelName, new ArrayList<>());
     }
 
-    public void loadLevel(String level) throws FileNotFoundException {
+    public ArrayList<GameObject2D> loadLevel(String level, ArrayList<GameObject2D> objBuffer){
+
+        ArrayList<GameObject2D> objectsBuffer = objBuffer;
+
+        //resetting high scores
+        HighScoresDisplay.resetHighScores();
+
         try {
             FileInputStream fis = new FileInputStream("assets/level/" + level + ".lvl");
             BufferedInputStream reader = new BufferedInputStream(fis);
@@ -93,7 +95,6 @@ public class Level {
 
             int ch;
             int i = 0;
-            ArrayList<GameObject2D> objectsBuffer = new ArrayList<>();
 
             while ((ch = reader.read()) != -1) {
                 i++;
@@ -106,6 +107,10 @@ public class Level {
                         objectsBuffer.add(GameObject2D.getPlayer());
                         GamePanel.camera.setX(x - GamePanel.camera.getWidth()/2);
                         GamePanel.camera.setY(y - GamePanel.camera.getHeight()/2);
+                    }
+                    case 'T' -> { //InGameTimer
+                        InGameTimer t = new InGameTimer("");
+                        objectsBuffer.add(t);
                     }
                     case 'P' -> { //Platform
                         int w = reader.read()*256 + reader.read();
@@ -158,6 +163,7 @@ public class Level {
 
                                 LevelChangingButton b = new LevelChangingButton(w,h,posX,posY,texture.toString(), messageName.toString(), "#"+i, lvl.toString(), "");
                                 objectsBuffer.add(b);
+                                buttons.add(b);
                             }
 
                             case 'S' -> { //subLevelChangingButton
@@ -183,6 +189,7 @@ public class Level {
 
                                 SubLevelChangingButton b = new SubLevelChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, subLvl.toString(), "");
                                 objectsBuffer.add(b);
+                                buttons.add(b);
                             }
 
                             case 'K' -> {//KeyChangingButton
@@ -208,9 +215,31 @@ public class Level {
 
                                 KeyChangingButton b = new KeyChangingButton(w,h,posX,posY,texture.toString(),messageName.toString(),"#"+i, keyName.toString(), "");
                                 objectsBuffer.add(b);
+                                buttons.add(b);
+                            }
+                            case 'E' -> { //ExitButton
+                                int w = reader.read()*256 + reader.read();
+                                int h = reader.read()*256 + reader.read();
+                                int posX = reader.read()*256 + reader.read();
+                                int posY = reader.read()*256 + reader.read();
+
+                                StringBuilder messageName = new StringBuilder();
+                                while ((cha = reader.read()) != 59) { //59 == ';'
+                                    messageName.append((char) cha);
+                                }
+
+                                StringBuilder texture = new StringBuilder();
+                                while ((cha = reader.read()) != 10) { // 10 == '\n'
+                                    texture.append((char) cha);
+                                }
+
+                                ExitButton b = new ExitButton(w,h,posX,posY, texture.toString(), messageName.toString(), "#"+i, "");
+                                objectsBuffer.add(b);
+                                buttons.add(b);
                             }
                         }
                     }
+
                     case 'I' -> { //image
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
@@ -226,6 +255,28 @@ public class Level {
 
                         Image b = new Image(w,h,posX,posY,texture.toString(),"#"+i, "");
                         objectsBuffer.add(b);
+                    }
+
+                    case 'S' -> { //Score Display
+                        int posX = reader.read()*256 + reader.read();
+                        int posY = reader.read()*256 + reader.read();
+
+                        ScoreDisplay s = new ScoreDisplay(posX, posY, "");
+                        objectsBuffer.add(s);
+                    }
+                    case 'H' -> { //High Score Display
+                        int posX = reader.read()*256 + reader.read();
+                        int posY = reader.read()*256 + reader.read();
+
+                        HighScoresDisplay h = new HighScoresDisplay(posX, posY, "");
+                        objectsBuffer.add(h);
+                    }
+                    case 'R' -> { //High Score Register
+                        int posX = reader.read()*256 + reader.read();
+                        int posY = reader.read()*256 + reader.read();
+
+                        ScoreRegister r = new ScoreRegister(posX, posY, "");
+                        objectsBuffer.add(r);
                     }
 
                     case 'L' ->{ //subLevel
@@ -255,19 +306,19 @@ public class Level {
                             lvlName.append((char) cha);
                         }
 
-                        loadLevel(lvlName.toString());
-
+                        objectsBuffer = loadLevel(lvlName.toString(), objectsBuffer);
                     }
                 }
             }
 
             reader.close();
 
-        } catch (IOException | FontFormatException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         forceUpdate = true;
+        return objectsBuffer;
     }
 
     public void setSubLvlDisplay(String subLevelName, Boolean doDisplay){

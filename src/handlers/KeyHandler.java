@@ -7,6 +7,10 @@ public class KeyHandler implements KeyListener {
 
     static int rightKey = KeyEvent.VK_D;
     static int leftKey = KeyEvent.VK_A;
+
+    static int upKey = KeyEvent.VK_W;
+    static int downKey = KeyEvent.VK_S;
+    static int selectKey = KeyEvent.VK_ENTER;
     static int suicideKey = KeyEvent.VK_E;
     static int jumpKey = KeyEvent.VK_SPACE;
     static int debugKey = KeyEvent.VK_F3;
@@ -16,6 +20,9 @@ public class KeyHandler implements KeyListener {
 
     public static boolean isRightPressed;
     public static boolean isLeftPressed;
+    public static boolean isUpPressed;
+    public static boolean isDownPressed;
+    public static boolean isSelectPressed;
     public static boolean isJumpPressed;
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
@@ -44,6 +51,12 @@ public class KeyHandler implements KeyListener {
                 leftPressedTime = System.nanoTime();
             }
         }
+        if (k == upKey){
+            isUpPressed = true;
+        }
+        if (k == downKey){
+            isDownPressed = true;
+        }
         if (k == jumpKey){
             isJumpPressed = true;
         }
@@ -55,6 +68,9 @@ public class KeyHandler implements KeyListener {
         }
         if (k == menuKey){
             isMenuKeyPressed = true;
+        }
+        if (k == selectKey){
+            isSelectPressed = true;
         }
 
         lastKeyPressed = k;
@@ -72,6 +88,12 @@ public class KeyHandler implements KeyListener {
             isLeftPressed = false;
             leftPressedTime = 0;
         }
+        if (k == upKey){
+            isUpPressed = false;
+        }
+        if (k == downKey){
+            isDownPressed = false;
+        }
         if (k == jumpKey){
             isJumpPressed = false;
         }
@@ -80,6 +102,9 @@ public class KeyHandler implements KeyListener {
         }
         if (k == menuKey){
             isMenuKeyPressed = false;
+        }
+        if (k == selectKey){
+            isSelectPressed = false;
         }
     }
 

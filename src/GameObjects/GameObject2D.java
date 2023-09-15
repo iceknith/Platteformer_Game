@@ -28,7 +28,7 @@ public class GameObject2D{
 
     Sprite sprite;
 
-    ArrayList<BufferedImage> currentAnimation = new ArrayList<>();
+    ArrayList<BufferedImage> currentAnimation;
     ArrayList<BufferedImage> nextAnimation;
 
     int animationIndex;
@@ -89,21 +89,11 @@ public class GameObject2D{
 
     void setX(int x){
         hitbox.x = x;
-        sprite.setX(x, hitbox);
     }
 
     void setY(int y){
         hitbox.y = y;
-        sprite.setY(y, hitbox);
     }
-
-    void setPhysicalX(int x){hitbox.x = x;}
-
-    void setPhysicalY(int y){hitbox.y = y;}
-
-    void setVisualX(int x) {sprite.setX(x,hitbox);}
-
-    void setVisualY(int y) {sprite.setY(y,hitbox);}
 
     void setWidth(int w){hitbox.width = w;}
 
@@ -136,7 +126,7 @@ public class GameObject2D{
     }
 
     void animate(){
-        animateTime += GamePanel.getDeltaTime();
+        animateTime += GamePanel.deltaTime;
 
         if(animateTime >= animationSpeed){
             animateTime = 0;
@@ -162,12 +152,13 @@ public class GameObject2D{
     public void draw(Graphics2D g2D, ImageObserver IO){
         if (isGUI){
             g2D.drawImage(getSprite().getImage(),
-                    getSprite().getX(), getSprite().getY(),
+                    getSprite().getOffsetX(getHitbox()),
+                    getSprite().getOffsetY(getHitbox()),
                     getSprite().getWidth(),getSprite().getHeight(), IO);
         }else{
             g2D.drawImage(getSprite().getImage(),
-                    getSprite().getX() - GamePanel.camera.getX() ,
-                    getSprite().getY() - GamePanel.camera.getY(),
+                    getSprite().getOffsetX(getHitbox()) - GamePanel.camera.getX() ,
+                    getSprite().getOffsetY(getHitbox()) - GamePanel.camera.getY(),
                     getSprite().getWidth(), getSprite().getHeight(), IO);
         }
     }
@@ -176,18 +167,17 @@ public class GameObject2D{
         //is overwritten after
     }
 
-    public void graphicalUpdate(){
-        if (!currentAnimation.isEmpty()){
-            animate();
-        }
-    }
-
-    public void collision(Entity e) throws IOException {
+    public void collision(Entity e) {
         //is overwritten after in more specific context
     }
 
     public String getDebugInfos(){
         return "InfoDebug " +name + ": x:" + getX() + ",y:" + getY() + ",w:" + getWidth() + ",h:" + getHeight() + ",Sprite:" + getSprite().toString();
+    }
+
+    //type specific methods
+    public Button getButton() throws Exception {
+        throw new Exception("Method used on a non-button GameObject");
     }
 
     //static methods and variables

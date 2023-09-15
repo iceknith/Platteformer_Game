@@ -64,7 +64,7 @@ public class Player extends Entity{
 
         speedConversionPercent = 35;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5, hitbox);
+        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
 
         idle = getAnimationList("Player", "idle", 3);
         run = getAnimationList("Player", "run", 7);
@@ -183,13 +183,12 @@ public class Player extends Entity{
         }
         else{
             if (getAnimation() != death){
-                GamePanel.camera.instantMove(spawnPoint[0] - GamePanel.camera.width/2, spawnPoint[1] - GamePanel.camera.height/2);
+                GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.width/2, spawnPoint[1] - GamePanel.camera.height/2);
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
 
                 isDying = false;
-            }
-        }
+            }}
     }
 
     public void setSpawnPointPos(int posX, int posY){
@@ -203,5 +202,8 @@ public class Player extends Entity{
         animate();
         movementHandler();
         move();
+
+        //System.out.println("X:" + getX() + " V: " + velocityX);
+        //System.out.println("Y:" + getY() + " V: " + velocityY);
     }
 }

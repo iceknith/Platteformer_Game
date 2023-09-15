@@ -14,13 +14,13 @@ public class MouseHandler implements MouseListener {
 
     public static int getX(){
         Point point = MouseInfo.getPointerInfo().getLocation();
-        SwingUtilities.convertPointFromScreen(point, GamePanel.getGamePanel());
+        SwingUtilities.convertPointFromScreen(point, GamePanel.getGamePannel());
         return point.x;
     }
 
     public static int getY(){
         Point point = MouseInfo.getPointerInfo().getLocation();
-        SwingUtilities.convertPointFromScreen(point, GamePanel.getGamePanel());
+        SwingUtilities.convertPointFromScreen(point, GamePanel.getGamePannel());
         return point.y;
     }
 

@@ -27,18 +27,12 @@ public class Entity extends GameObject2D{
     double velocityY;
     double velocityX;
 
-    double movementX;
-    double movementY;
-
     int prevX;
     int prevY;
-
-    int visualUpdateCounter;
 
     boolean isOnGround;
     boolean isJumping;
     boolean wasJumping;
-
 
     Entity(int x, int y, int w, int h, String subLvl){
         super(x, y, w, h, subLvl);
@@ -76,7 +70,7 @@ public class Entity extends GameObject2D{
 
     void jump(double jumpForce){
 
-        jumpingTime += GamePanel.getTDeltaTime();
+        jumpingTime += GamePanel.deltaTime;
 
         if (jumpingTime > maxJumpingTime){
             isJumping = false;
@@ -87,7 +81,7 @@ public class Entity extends GameObject2D{
 
     void fall(){
         if (! isOnGround){
-            velocityY -= gravity * GamePanel.getTDeltaTime() * 6;
+            velocityY -= gravity * GamePanel.deltaTime * 6;
         }
     }
 
@@ -164,35 +158,16 @@ public class Entity extends GameObject2D{
 
     void move() throws IOException {
 
-        visualUpdateCounter = 0;
         prevX = getX();
         prevY = getY();
-
-        setVisualX(getX());
-        setVisualY(getY());
-        setX((int) (getX() + Math.round(velocityX * GamePanel.getTDeltaTime())));
-        setY((int) (getY() - Math.round(velocityY * GamePanel.getTDeltaTime())));
+        setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
+        setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
         isOnGround = false;
         for (GameObject2D go: getNear()){
             collision(go);
             checkGround(go);
         }
-
-        movementX = (getX() - prevX)/GamePanel.getDisplayedFPS();
-        movementY = (getY() - prevY)/GamePanel.getDisplayedFPS();
     }
 
-    void visualMovement(){
-        visualUpdateCounter += 1;
-
-        setVisualX((int) (prevX + Math.round(movementX * visualUpdateCounter * GamePanel.getDeltaTime())));
-        setVisualY((int) (prevY + Math.round(movementY * visualUpdateCounter * GamePanel.getDeltaTime())));
-    }
-
-    @Override
-    public void graphicalUpdate(){
-        super.graphicalUpdate();
-        visualMovement();
-    }
 }

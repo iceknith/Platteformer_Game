@@ -1,5 +1,6 @@
 package GameObjects;
 
+import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
 
@@ -7,12 +8,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Button extends GameObject2D{
 
     boolean focused;
+    boolean key_focused;
     boolean triggered;
 
     Font buttonFont;
@@ -56,14 +57,19 @@ public class Button extends GameObject2D{
 
     public boolean isFocused(){return focused;}
 
+    public boolean isKey_focused(){return key_focused;}
+
+    public void setKey_focused(boolean focused){key_focused = focused;}
+
     public boolean isTriggered(){return triggered;}
 
     @Override
     public void update() throws IOException, FontFormatException {
 
-        if (pointIsOver(MouseHandler.getX(), MouseHandler.getY())){
+        if (pointIsOver(MouseHandler.getX(), MouseHandler.getY()) || key_focused){
 
-            if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed){
+
+            if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed || KeyHandler.isSelectPressed){
                 triggerHandler();
             }
             else{
@@ -110,13 +116,13 @@ public class Button extends GameObject2D{
         calibrateMessage(50);
     }
 
-    void releasedHandler() throws FileNotFoundException {
+    void releasedHandler() throws IOException {
         //is overwritten
         triggered = false;
     }
 
     void calibrateMessage(int sizeDiff){
-        int textWidth = GamePanel.getGamePanel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
+        int textWidth = GamePanel.getGamePannel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
         buttonFontSize = (int) ((getWidth()-sizeDiff) / ((float) textWidth/buttonFontSize));
 
         buttonFont = new Font(buttonFontName, Font.PLAIN, buttonFontSize);
@@ -128,5 +134,10 @@ public class Button extends GameObject2D{
     @Override
     public String getDebugInfos(){
         return super.getDebugInfos() + ",isFocused:" + isFocused() + ",isTriggered" + isTriggered();
+    }
+
+    @Override
+    public Button getButton(){
+        return this;
     }
 }

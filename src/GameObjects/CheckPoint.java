@@ -2,7 +2,6 @@ package GameObjects;
 
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class CheckPoint extends GameObject2D{
         flag_appears = getAnimationList("Checkpoint", "flag_appears", 7);
         flag = getAnimationList("Checkpoint", "flag", 8);
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Checkpoint/no_flag/0.png")), 2.5, hitbox);
+        sprite = new Sprite(ImageIO.read(new File("assets/Checkpoint/no_flag/0.png")), 2.5);
         setAnimation(no_flag, no_flagAnimationSpeed);
     }
 
@@ -49,5 +48,10 @@ public class CheckPoint extends GameObject2D{
             setNextAnimation(flag, flagAnimationSpeed);
 
         }
+    }
+
+    @Override
+    public void update(){
+        animate();
     }
 }

@@ -54,13 +54,9 @@ public class Camera extends GameGrid {
     public void updateAll() throws IOException, FontFormatException {
         //update every game object
         level.update();
-        update();
-    }
 
-    public void graphicalUpdate(){
-        //updates every ongoing graphical change
-        level.graphicalUpdate();
-        move();
+        //update itself
+        update();
     }
 
     void update(){
@@ -114,9 +110,8 @@ public class Camera extends GameGrid {
             }
         }else{stopMovementY();}
 
-        if (velocityX != 0 || velocityY != 0){
-            updateGrid();
-        }
+
+        move();
     }
 
     public int getHardBorderX(){return hardBorderX;}
@@ -136,27 +131,32 @@ public class Camera extends GameGrid {
     }
 
     void move(){
-        int movX = (int) Math.round(velocityX * GamePanel.getTDeltaTime());
-        int movY = (int) Math.round(velocityY * GamePanel.getTDeltaTime());
+        int movX = (int) Math.round(velocityX * GamePanel.deltaTime);
+        int movY = (int) Math.round(velocityY * GamePanel.deltaTime);
 
         //little logic to make sure that the camera moves, even when it moves slowly
         if (movX == 0 && velocityX != 0){
-            x -= Math.signum(velocityX);
+            x -= (int) Math.signum(velocityX);
         }else{x -= movX;}
 
         if (movY == 0 && velocityY != 0){
-            y -= Math.signum(velocityY);
+            y -= (int) Math.signum(velocityY);
         }else{y -= movY;}
+
+
+        if (velocityX != 0 || velocityY != 0){
+            updateGrid();
+        }
     }
 
-    public void instantMove(int posX, int posY){
+    public void move(int posX, int posY){
         x = posX;
         y = posY;
     }
 
     void stopMovementX(){
         if(Math.abs(velocityX) >= stoppingSpeedX){
-            velocityX -= stoppingSpeedX * Math.signum(velocityX) * GamePanel.getDeltaTime();
+            velocityX -= stoppingSpeedX * Math.signum(velocityX) * GamePanel.deltaTime;
         }else {
             velocityX = 0;
         }
@@ -164,7 +164,7 @@ public class Camera extends GameGrid {
 
     void stopMovementY(){
         if(Math.abs(velocityY) >= stoppingSpeedY){
-            velocityY -= stoppingSpeedY * Math.signum(velocityY) * GamePanel.getDeltaTime();
+            velocityY -= stoppingSpeedY * Math.signum(velocityY) * GamePanel.deltaTime;
         }else {
             velocityY = 0;
         }

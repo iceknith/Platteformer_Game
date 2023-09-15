@@ -1,9 +1,11 @@
 package GameObjects;
 
+import main.GamePanel;
+
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Platform extends GameObject2D{
 
@@ -22,6 +24,8 @@ public class Platform extends GameObject2D{
     }
 
     public void collision(Entity e){
-
+        if (Objects.equals(type, "Platform_win")){
+            GamePanel.camera.level.openSubLevel("win", false, true);
+        }
     }
 }
