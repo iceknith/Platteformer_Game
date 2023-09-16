@@ -9,8 +9,8 @@ import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.ArrayList;
 
-import static GameObjects.HighScoresDisplay.highScoresNames;
-import static GameObjects.HighScoresDisplay.highScoresTimes;
+import static GameObjects.HighScoresDisplay.globalHighScoresNames;
+import static GameObjects.HighScoresDisplay.globalHighScoresTimes;
 
 public class ScoreRegister extends GameObject2D{
 
@@ -198,23 +198,23 @@ public class ScoreRegister extends GameObject2D{
 
         int j = 0;
         //add the score, so that the score list is still sorted
-        while (j < highScoresTimes.size()){
-            if(GamePanel.inGameTimer < highScoresTimes.get(j)){
-                highScoresTimes.add(j, GamePanel.inGameTimer);
-                highScoresNames.add(j, playerName);
+        while (j < globalHighScoresTimes.size()){
+            if(GamePanel.inGameTimer < globalHighScoresTimes.get(j)){
+                globalHighScoresTimes.add(j, GamePanel.inGameTimer);
+                globalHighScoresNames.add(j, playerName);
                 break;
             }
             j++;
         }
-        if (j<50 && j == highScoresTimes.size()){
-            highScoresTimes.add(GamePanel.inGameTimer);
-            highScoresNames.add(name);
+        if (j<50 && j == globalHighScoresTimes.size()){
+            globalHighScoresTimes.add(GamePanel.inGameTimer);
+            globalHighScoresNames.add(playerName);
         }
 
         //making sure that the lists aren't too big
-        while (highScoresTimes.size() >= 50){
-            highScoresTimes.remove(highScoresTimes.size() - 1);
-            highScoresNames.remove(highScoresNames.size() - 1);
+        while (globalHighScoresTimes.size() >= 50){
+            globalHighScoresTimes.remove(globalHighScoresTimes.size() - 1);
+            globalHighScoresNames.remove(globalHighScoresNames.size() - 1);
         }
 
         //writing in the file
@@ -222,9 +222,9 @@ public class ScoreRegister extends GameObject2D{
         FileWriter fw = new FileWriter(fnew, false);
         PrintWriter pw = new PrintWriter(fw);
 
-        for (int i = 0; i < highScoresTimes.size(); i++){
+        for (int i = 0; i < globalHighScoresTimes.size(); i++){
             //fw.write(hsN.get(i)+"-"+hsT.get(i)+"\n");
-            String txt = highScoresNames.get(i)+"-"+highScoresTimes.get(i);
+            String txt = globalHighScoresNames.get(i)+"-"+ globalHighScoresTimes.get(i);
             pw.println(txt);
         }
 

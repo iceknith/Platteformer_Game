@@ -14,7 +14,6 @@ public class Platform extends GameObject2D{
 
         type = "Platform_" + textureName;
         name = type+id;
-
         sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+textureName+"/0.png")), hitbox);
     }
 
@@ -26,6 +25,10 @@ public class Platform extends GameObject2D{
     public void collision(Entity e){
         if (Objects.equals(type, "Platform_win")){
             GamePanel.camera.level.openSubLevel("win", false, true);
+        }
+
+        if (Objects.equals(type, "Platform_killer")){
+            GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
         }
     }
 }

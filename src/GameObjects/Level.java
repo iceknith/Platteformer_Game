@@ -126,7 +126,7 @@ public class Level {
                         }
 
                         Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i, "");
-                        //System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getHeight());
+                        //System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getsHeight());
                         objectsBuffer.add(p);
                     }
                     case 'C' ->{ //Checkpoint
@@ -277,7 +277,17 @@ public class Level {
                         int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
                         int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
-                        HighScoresDisplay h = new HighScoresDisplay(posX, posY, "");
+                        int cha;
+
+                        StringBuilder lvl = new StringBuilder();
+                        while ((cha = reader.read()) != 10) { // 10 == '\n'
+                            lvl.append((char) cha);
+                        }
+
+                        HighScoresDisplay h;
+
+                        if (lvl.isEmpty()) h = new HighScoresDisplay(posX, posY, "");
+                        else h = new HighScoresDisplay(posX, posY, "", lvl.toString());
                         objectsBuffer.add(h);
                     }
                     case 'R' -> { //High Score Register
@@ -374,6 +384,7 @@ public class Level {
             if (subLvlQueue.isEmpty()){
                 if (Objects.equals(subLvlName, "win")) GamePanel.camera.setNextLevel("menu");
                 setSubLvlUpdate("main", true);
+                setSubLvlDisplay("main", true);
             }else{
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);

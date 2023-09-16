@@ -14,9 +14,11 @@ import java.util.ArrayList;
 public class HighScoresDisplay extends GameObject2D {
 
     HighScoresDisplay(int posX, int posY, String subLvl) throws IOException {
-        super(0, 0, 0, 0, subLvl);
+        this(posX, posY, subLvl, GamePanel.camera.nextLevel);
+    }
 
-        String lvl = GamePanel.camera.nextLevel;
+    HighScoresDisplay(int posX, int posY, String subLvl, String lvl) throws IOException {
+        super(0, 0, 0, 0, subLvl);
 
         type = "ScoreDisplay_";
         name = type + "0";
@@ -44,6 +46,8 @@ public class HighScoresDisplay extends GameObject2D {
             while (line != null) {
 
                 String[] parts = line.split("-");
+                globalHighScoresNames.add(parts[0]);
+                globalHighScoresTimes.add(Integer.valueOf(parts[1]));
                 highScoresNames.add(parts[0]);
                 highScoresTimes.add(Integer.valueOf(parts[1]));
 
@@ -56,8 +60,11 @@ public class HighScoresDisplay extends GameObject2D {
         }
     }
     int x; int y;
-    public static ArrayList<String> highScoresNames = new ArrayList<>();
-    public static ArrayList<Integer> highScoresTimes = new ArrayList<>();
+
+    ArrayList<String> highScoresNames = new ArrayList<>();
+    ArrayList<Integer> highScoresTimes = new ArrayList<>();
+    public static ArrayList<String> globalHighScoresNames = new ArrayList<>();
+    public static ArrayList<Integer> globalHighScoresTimes = new ArrayList<>();
 
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
@@ -95,14 +102,14 @@ public class HighScoresDisplay extends GameObject2D {
         }
     }
 
-    public static int getCurrentHighScore(){
-        if (!highScoresTimes.isEmpty()) return highScoresTimes.get(0);
+    public static int getCurrentGlobalHighScores(){
+        if (!globalHighScoresTimes.isEmpty()) return globalHighScoresTimes.get(0);
         return Integer.MAX_VALUE;
     }
 
     public static void resetHighScores(){
-        highScoresTimes = new ArrayList<>();
-        highScoresNames = new ArrayList<>();
+        globalHighScoresTimes = new ArrayList<>();
+        globalHighScoresNames = new ArrayList<>();
     }
 
 }

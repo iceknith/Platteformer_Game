@@ -37,7 +37,7 @@ public class ScoreDisplay extends GameObject2D {
     public void draw(Graphics2D g2D, ImageObserver IO){
         String timerText;
 
-        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentHighScore()) {//insert a high score condition
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentGlobalHighScores()) {//insert a high score condition
             timerText = "NEW HIGH SCORE: " + GamePanel.inGameTimer/60000 + " min " + (GamePanel.inGameTimer/1000)%60 + " s " + GamePanel.inGameTimer%1000 + " ms";
         }
         else {
@@ -48,11 +48,11 @@ public class ScoreDisplay extends GameObject2D {
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
         g2D.fillRect(x-g2D.getFontMetrics().stringWidth(timerText)/2-20,y-g2D.getFontMetrics().getHeight()-15, g2D.getFontMetrics().stringWidth(timerText)+40, g2D.getFontMetrics().getHeight()+40);
 
-        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentHighScore()) g2D.setColor(Color.yellow);
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentGlobalHighScores()) g2D.setColor(Color.yellow);
         else g2D.setColor(Color.gray);
         g2D.drawRect(x-g2D.getFontMetrics().stringWidth(timerText)/2-20,y-g2D.getFontMetrics().getHeight()-15, g2D.getFontMetrics().stringWidth(timerText)+40, g2D.getFontMetrics().getHeight()+40);
 
-        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentHighScore()) g2D.setColor(Color.yellow);
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentGlobalHighScores()) g2D.setColor(Color.yellow);
         else g2D.setColor(Color.white);
         g2D.drawString(timerText, x-g2D.getFontMetrics().stringWidth(timerText)/2, y);
 
