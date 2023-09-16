@@ -3,12 +3,13 @@ package GameObjects;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class GameGrid {
 
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
 
-    ArrayList<GameObject2D> visible = new ArrayList<>();
+    Vector<GameObject2D> visible = new Vector<>();
     Level level = new Level();
 
     int x;
@@ -55,7 +56,7 @@ public class GameGrid {
 
     public ArrayList<GameObject2D> getUpdatable(){return level.getUpdatable();}
 
-    public ArrayList<GameObject2D> getVisible(){return visible;}
+    public Vector<GameObject2D> getVisible(){return visible;}
 
 
     public void setX(int posX) {x = posX;}
@@ -134,14 +135,18 @@ public class GameGrid {
 
     public void loadVisible(){
         resetGrid();
+        Vector<GameObject2D> GUI = new Vector<>();
 
         for (GameObject2D go: level.getDisplayedObjects()) {
+
             if (isInGrid(go) || go.isGUI){
-                visible.add(go);
+                if (go.isGUI) GUI.add(go);
+                else visible.add(go);
                 level.addUpdatable(go);
                 addGOInGrid(go);
             }
         }
+        visible.addAll(GUI);
     }
 
     public void setNextLevel(String lvl){

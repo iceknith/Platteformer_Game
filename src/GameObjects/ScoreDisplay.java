@@ -48,9 +48,12 @@ public class ScoreDisplay extends GameObject2D {
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
         g2D.fillRect(x-g2D.getFontMetrics().stringWidth(timerText)/2-20,y-g2D.getFontMetrics().getHeight()-15, g2D.getFontMetrics().stringWidth(timerText)+40, g2D.getFontMetrics().getHeight()+40);
 
-        g2D.setColor(Color.white);
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentHighScore()) g2D.setColor(Color.yellow);
+        else g2D.setColor(Color.gray);
         g2D.drawRect(x-g2D.getFontMetrics().stringWidth(timerText)/2-20,y-g2D.getFontMetrics().getHeight()-15, g2D.getFontMetrics().stringWidth(timerText)+40, g2D.getFontMetrics().getHeight()+40);
 
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentHighScore()) g2D.setColor(Color.yellow);
+        else g2D.setColor(Color.white);
         g2D.drawString(timerText, x-g2D.getFontMetrics().stringWidth(timerText)/2, y);
 
     }

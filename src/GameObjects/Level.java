@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Level {
 
@@ -246,15 +247,12 @@ public class Level {
                         int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
                         int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
-                        System.out.println(w + " - " + h);
                         if (w == 0 && h == 0){
                             w = GamePanel.camera.width;
                             h = GamePanel.camera.height;
 
                             posX += w/2;
                             posY += h/2;
-
-                            System.out.println(posX);
                         }
 
                         int cha;
@@ -263,7 +261,6 @@ public class Level {
                         while ((cha = reader.read()) != 10) { // 10 == '\n'
                             texture.append((char) cha);
                         }
-                        System.out.println(texture);
 
                         Image b = new Image(w,h,posX,posY,texture.toString(),"#"+i, "");
                         objectsBuffer.add(b);
@@ -368,13 +365,14 @@ public class Level {
 
     public void subLevelBackHandler(){
         if (subLvlQueue.isEmpty()){
-            openSubLevel("win",false, true);
+            openSubLevel("pause",false, true);
         }
         else{
             String subLvlName = subLvlQueue.remove(subLvlQueue.size()-1);
             setSubLvlUpdate(subLvlName, false);
             setSubLvlDisplay(subLvlName, false);
             if (subLvlQueue.isEmpty()){
+                if (Objects.equals(subLvlName, "win")) GamePanel.camera.setNextLevel("menu");
                 setSubLvlUpdate("main", true);
             }else{
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);

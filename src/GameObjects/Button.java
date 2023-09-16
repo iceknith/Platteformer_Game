@@ -38,9 +38,6 @@ public class Button extends GameObject2D{
 
         sprite = new Sprite(ImageIO.read(new File("assets/Button/"+textureName+"/unfocused/0.png")), hitbox);
 
-        //text
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-
         buttonFontName = "Eight Bit Dragon";
         buttonFontSize = 100;
         buttonMessage = message;
@@ -85,12 +82,14 @@ public class Button extends GameObject2D{
     }
 
     public void draw(Graphics2D g2D, ImageObserver imageObserver){
+
         super.draw(g2D, imageObserver);
 
         //draw message
         g2D.setFont(buttonFont);
         g2D.setColor(buttonMessageColor);
         g2D.drawString(buttonMessage, buttonMessageX, buttonMessageY);
+
     }
 
     void unfocusedHandler() throws  IOException{

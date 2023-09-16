@@ -5,7 +5,7 @@ import main.GamePanel;
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class Camera extends GameGrid {
 
@@ -48,7 +48,7 @@ public class Camera extends GameGrid {
         softBorderXoffset = 0;
         softBorderYoffset = 100;
 
-        visible = new ArrayList<>();
+        visible = new Vector<>();
     }
 
     public void updateAll() throws IOException, FontFormatException {

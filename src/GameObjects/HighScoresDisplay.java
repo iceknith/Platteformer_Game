@@ -24,15 +24,16 @@ public class HighScoresDisplay extends GameObject2D {
         hasPhysicalCollisions = false;
         isGUI = true;
 
+
         sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
 
         x = posX;
         y = posY;
         if (x==0){
-            x = GamePanel.camera.width*3/8;
+            x = GamePanel.camera.width/4;
         }
         if (y==0){
-            y = GamePanel.camera.height*2/5;
+            y = GamePanel.camera.height/4;
         }
         BufferedReader reader;
 
@@ -62,7 +63,9 @@ public class HighScoresDisplay extends GameObject2D {
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
-        g2D.fillRect(x, y, GamePanel.camera.width/4, GamePanel.camera.height/2);
+        g2D.fillRect(x, y, GamePanel.camera.width/4, GamePanel.camera.height*3/5);
+        g2D.setColor(Color.gray);
+        g2D.drawRect(x, y, GamePanel.camera.width/4, GamePanel.camera.height*3/5);
 
         g2D.setColor(Color.white);
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 30));
@@ -73,7 +76,7 @@ public class HighScoresDisplay extends GameObject2D {
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
 
         //System.out.println("Nombre de lignes maximal "+(GamePanel.camera.height/2)/g2D.getFontMetrics().getHeight());
-        for (int i = 0; i < Math.min(highScoresNames.size(), (GamePanel.camera.height/2 - yOffset)/(g2D.getFontMetrics().getHeight() + 10)); i++){
+        for (int i = 0; i < Math.min(highScoresNames.size(), (GamePanel.camera.height*3/5 - yOffset)/(g2D.getFontMetrics().getHeight() + 10)); i++){
 
             int posX = x+30+g2D.getFontMetrics().stringWidth(highScoresNames.get(i) + " : ");
             int posY = y+40+yOffset+i*(g2D.getFontMetrics().getHeight() + 10);
