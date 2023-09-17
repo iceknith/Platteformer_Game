@@ -230,6 +230,7 @@ public class ScoreRegister extends GameObject2D{
 
         pw.close();
 
+        KeyHandler.isSelectPressed = false;
         GamePanel.camera.setNextLevel("menu");
     }
 

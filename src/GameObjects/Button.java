@@ -62,7 +62,7 @@ public class Button extends GameObject2D{
     @Override
     public void update() throws IOException, FontFormatException {
 
-        if (pointIsOver(MouseHandler.getX(), MouseHandler.getY()) || key_focused){
+        if (key_focused){
 
 
             if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed || KeyHandler.isSelectPressed){

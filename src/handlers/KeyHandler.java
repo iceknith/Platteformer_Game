@@ -15,6 +15,7 @@ public class KeyHandler implements KeyListener {
     static int jumpKey = KeyEvent.VK_SPACE;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
+    static int[] instantQuitKeys = {KeyEvent.VK_ESCAPE, KeyEvent.VK_BACK_SPACE};
 
     static int lastKeyPressed;
 
@@ -27,6 +28,7 @@ public class KeyHandler implements KeyListener {
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
     public static boolean isMenuKeyPressed;
+    boolean[] isInstantQuitKeysPressed = {false, false};
 
     public static long rightPressedTime = 0;
     public static long leftPressedTime = 0;
@@ -72,6 +74,14 @@ public class KeyHandler implements KeyListener {
         if (k == selectKey){
             isSelectPressed = true;
         }
+        if (k == instantQuitKeys[0]){
+            isInstantQuitKeysPressed[0] = true;
+            if (isInstantQuitKeysPressed[1]) System.exit(0);
+        }
+        if (k == instantQuitKeys[1]){
+            isInstantQuitKeysPressed[1] = true;
+            if (isInstantQuitKeysPressed[0]) System.exit(0);
+        }
 
         lastKeyPressed = k;
     }
@@ -105,6 +115,12 @@ public class KeyHandler implements KeyListener {
         }
         if (k == selectKey){
             isSelectPressed = false;
+        }
+        if (k == instantQuitKeys[0]){
+            isInstantQuitKeysPressed[0] = false;
+        }
+        if (k == instantQuitKeys[1]){
+            isInstantQuitKeysPressed[1] = false;
         }
     }
 

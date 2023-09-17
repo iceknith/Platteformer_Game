@@ -90,7 +90,7 @@ public class Level {
                 header.append((char) reader.read());
             }
             //check if version is correct
-            if (! header.toString().equals("GameIce->VB0.2")){
+            if (! header.toString().equals("GameIce->VB0.3")){
                 throw new FileNotFoundException("File not recognized");
             }
 
