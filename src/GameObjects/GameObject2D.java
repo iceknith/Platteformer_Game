@@ -16,6 +16,29 @@ public class GameObject2D{
         subLevelName = subLvl;
     }
 
+    GameObject2D(GameObject2D go){
+        name = go.name;
+        type = go.getType();
+        subLevelName = go.subLevelName;
+        hitbox = (Rectangle) go.hitbox.clone();
+
+        hasPhysicalCollisions = go.hasPhysicalCollisions;
+        isGUI = go.isGUI;
+
+        sprite = go.getSprite().copy();
+
+        if (go.currentAnimation != null) currentAnimation = new ArrayList<>(go.currentAnimation);
+        else currentAnimation = null;
+        if (go.nextAnimation != null) nextAnimation = new ArrayList<>(go.nextAnimation);
+        else nextAnimation = null;
+
+        animationIndex = go.animationIndex;
+        animationSpeed = go.animationSpeed;
+        nextAnimationSpeed = go.nextAnimationSpeed;
+        animateTime = go.animateTime;
+        animationPriority = go.animationPriority;
+    }
+
     String name;
     String type;
 
@@ -135,7 +158,7 @@ public class GameObject2D{
 
             if (animationIndex >= getAnimation().size()){
                 if (nextAnimation != null){
-                    currentAnimation = nextAnimation;
+                    currentAnimation = new ArrayList<>(nextAnimation);
                     animationSpeed = nextAnimationSpeed;
                     animationPriority = 0;
                     nextAnimation = null;
@@ -171,6 +194,12 @@ public class GameObject2D{
         //is overwritten after in more specific context
     }
 
+    public GameObject2D copy() throws IOException {
+        //returns a deep copy of this GameObject2D
+        //is overwritten in children class
+        return new GameObject2D(this);
+    }
+
     public String getDebugInfos(){
         return "InfoDebug " +name + ": x:" + getX() + ",y:" + getY() + ",w:" + getWidth() + ",h:" + getHeight() + ",Sprite:" + getSprite().toString();
     }
@@ -178,6 +207,10 @@ public class GameObject2D{
     //type specific methods
     public Button getButton() throws Exception {
         throw new Exception("Method used on a non-button GameObject");
+    }
+
+    public Player getThisPlayer(){
+        return null;
     }
 
     //static methods and variables

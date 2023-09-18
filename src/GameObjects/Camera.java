@@ -1,5 +1,6 @@
 package GameObjects;
 
+import handlers.MouseHandler;
 import main.GamePanel;
 
 import java.awt.*;
@@ -60,13 +61,19 @@ public class Camera extends GameGrid {
     }
 
     void update(){
+
+        if (level.updateLevelMaker){
+            levelMakerCameraUpdate();
+            return;
+        }
+
         //do not update camera if no player
         if (level.hasNoPlayer()){
             //updateGrid();
             return;
         }
 
-        Player p = GameObject2D.getPlayer();
+        Player p = GameObject2D.player;
 
         //variation = the difference between the center of the screen and the furthest corner of the player
         int variationX;
@@ -110,6 +117,28 @@ public class Camera extends GameGrid {
             }
         }else{stopMovementY();}
 
+
+        move();
+    }
+
+    void levelMakerCameraUpdate(){
+        //movement X
+        if (MouseHandler.getX() <= width/8){
+            velocityX = Math.max((double) width/8 - MouseHandler.getX(), -50);
+        }
+        else if (MouseHandler.getX() >= width*7/8){
+            velocityX = Math.min((double) width*7/8 - MouseHandler.getX(), 50);
+        }
+        else velocityX = 0;
+
+        //movement Y
+        if (MouseHandler.getY() <= height/8){
+            velocityY = Math.max((double) height/8 - MouseHandler.getY(), -50);
+        }
+        else if (MouseHandler.getY() >= height*7/8){
+            velocityY = Math.min((double) height*7/8 - MouseHandler.getY(), 50);
+        }
+        else velocityY = 0;
 
         move();
     }

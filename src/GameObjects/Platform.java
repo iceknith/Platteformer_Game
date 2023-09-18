@@ -17,9 +17,13 @@ public class Platform extends GameObject2D{
         sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+textureName+"/0.png")), hitbox);
     }
 
+    public Platform(Platform p){
+        super(p);
+    }
+
     @Override
     public void update(){
-
+        //System.out.println("Updated");
     }
 
     public void collision(Entity e){
@@ -30,5 +34,10 @@ public class Platform extends GameObject2D{
         if (Objects.equals(type, "Platform_killer")){
             GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
         }
+    }
+
+    @Override
+    public GameObject2D copy() {
+        return new Platform(this);
     }
 }

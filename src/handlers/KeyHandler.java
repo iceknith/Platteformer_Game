@@ -6,15 +6,16 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
 
     static int rightKey = KeyEvent.VK_D;
-    static int leftKey = KeyEvent.VK_A;
+    static int leftKey = KeyEvent.VK_Q;
 
-    static int upKey = KeyEvent.VK_W;
+    static int upKey = KeyEvent.VK_Z;
     static int downKey = KeyEvent.VK_S;
     static int selectKey = KeyEvent.VK_ENTER;
     static int suicideKey = KeyEvent.VK_E;
     static int jumpKey = KeyEvent.VK_SPACE;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
+    static  int launchKey = KeyEvent.VK_F5;
     static int[] instantQuitKeys = {KeyEvent.VK_ESCAPE, KeyEvent.VK_BACK_SPACE};
 
     static int lastKeyPressed;
@@ -28,6 +29,7 @@ public class KeyHandler implements KeyListener {
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
     public static boolean isMenuKeyPressed;
+    public static boolean isLaunchKeyPressed;
     boolean[] isInstantQuitKeysPressed = {false, false};
 
     public static long rightPressedTime = 0;
@@ -74,6 +76,9 @@ public class KeyHandler implements KeyListener {
         if (k == selectKey){
             isSelectPressed = true;
         }
+        if (k == launchKey){
+            isLaunchKeyPressed = true;
+        }
         if (k == instantQuitKeys[0]){
             isInstantQuitKeysPressed[0] = true;
             if (isInstantQuitKeysPressed[1]) System.exit(0);
@@ -115,6 +120,9 @@ public class KeyHandler implements KeyListener {
         }
         if (k == selectKey){
             isSelectPressed = false;
+        }
+        if (k == launchKey){
+            isLaunchKeyPressed = false;
         }
         if (k == instantQuitKeys[0]){
             isInstantQuitKeysPressed[0] = false;

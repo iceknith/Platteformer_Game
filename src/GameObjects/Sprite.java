@@ -33,6 +33,17 @@ public class Sprite {
 
     }
 
+    public Sprite(Sprite s){
+        image = s.image;
+
+        width = s.width;
+        height = s.height;
+        offsetX = s.offsetX;
+        offsetY = s.offsetY;
+        direction = s.direction;
+        resizeFactor = s.resizeFactor;
+    }
+
     public BufferedImage getImage(){return image;}
 
     public int getWidth(){return width*direction;}
@@ -72,4 +83,8 @@ public class Sprite {
     }
 
     void setResizeFactor(int newResizeFactor){resizeFactor = newResizeFactor;}
+
+    public Sprite copy(){
+        return new Sprite(this);
+    }
 }

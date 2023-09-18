@@ -2,6 +2,7 @@ package GameObjects;
 
 import handlers.KeyHandler;
 import main.GamePanel;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.BufferedInputStream;
@@ -17,10 +18,18 @@ public class Level {
     ArrayList<SubLevel> subLevels = new ArrayList<>();
     ArrayList<String> subLvlQueue = new ArrayList<>();
     ArrayList<GameObject2D> updatable = new ArrayList<>();
+    ArrayList<GameObject2D> updatableBuffer = new ArrayList<>();
     ArrayList<Button> buttons = new ArrayList<>();
 
+    boolean noUpdatableModification;
     boolean wasMenuKeyPressed;
     boolean forceUpdate;
+    boolean willUpdatableClear = false;
+
+    //level maker
+    boolean hasLevelMaker;
+    boolean updateLevelMaker;
+    LevelMaker lvlMaker;
 
     public Level(String name) throws FileNotFoundException {
         levelName = name;
@@ -46,6 +55,7 @@ public class Level {
     }
 
     public void update() throws IOException, FontFormatException {
+
         if(KeyHandler.isMenuKeyPressed && ! wasMenuKeyPressed){
             subLevelBackHandler();
             wasMenuKeyPressed = true;
@@ -59,19 +69,41 @@ public class Level {
             forceUpdate = false;
         }
 
+        if(updateLevelMaker){
+            lvlMaker.update();
+            return;
+        }
+
+        noUpdatableModification = true;
+
         for (GameObject2D go: updatable) {
             go.update();
         }
         for (SubLevel sl: subLevels){
             sl.update();
         }
+
+        noUpdatableModification = false;
+
+        //buffered actions
+        if (willUpdatableClear) {
+            updatable.clear();
+            willUpdatableClear = false;
+        }
+
+        updatable.addAll(updatableBuffer);
+        updatableBuffer = new ArrayList<>();
+
     }
 
     public void loadLevel() throws FileNotFoundException {
         if (levelName.isEmpty()){
             throw new FileNotFoundException("No level selected");
         }
+        hasLevelMaker = false;
+        lvlMaker = null;
         loadLevel(levelName, new ArrayList<>());
+        updateLevelMaker = hasLevelMaker;
     }
 
     public ArrayList<GameObject2D> loadLevel(String level, ArrayList<GameObject2D> objBuffer){
@@ -297,6 +329,14 @@ public class Level {
                         ScoreRegister r = new ScoreRegister(posX, posY, "");
                         objectsBuffer.add(r);
                     }
+                    case 'M' -> { //level maker
+                        LevelMaker l = new LevelMaker();
+
+                        hasLevelMaker = true;
+                        lvlMaker = l;
+
+                        objectsBuffer.add(l);
+                    }
 
                     case 'L' ->{ //subLevel
 
@@ -376,6 +416,7 @@ public class Level {
     public void subLevelBackHandler(){
         if (subLvlQueue.isEmpty()){
             openSubLevel("pause",false, true);
+            if (updateLevelMaker) updateLevelMaker = false;
         }
         else{
             String subLvlName = subLvlQueue.remove(subLvlQueue.size()-1);
@@ -383,8 +424,10 @@ public class Level {
             setSubLvlDisplay(subLvlName, false);
             if (subLvlQueue.isEmpty()){
                 if (Objects.equals(subLvlName, "win")) GamePanel.camera.setNextLevel("menu");
+
                 setSubLvlUpdate("main", true);
                 setSubLvlDisplay("main", true);
+                if (hasLevelMaker) updateLevelMaker = true;
             }else{
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);
@@ -394,7 +437,7 @@ public class Level {
         forceUpdate = true;
     }
 
-    public void openSubLevel(String subLvlName, boolean doLastLvlUpdate, boolean doLastLvlDisplay){
+    public void openSubLevel(@NotNull String subLvlName, boolean doLastLvlUpdate, boolean doLastLvlDisplay){
         if (subLvlName.equals("back")){
             subLevelBackHandler();
             return;
@@ -435,9 +478,26 @@ public class Level {
         subLevels.remove(subLevel);
     }
 
-    public void addUpdatable(GameObject2D go){
+    public void addUpdatable(@NotNull GameObject2D go){
         if (getSubLvl(go.subLevelName).isUpdated){
-            updatable.add(go);
+            if (noUpdatableModification)
+                updatableBuffer.add(go);
+            else
+                updatable.add(go);
+        }
+    }
+
+    public void addToMainSubLevel(GameObject2D go){
+        addToSubLevel(go, "main");
+    }
+    public void addToSubLevel(GameObject2D go, String subLvlName){
+        SubLevel subLvl = getSubLvl(subLvlName);
+        subLvl.addObject(go);
+        /*if (subLvl.isUpdated){
+            updatableBuffer.add(go);
+        }*/
+        if (subLvl.isDisplayed){
+            GamePanel.camera.updateGrid();
         }
     }
 
@@ -446,7 +506,12 @@ public class Level {
     }
 
     public void clearUpdatable(){
-        updatable.clear();
+        if (noUpdatableModification) {
+            willUpdatableClear = true;
+        }
+        else{
+            updatable.clear();
+        }
     }
 
     public boolean hasNoPlayer(){

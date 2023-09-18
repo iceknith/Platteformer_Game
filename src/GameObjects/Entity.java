@@ -38,6 +38,41 @@ public class Entity extends GameObject2D{
         super(x, y, w, h, subLvl);
     }
 
+    Entity(Entity e){
+        super(e);
+        maxSpeed = e.maxSpeed;
+        acceleration = e.acceleration;
+        friction = e.friction;
+
+        airMaxSpeed = e.airMaxSpeed;
+        airAcceleration = e.airAcceleration;
+        airFriction = e.airFriction;
+
+        speedConversionPercent = e.speedConversionPercent;
+
+        jumpForce = e.jumpForce;
+        jumpingTime = e.jumpingTime;
+        gravity = e.gravity;
+
+        jumps = e.jumps;
+        maxJumps = e.maxJumps;
+        maxJumpingTime = e.maxJumpingTime;
+
+        velocityY = e.velocityY;
+        velocityX = e.velocityX;
+        prevX = e.prevX;
+        prevY = e.prevY;
+
+        isOnGround = e.isOnGround;
+        isJumping = e.isJumping;
+        wasJumping = e.wasJumping;
+    }
+
+    @Override
+    public GameObject2D copy() throws IOException {
+        return new Entity(this);
+    }
+
     public double getVelocityX(){return velocityX;}
 
     public double getVelocityY(){return velocityY;}
@@ -85,7 +120,7 @@ public class Entity extends GameObject2D{
         }
     }
 
-    void collision(GameObject2D go) throws IOException {
+    void collision(GameObject2D go) {
 
         if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
             getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
@@ -170,4 +205,12 @@ public class Entity extends GameObject2D{
         }
     }
 
+    @Override
+    public Player getThisPlayer() {
+        return getThisEntityPlayer();
+    }
+
+    public Player getThisEntityPlayer(){
+        return null;
+    }
 }

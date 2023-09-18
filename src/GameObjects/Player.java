@@ -35,6 +35,8 @@ public class Player extends Entity{
 
     boolean isDying;
 
+    boolean wasJumpPressed;
+
     int[] spawnPointPos;
 
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
@@ -75,6 +77,58 @@ public class Player extends Entity{
         death = getAnimationList("Player", "death", 6);
 
         setAnimation(idle, idleAnimationSpeed);
+    }
+
+    Player(Player p) throws IOException {
+        super(p);
+
+        type = p.type;
+        name = p.name;
+
+        velocityY = p.velocityY;
+        velocityX = p.velocityX;
+
+        maxSpeed = p.maxSpeed;
+        acceleration = p.acceleration;
+        friction = p.friction;
+
+        airMaxSpeed = p.airMaxSpeed;
+        airAcceleration = p.airAcceleration;
+        airFriction = p.airFriction;
+
+        jumpForce = p.jumpForce;
+        gravity = p.gravity;
+
+        maxJumps = p.maxJumps;
+        maxJumpingTime = p.maxJumpingTime;
+
+        spawnPointPos = p.spawnPointPos;
+
+        speedConversionPercent = p.speedConversionPercent;
+
+        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
+
+        idle = p.idle;
+        run = p.run;
+        jump = p.jump;
+        fall = p.fall;
+        fallFast = p.fallFast;
+        land = p.land;
+        death = p.death;
+
+        idleAnimationSpeed = p.idleAnimationSpeed;
+        runAnimationSpeed = p.runAnimationSpeed;
+        jumpAnimationSpeed = p.jumpAnimationSpeed;
+        fallAnimationSpeed = p.fallAnimationSpeed;
+        fallFastAnimationSpeed = p.fallFastAnimationSpeed;
+        landAnimationSpeed = p.landAnimationSpeed;
+        deathAnimationSpeed = p.deathAnimationSpeed;
+
+        setAnimation(idle, idleAnimationSpeed);
+
+        isDying = p.isDying;
+
+        wasJumpPressed = p.wasJumpPressed;
     }
 
     void movementHandler(){
@@ -132,7 +186,8 @@ public class Player extends Entity{
         }
 
         //jumping logic
-        if (KeyHandler.isJumpPressed && jumps > 0 && !wasJumping){
+        if (KeyHandler.isJumpPressed && jumps > 0 && !wasJumpPressed){
+            wasJumpPressed = true;
             isJumping = true;
             wasJumping = true;
             jumps -= 1;
@@ -145,11 +200,12 @@ public class Player extends Entity{
         }
 
         if (wasJumping){
-            if(!KeyHandler.isJumpPressed){
+            if(!KeyHandler.isJumpPressed) {
+                wasJumpPressed = false;
                 isJumping = false;
-                if (velocityY > 0){
+                if (velocityY > 0) {
                     velocityY /= 1.25;
-                }else{
+                } else {
                     wasJumping = false;
                 }
             }
@@ -166,7 +222,7 @@ public class Player extends Entity{
         }
 
 
-        if (getY() + GamePanel.camera.getY() > 1000 || KeyHandler.isSuicideKeyPressed || isDying){
+        if (getY() + GamePanel.camera.getY() > 1500 || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);
         }
 
@@ -205,5 +261,15 @@ public class Player extends Entity{
 
         //System.out.println("X:" + getX() + " V: " + velocityX);
         //System.out.println("Y:" + getY() + " V: " + velocityY);
+    }
+
+    @Override
+    public Player copy() throws IOException {
+        return new Player(this);
+    }
+
+    @Override
+    public Player getThisPlayer(){
+        return this;
     }
 }

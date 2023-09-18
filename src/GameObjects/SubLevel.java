@@ -41,7 +41,10 @@ public class SubLevel {
 
     public ArrayList<GameObject2D> getObjectList(){return objectList;}
 
-    public void addObject(GameObject2D object){objectList.add(object);}
+    public void addObject(GameObject2D go){
+        objectList.add(go);
+        go.setSubLevelName(name);
+    }
 
     public void update(){
         //button handling
