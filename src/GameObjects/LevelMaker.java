@@ -6,8 +6,7 @@ import main.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -131,6 +130,78 @@ public class LevelMaker extends GameObject2D{
             KeyHandler.isLaunchKeyPressed = false;
             GamePanel.camera.level.updateLevelMaker = false;
             isLevelLaunched = true;
+        }
+
+        if (KeyHandler.isSelectPressed){
+            saveLevel("test");
+        }
+    }
+
+    public void saveLevel(String lvlName) {
+        try{
+
+            File level = new File("assets/level/"+lvlName+".lvl");
+            level.createNewFile();
+
+            FileOutputStream fw = new FileOutputStream(level, false);
+
+            //header
+            fw.write("GameIce->VB0.3\nT\n".getBytes());
+
+            //body
+            for (GameObject2D go : objects){
+                if (go.getType().contains("Player")){
+                    fw.write("J".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write("\n".getBytes());
+                }
+                else if (go.getType().contains("Platform_")){
+                    fw.write("P".getBytes());
+                    fw.write(go.getWidth()/256);
+                    fw.write(go.getWidth()%256);
+                    fw.write(go.getHeight()/256);
+                    fw.write(go.getHeight()%256);
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write((go.getType().substring(9) + "\n").getBytes());
+                }
+                else if (go.getType().contains("Checkpoint")){
+                    fw.write("C".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write("\n".getBytes());
+                }
+            }
+
+            //endss
+            fw.write("LTTmain\nI".getBytes());
+            for (int i = 0; i < 8; i++) fw.write(0);
+            fw.write("settingsBg\nBL".getBytes());
+            fw.write(307/256);
+            fw.write(307%256);
+            fw.write(150/256);
+            fw.write(150%256);
+            fw.write(500/256);
+            fw.write(500%256);
+            fw.write(400/256);
+            fw.write(400%256);
+            fw.write((lvlName + ";Reset;base\nFsettings\nFwin\n").getBytes());
+
+            fw.close();
+            System.out.println("File /assets/level/"+lvlName+".lvl has been successfully saved" );
+
+            File highScores = new File("assets/HighScores/"+lvlName+".highscore");
+            highScores.createNewFile();
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
         }
     }
 }
