@@ -191,7 +191,7 @@ public class Entity extends GameObject2D{
         return result;
     }
 
-    void move() throws IOException {
+    void move() {
 
         prevX = getX();
         prevY = getY();

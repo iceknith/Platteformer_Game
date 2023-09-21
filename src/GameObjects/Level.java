@@ -273,6 +273,16 @@ public class Level {
                         }
                     }
 
+                    case 'D' -> { //drop down menu
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+
+                        DropDownMenu d = new DropDownMenu(posX, posY, w, h, "#" + i, "");
+                        objectsBuffer.add(d);
+                    }
+
                     case 'I' -> { //image
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
