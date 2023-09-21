@@ -1,6 +1,6 @@
 package GameObjects;
 
-import handlers.KeyHandler;
+import handlers.MouseHandler;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
@@ -8,18 +8,26 @@ import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public class DropDownMenu extends GameObject2D{
 
     boolean isOpen;
     boolean isAnimating;
-    boolean wasLaunchPressed;
 
     int openAnimSlowness;
 
     int displayedWidth;
     int displayedHeight;
-    DropDownMenu(int posX, int posY, int w, int h, String id, String subLvl) throws IOException {
+
+    int buttonHeight;
+    ArrayList<String> buttonText = new ArrayList<>();
+    ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
+    int selectedButton;
+
+    DropDownMenu(int posX, int posY, int w, int h, String id, String subLvl, List<String> bNames, List<Function<Void, Void>> bExec) throws IOException {
         super(posX, posY, w, h, subLvl);
 
         type = "DropDownMenu_";
@@ -32,28 +40,50 @@ public class DropDownMenu extends GameObject2D{
 
         isOpen = false;
         isAnimating = false;
-        openAnimSlowness = 1000000000; //time :
+        openAnimSlowness = 20000000; //slowness time: 0.02s
 
         displayedWidth = w;
         displayedHeight = 0;
+
+        buttonHeight = 50;
+        buttonText.addAll(bNames);
+        buttonExec.addAll(bExec);
+    }
+
+    public void setButtonHeight(int bh){
+        buttonHeight = bh;
+    }
+
+    public void setButtonText(List<String> bText){
+        buttonText = new ArrayList<>(bText);
+    }
+
+    public void setButtonExec(List<Function<Void, Void>> bExec){
+        buttonExec = new ArrayList<>(bExec);
+    }
+
+    @Override
+    public boolean pointIsIn(int x, int y){
+        return isOpen && super.pointIsIn(x,y);
     }
 
     public void activate(){
         isOpen = !isOpen;
-        if (isOpen) isAnimating = true;
+        isAnimating = true;
     }
 
     @Override
     public void update() throws IOException, FontFormatException {
-        super.update();
+        if (pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+            selectedButton = (getY() + displayedHeight - MouseHandler.getY()) / (buttonHeight + 10);
 
-        if(KeyHandler.isLaunchKeyPressed){
-            if (!wasLaunchPressed) {
-                activate();
-                wasLaunchPressed = true;
+            if (MouseHandler.isLeftClickPressed && selectedButton < buttonExec.size()){
+                buttonExec.get(selectedButton).apply(null);
             }
         }
-        else if (wasLaunchPressed) wasLaunchPressed = false;
+        else{
+            selectedButton = buttonText.size();
+        }
     }
 
     @Override
@@ -62,23 +92,42 @@ public class DropDownMenu extends GameObject2D{
             return;
         }
         if (isAnimating){
-            if (displayedHeight > getHeight() && isOpen){
+            if (displayedHeight > getHeight() - (getHeight() * GamePanel.deltaTime) / openAnimSlowness && isOpen){
                 isAnimating = false;
                 displayedHeight = getHeight();
             }
             else if (isOpen) displayedHeight += (int) ((getHeight() * GamePanel.deltaTime) / openAnimSlowness);
 
             //close
-            else if (displayedHeight < 0){
+            else if (displayedHeight < (getHeight() * GamePanel.deltaTime) / openAnimSlowness){
                 isAnimating = false;
                 displayedHeight = 0;
             }
             else displayedHeight -= (int) ((getHeight() * GamePanel.deltaTime) / openAnimSlowness);
-
-            System.out.println(displayedHeight);
         }
 
-        g2D.setColor(Color.black);
+        g2D.setColor(new Color(0f, 0f, 0f, .5f));
         g2D.fillRect(getX(), getY(), displayedWidth, displayedHeight);
+
+        int i = 0;
+        for (int j = displayedHeight - buttonHeight; j > -10 && i < buttonText.size() ; j -= buttonHeight + 10){
+            if (i == selectedButton){
+                g2D.setColor(Color.lightGray);
+                g2D.drawRect(getX(), getY() + j, displayedWidth, buttonHeight);
+                g2D.setColor(new Color(0f, 0f, 0f, .5f));
+            }
+            g2D.fillRect(getX(), getY() + j, displayedWidth, buttonHeight);
+            i ++;
+        }
+
+        g2D.setColor(Color.white);
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 30));
+        i = 0;
+        for (int j = displayedHeight - buttonHeight; j > -10 && i < buttonText.size(); j -= buttonHeight + 10){
+            g2D.drawString(buttonText.get(i),
+                    getX() + displayedWidth/2 - g2D.getFontMetrics().stringWidth(buttonText.get(i))/2,
+                    getY() + j + buttonHeight - g2D.getFontMetrics().getHeight()/2);
+            i++;
+        }
     }
 }

@@ -279,7 +279,8 @@ public class Level {
                         int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
                         int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
 
-                        DropDownMenu d = new DropDownMenu(posX, posY, w, h, "#" + i, "");
+                        DropDownMenu d = new DropDownMenu(posX, posY, w, h, "#" + i, "",
+                                new ArrayList<>(), new ArrayList<>());
                         objectsBuffer.add(d);
                     }
 

@@ -1,7 +1,6 @@
 package GameObjects;
 
 import handlers.KeyHandler;
-import handlers.MouseHandler;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
@@ -47,10 +46,6 @@ public class Button extends GameObject2D{
         calibrateMessage(10);
     }
 
-    boolean pointIsOver(int x, int y){
-        return x > getX() && x < getX() + getWidth() && y > getY() && y < getY() + getHeight();
-    }
-
     public boolean isFocused(){return focused;}
 
     public boolean isKey_focused(){return key_focused;}
@@ -65,7 +60,7 @@ public class Button extends GameObject2D{
         if (key_focused){
 
 
-            if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed || KeyHandler.isSelectPressed){
+            if (KeyHandler.isSelectPressed){
                 triggerHandler();
             }
             else{

@@ -172,6 +172,16 @@ public class GameObject2D{
 
     }
 
+    boolean pointIsIn(int x, int y){
+        if (isGUI){
+            return getX() <= x && x <= getX() + getWidth() &&
+                    getY() <= y && y <= getY() + getHeight();
+        }
+        Camera camera = GamePanel.camera;
+        return getX() - camera.getX() <= x && x <= getX() + getWidth() - camera.getX() &&
+                getY() - camera.getY() <= y && y <= getY() + getHeight() - camera.getY();
+    }
+
     public void draw(Graphics2D g2D, ImageObserver IO){
         if (isGUI){
             g2D.drawImage(getSprite().getImage(),

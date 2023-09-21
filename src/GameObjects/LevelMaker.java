@@ -6,9 +6,12 @@ import main.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class LevelMaker extends GameObject2D{
     //A Game object, that performs more as a handler.
@@ -16,10 +19,11 @@ public class LevelMaker extends GameObject2D{
     //WARNING: currently it can only be used in the main class
 
     ArrayList<GameObject2D> objects = new ArrayList<>();
-    int id_counter = 0;
+    int id_counter = 1;
 
     boolean hasPlacedObject = false;
     boolean isLevelLaunched = false;
+    DropDownMenu rightClickMenu;
 
 
     LevelMaker() throws IOException {
@@ -32,10 +36,16 @@ public class LevelMaker extends GameObject2D{
         isGUI = true;
 
         sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
+
+        int buttonHeight = 75;
+        rightClickMenu = new DropDownMenu(0,0, 150, 3*buttonHeight, "#0", "",
+                new ArrayList<>(), new ArrayList<>());
     }
 
     @Override
     public void update() throws IOException, FontFormatException {
+
+        rightClickMenu.update();
 
         //if level is already launched
         if (isLevelLaunched){
@@ -65,7 +75,13 @@ public class LevelMaker extends GameObject2D{
         }
 
         //place objects
-        if (MouseHandler.isLeftClickPressed && !hasPlacedObject){
+        if ((MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed) && rightClickMenu.isOpen){
+            if (!rightClickMenu.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+                rightClickMenu.activate();
+                GamePanel.camera.noUpdate = false;
+            }
+        }
+        else if (MouseHandler.isLeftClickPressed && !hasPlacedObject){
             hasPlacedObject = true;
             id_counter += 1;
             //place objects
@@ -117,8 +133,70 @@ public class LevelMaker extends GameObject2D{
             hasPlacedObject = false;
         }
 
+        //edit placed objects
+        if (MouseHandler.isRightClickPressed && !rightClickMenu.isOpen){
+
+            int mouseX = MouseHandler.getX();
+            int mouseY = MouseHandler.getY();
+
+            for (GameObject2D go : objects){
+
+                if (go.pointIsIn(mouseX, mouseY)){
+
+                    Function<Void, Void> delete =
+                            unused -> {
+                                objects.remove(go);
+                                GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
+                                GamePanel.camera.updateGrid();
+
+                                rightClickMenu.activate();
+                                GamePanel.camera.noUpdate = false;
+
+                                return unused;
+                            };
+
+                    Function<Void, Void> resize =
+                            unused -> {
+                                go.setWidth(go.getWidth() + 10);
+                                go.setHeight(go.getHeight() + 10);
+                                go.sprite.resize(go.getWidth(), go.getHeight());
+                                return unused;
+                            };
+
+                    Function<Void, Void> move =
+                            unused -> {
+                                go.setX(go.getX() + 10);
+                                go.setY(go.getY() + 10);
+                                return unused;
+                            };
+
+                    rightClickMenu.setX(mouseX);
+                    rightClickMenu.setY(mouseY);
+
+                    if (go.type.contains("Player") || go.type.contains("Checkpoint")){
+                        rightClickMenu.setButtonText(Arrays.asList("Delete", "Move"));
+                        rightClickMenu.setButtonExec(Arrays.asList(delete, move));
+
+                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*2 - 10);
+                    }
+                    else{
+                        rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move"));
+                        rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move));
+
+                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
+                    }
+
+                    rightClickMenu.activate();
+
+                    GamePanel.camera.update();
+                    GamePanel.camera.noUpdate = true;
+                    break;
+                }
+            }
+        }
+
         //Launch Level
-        if (KeyHandler.isLaunchKeyPressed){
+        if (KeyHandler.isLaunchKeyPressed && !hasNoPlayer()){
 
             //save every object in its actual state
             ArrayList<GameObject2D> saveObj = new ArrayList<>();
@@ -135,6 +213,11 @@ public class LevelMaker extends GameObject2D{
         if (KeyHandler.isSelectPressed){
             saveLevel("test");
         }
+    }
+
+    @Override
+    public void draw(Graphics2D g2D, ImageObserver IO) {
+        rightClickMenu.draw(g2D, IO);
     }
 
     public void saveLevel(String lvlName) {

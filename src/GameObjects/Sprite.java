@@ -71,6 +71,19 @@ public class Sprite {
         height = hitbox.height;
     }
 
+    void setWidth(int w){
+        width = w;
+    }
+
+    void setHeight(int h){
+        height = h;
+    }
+
+    void resize(int w, int h){
+        width = w;
+        height = h;
+    }
+
     void setDirection(int newDir){
         if (newDir > 0){
             offsetX = 0;

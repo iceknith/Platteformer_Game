@@ -33,7 +33,7 @@ public class MouseHandler implements MouseListener {
     public void mousePressed(MouseEvent mouseEvent) {
         switch (mouseEvent.getButton()){
             case 1 -> isLeftClickPressed = true;
-            case 2 -> isRightClickPressed = true;
+            case 3 -> isRightClickPressed = true;
         }
     }
 
@@ -41,7 +41,7 @@ public class MouseHandler implements MouseListener {
     public void mouseReleased(MouseEvent mouseEvent) {
         switch (mouseEvent.getButton()){
             case 1 -> isLeftClickPressed = false;
-            case 2 -> isRightClickPressed = false;
+            case 3 -> isRightClickPressed = false;
         }
     }
 

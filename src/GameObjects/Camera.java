@@ -28,6 +28,8 @@ public class Camera extends GameGrid {
     int softBorderXoffset;
     int softBorderYoffset;
 
+    boolean noUpdate = false;
+
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
@@ -62,16 +64,15 @@ public class Camera extends GameGrid {
 
     void update(){
 
+        if (noUpdate) return;
+
         if (level.updateLevelMaker){
             levelMakerCameraUpdate();
             return;
         }
 
         //do not update camera if no player
-        if (level.hasNoPlayer()){
-            //updateGrid();
-            return;
-        }
+        if (level.hasNoPlayer()) return;
 
         Player p = GameObject2D.player;
 
