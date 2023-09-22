@@ -10,6 +10,7 @@ import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -173,7 +174,14 @@ public class LevelMaker extends GameObject2D{
                     rightClickMenu.setX(mouseX);
                     rightClickMenu.setY(mouseY);
 
-                    if (go.type.contains("Player") || go.type.contains("Checkpoint")){
+                    if (go.type.contains("Player")){
+                        rightClickMenu.setButtonText(List.of("Move"));
+                        rightClickMenu.setButtonExec(List.of(move));
+
+                        rightClickMenu.setHeight(rightClickMenu.buttonHeight);
+                    }
+
+                    else if (go.type.contains("Checkpoint")){
                         rightClickMenu.setButtonText(Arrays.asList("Delete", "Move"));
                         rightClickMenu.setButtonExec(Arrays.asList(delete, move));
 
