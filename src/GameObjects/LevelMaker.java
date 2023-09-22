@@ -20,11 +20,11 @@ public class LevelMaker extends GameObject2D{
     //WARNING: currently it can only be used in the main class
 
     ArrayList<GameObject2D> objects = new ArrayList<>();
-    int id_counter = 1;
+    int id_counter = 2;
 
-    boolean hasPlacedObject = false;
     boolean isLevelLaunched = false;
     DropDownMenu rightClickMenu;
+    TextInputMenu txtInputMenu;
 
 
     LevelMaker() throws IOException {
@@ -41,12 +41,15 @@ public class LevelMaker extends GameObject2D{
         int buttonHeight = 75;
         rightClickMenu = new DropDownMenu(0,0, 150, 3*buttonHeight, "#0", "",
                 new ArrayList<>(), new ArrayList<>());
+        txtInputMenu = new TextInputMenu(GamePanel.camera.width/2, GamePanel.camera.height/2,
+                "#1", "", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     @Override
     public void update() throws IOException, FontFormatException {
 
         rightClickMenu.update();
+        txtInputMenu.update();
 
         //if level is already launched
         if (isLevelLaunched){
@@ -75,15 +78,26 @@ public class LevelMaker extends GameObject2D{
             else return;
         }
 
-        //place objects
-        if ((MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed) && rightClickMenu.isOpen){
-            if (!rightClickMenu.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+        //close opened tabs logic
+        if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed){
+            if (rightClickMenu.isOpen &&
+                    !rightClickMenu.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+
+                MouseHandler.resetClicks();
                 rightClickMenu.activate();
                 GamePanel.camera.noUpdate = false;
             }
+            else if(txtInputMenu.isOpen &&
+                    (!txtInputMenu.pointIsIn(MouseHandler.getX(), MouseHandler.getY()) &&
+                     !txtInputMenu.pointIsOnButton(MouseHandler.getX(), MouseHandler.getY())) ){
+                MouseHandler.resetClicks();
+                txtInputMenu.isOpen = false;
+                GamePanel.camera.noUpdate = false;
+            }
         }
-        else if (MouseHandler.isLeftClickPressed && !hasPlacedObject){
-            hasPlacedObject = true;
+        //place objects
+        if (MouseHandler.isLeftClickPressed){
+            MouseHandler.resetClicks();
             id_counter += 1;
             //place objects
 
@@ -130,9 +144,6 @@ public class LevelMaker extends GameObject2D{
             }
 
         }
-        else if (!MouseHandler.isLeftClickPressed && hasPlacedObject){
-            hasPlacedObject = false;
-        }
 
         //edit placed objects
         if (MouseHandler.isRightClickPressed && !rightClickMenu.isOpen){
@@ -153,21 +164,40 @@ public class LevelMaker extends GameObject2D{
                                 rightClickMenu.activate();
                                 GamePanel.camera.noUpdate = false;
 
+                                MouseHandler.resetClicks();
+
                                 return unused;
                             };
 
                     Function<Void, Void> resize =
                             unused -> {
-                                go.setWidth(go.getWidth() + 10);
-                                go.setHeight(go.getHeight() + 10);
-                                go.sprite.resize(go.getWidth(), go.getHeight());
+                                txtInputMenu.setCategoryNames(Arrays.asList("Width: ", "Height: "));
+                                txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getWidth()), String.valueOf(go.getHeight())));
+                                txtInputMenu.setCategorySetValues(Arrays.asList(
+                                        i -> {go.setWidth(i); go.sprite.setWidth(i); return null;},
+                                        i -> {go.setHeight(i); go.sprite.setHeight(i); return null;}));
+
+                                txtInputMenu.isOpen = true;
+                                rightClickMenu.activate();
+
+                                MouseHandler.resetClicks();
+
                                 return unused;
                             };
 
                     Function<Void, Void> move =
                             unused -> {
-                                go.setX(go.getX() + 10);
-                                go.setY(go.getY() + 10);
+                                txtInputMenu.setCategoryNames(Arrays.asList("Position X: ", "Position Y: "));
+                                txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getX()), String.valueOf(go.getY())));
+                                txtInputMenu.setCategorySetValues(Arrays.asList(
+                                        i -> {go.setX(i); return null;},
+                                        i -> {go.setY(i); return null;}));
+
+                                txtInputMenu.isOpen = true;
+                                rightClickMenu.activate();
+
+                                MouseHandler.resetClicks();
+
                                 return unused;
                             };
 
@@ -226,6 +256,7 @@ public class LevelMaker extends GameObject2D{
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
         rightClickMenu.draw(g2D, IO);
+        txtInputMenu.draw(g2D, IO);
     }
 
     public void saveLevel(String lvlName) {

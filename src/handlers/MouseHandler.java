@@ -54,4 +54,9 @@ public class MouseHandler implements MouseListener {
     public void mouseExited(MouseEvent mouseEvent) {
 
     }
+
+    public static void resetClicks(){
+        isLeftClickPressed = false;
+        isRightClickPressed = false;
+    }
 }
