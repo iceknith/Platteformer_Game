@@ -26,6 +26,9 @@ public class LevelMaker extends GameObject2D{
     DropDownMenu rightClickMenu;
     TextInputMenu txtInputMenu;
 
+    int defaultObjWidth = 100;
+    int defaultObjHeight = 100;
+
 
     LevelMaker() throws IOException {
         super(0, 0, 0, 0, "");
@@ -113,7 +116,7 @@ public class LevelMaker extends GameObject2D{
 
             //platform
             else if (KeyHandler.isUpPressed) {
-                Platform p = new Platform(100, 100,
+                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
                         GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
                         "neon_green", "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(p);
@@ -128,7 +131,7 @@ public class LevelMaker extends GameObject2D{
             }
             //killer
             else if (KeyHandler.isLeftPressed) {
-                Platform p = new Platform(100, 100,
+                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
                         GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
                         "killer", "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(p);
@@ -136,7 +139,7 @@ public class LevelMaker extends GameObject2D{
             }
             //win
             else if (KeyHandler.isRightPressed){
-                Platform p = new Platform(100, 100,
+                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
                         GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
                         "win", "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(p);
@@ -174,8 +177,8 @@ public class LevelMaker extends GameObject2D{
                                 txtInputMenu.setCategoryNames(Arrays.asList("Width: ", "Height: "));
                                 txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getWidth()), String.valueOf(go.getHeight())));
                                 txtInputMenu.setCategorySetValues(Arrays.asList(
-                                        i -> {go.setWidth(i); go.sprite.setWidth(i); return null;},
-                                        i -> {go.setHeight(i); go.sprite.setHeight(i); return null;}));
+                                        i -> {go.setWidth(i); go.sprite.setWidth(i); defaultObjWidth = i; return null;},
+                                        i -> {go.setHeight(i); go.sprite.setHeight(i); defaultObjHeight = i; return null;}));
 
                                 txtInputMenu.isOpen = true;
                                 rightClickMenu.activate();
@@ -190,8 +193,8 @@ public class LevelMaker extends GameObject2D{
                                 txtInputMenu.setCategoryNames(Arrays.asList("Position X: ", "Position Y: "));
                                 txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getX()), String.valueOf(go.getY())));
                                 txtInputMenu.setCategorySetValues(Arrays.asList(
-                                        i -> {go.setX(i); return null;},
-                                        i -> {go.setY(i); return null;}));
+                                        i -> {go.setX(i); if (go.name.contains("Player")) player.spawnPointPos[0] = i; return null;},
+                                        i -> {go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i; return null;}));
 
                                 txtInputMenu.isOpen = true;
                                 rightClickMenu.activate();
