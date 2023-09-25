@@ -224,7 +224,8 @@ public class TextInputMenu extends GameObject2D {
 
     void validate(){
         for (int i = 0; i < categoryValues.size(); i++){
-            categorySetValues.get(i).apply(Integer.valueOf(categoryValues.get(i)));
+            if (categoryValues.get(i).isEmpty()) categorySetValues.get(i).apply(0);
+            else categorySetValues.get(i).apply(Integer.valueOf(categoryValues.get(i)));
         }
     }
 }

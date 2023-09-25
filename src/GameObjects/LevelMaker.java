@@ -1,5 +1,6 @@
 package GameObjects;
 
+import com.ibm.jvm.trace.format.api.Message;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
@@ -19,6 +20,9 @@ public class LevelMaker extends GameObject2D{
     //It allows for the creation of levels inside the game,
     //WARNING: currently it can only be used in the main class
 
+    public static boolean cameraCanMove = true;
+    boolean canPlaceObj = true;
+
     ArrayList<GameObject2D> objects = new ArrayList<>();
     int id_counter = 2;
 
@@ -26,11 +30,16 @@ public class LevelMaker extends GameObject2D{
     DropDownMenu rightClickMenu;
     TextInputMenu txtInputMenu;
 
+    ArrayList<Button> buttons = new ArrayList<>();
+
     int defaultObjWidth = 100;
     int defaultObjHeight = 100;
 
+    String nextObjType = "";
+    String nextObjTexture = "";
 
-    LevelMaker() throws IOException {
+
+    LevelMaker() throws IOException, FontFormatException {
         super(0, 0, 0, 0, "");
 
         type = "ScoreDisplay_";
@@ -46,6 +55,10 @@ public class LevelMaker extends GameObject2D{
                 new ArrayList<>(), new ArrayList<>());
         txtInputMenu = new TextInputMenu(GamePanel.camera.width/2, GamePanel.camera.height/2,
                 "#1", "", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+
+        buttons.add(new Button(150, 150, 400, 100, "base", "Platform", "#2", ""));
+        buttons.add(new Button(150, 150, 600, 100, "base", "Checkpoint", "#3", ""));
+        buttons.add(new Button(150, 150, 800, 100, "base", "Save", "#2", ""));
     }
 
     @Override
@@ -81,6 +94,8 @@ public class LevelMaker extends GameObject2D{
             else return;
         }
 
+        buttonLogic();
+
         //close opened tabs logic
         if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed){
             if (rightClickMenu.isOpen &&
@@ -99,7 +114,7 @@ public class LevelMaker extends GameObject2D{
             }
         }
         //place objects
-        if (MouseHandler.isLeftClickPressed){
+        if (MouseHandler.isLeftClickPressed && canPlaceObj){
             MouseHandler.resetClicks();
             id_counter += 1;
             //place objects
@@ -115,35 +130,19 @@ public class LevelMaker extends GameObject2D{
             }
 
             //platform
-            else if (KeyHandler.isUpPressed) {
+            else if (nextObjType.equals("Platform")) {
                 Platform p = new Platform(defaultObjWidth, defaultObjHeight,
                         GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
-                        "neon_green", "#"+id_counter, "");
+                        nextObjTexture, "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(p);
                 objects.add(p);
             }
             //checkpoint
-            else if (KeyHandler.isDownPressed) {
+            else if (nextObjType.equals("Checkpoint")) {
                 CheckPoint c = new CheckPoint(GamePanel.camera.x + MouseHandler.getX(),
                         GamePanel.camera.y + MouseHandler.getY(), "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(c);
                 objects.add(c);
-            }
-            //killer
-            else if (KeyHandler.isLeftPressed) {
-                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
-                        GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
-                        "killer", "#"+id_counter, "");
-                GamePanel.camera.level.addToMainSubLevel(p);
-                objects.add(p);
-            }
-            //win
-            else if (KeyHandler.isRightPressed){
-                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
-                        GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
-                        "win", "#"+id_counter, "");
-                GamePanel.camera.level.addToMainSubLevel(p);
-                objects.add(p);
             }
 
         }
@@ -206,6 +205,7 @@ public class LevelMaker extends GameObject2D{
 
                     rightClickMenu.setX(mouseX);
                     rightClickMenu.setY(mouseY);
+                    rightClickMenu.setDisplayedWidth(150);
 
                     if (go.type.contains("Player")){
                         rightClickMenu.setButtonText(List.of("Move"));
@@ -250,16 +250,95 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.updateLevelMaker = false;
             isLevelLaunched = true;
         }
-
-        if (KeyHandler.isSelectPressed){
-            saveLevel("test");
-        }
+        System.out.println("Viens sur Godot mec!");
     }
 
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
+
+        if (!isLevelLaunched){
+            for (Button b : buttons){
+                b.draw(g2D, IO);
+            }
+        }
+
         rightClickMenu.draw(g2D, IO);
         txtInputMenu.draw(g2D, IO);
+    }
+
+    void buttonLogic() throws IOException, FontFormatException {
+
+        cameraCanMove = true;
+        canPlaceObj = true;
+
+        for (Button b : buttons){
+            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+
+                cameraCanMove = false;
+                canPlaceObj = false;
+                if (!b.isTriggered()) b.focusHandler();
+
+                if (MouseHandler.isLeftClickPressed){
+
+                    MouseHandler.resetClicks();
+
+                    //un-trigger all buttons
+                    for (Button b2: buttons) {
+                        if (b2.isTriggered()) {
+                            b2.unfocusedHandler();
+                        }
+                    }
+
+                    b.triggerHandler();
+
+                    nextObjType = b.buttonMessage;
+
+                    if (nextObjType.equals("Platform")) {
+
+                        nextObjTexture = "neon_green";
+
+                        rightClickMenu.setX(MouseHandler.getX());
+                        rightClickMenu.setY(MouseHandler.getY());
+
+                        rightClickMenu.setButtonText(List.of("win", "killer", "neon_red", "neon_yellow", "neon_green"));
+                        rightClickMenu.setButtonExec(Arrays.asList(
+                                unused -> {nextObjTexture = "win"; rightClickMenu.activate();
+                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+
+                                unused -> {nextObjTexture = "killer"; rightClickMenu.activate();
+                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+
+                                unused -> {nextObjTexture = "neon_red"; rightClickMenu.activate();
+                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+
+                                unused -> {nextObjTexture = "neon_yellow"; rightClickMenu.activate();
+                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+
+                                unused -> {nextObjTexture = "neon_green"; rightClickMenu.activate();
+                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;}
+                        ));
+
+                        rightClickMenu.setDisplayedWidth(500);
+                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*5 - 10);
+
+                        if (!rightClickMenu.isOpen){
+                            rightClickMenu.activate();
+                        }
+
+                        GamePanel.camera.update();
+                        GamePanel.camera.noUpdate = true;
+
+                    }
+
+                    else if (nextObjType.equals("Save")) saveLevel("test");
+                }
+
+                break;
+
+            } else if (b.isFocused() && !b.isTriggered()){
+                b.unfocusedHandler();
+            }
+        }
     }
 
     public void saveLevel(String lvlName) {

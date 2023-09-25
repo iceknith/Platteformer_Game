@@ -123,6 +123,9 @@ public class Camera extends GameGrid {
     }
 
     void levelMakerCameraUpdate(){
+
+        if (!LevelMaker.cameraCanMove) return;
+
         //movement X
         if (MouseHandler.getX() <= width/8){
             velocityX = Math.max((double) width/8 - MouseHandler.getX(), -50);

@@ -54,6 +54,11 @@ public class DropDownMenu extends GameObject2D{
         buttonHeight = bh;
     }
 
+    public void setDisplayedWidth(int width) {
+        setWidth(width);
+        displayedWidth = width;
+    }
+
     public void setButtonText(List<String> bText){
         buttonText = new ArrayList<>(bText);
     }
