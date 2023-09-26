@@ -77,13 +77,14 @@ public class Button extends GameObject2D{
     }
 
     public void draw(Graphics2D g2D, ImageObserver imageObserver){
-
         super.draw(g2D, imageObserver);
 
         //draw message
         g2D.setFont(buttonFont);
         g2D.setColor(buttonMessageColor);
         g2D.drawString(buttonMessage, buttonMessageX, buttonMessageY);
+
+        System.out.println("width: " + getWidth() + " txtWidth " + g2D.getFontMetrics().stringWidth(buttonMessage));
 
     }
 
@@ -115,13 +116,25 @@ public class Button extends GameObject2D{
     }
 
     void calibrateMessage(int sizeDiff){
-        int textWidth = GamePanel.getGamePannel().getFontMetrics(new Font(buttonFontName, Font.PLAIN, buttonFontSize)).stringWidth(buttonMessage);
-        buttonFontSize = (int) ((getWidth()-sizeDiff) / ((float) textWidth/buttonFontSize));
+
+        buttonFontSize = getWidth();
+
+        for (int i = 0; i < getWidth(); i++) {
+            Font font = new Font(buttonFontName, Font.PLAIN, buttonFontSize);
+            int testWidth = GamePanel.getGamePannel().getFontMetrics(font).stringWidth(buttonMessage);
+
+            if (testWidth > getWidth() - sizeDiff) {
+                buttonFontSize--;
+            } else {
+                System.out.println("end");
+                break;
+            }
+        }
 
         buttonFont = new Font(buttonFontName, Font.PLAIN, buttonFontSize);
 
-        buttonMessageX = getX() + sizeDiff/2;
-        buttonMessageY = getY() + getHeight()/2 + buttonFontSize/2;
+        buttonMessageX = getX() + getWidth()/2 - GamePanel.getGamePannel().getFontMetrics(buttonFont).stringWidth(buttonMessage)/2;
+        buttonMessageY = getY() + getHeight()/2 + GamePanel.getGamePannel().getFontMetrics(buttonFont).getHeight()/2;
     }
 
     @Override

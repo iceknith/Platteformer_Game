@@ -250,7 +250,6 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.updateLevelMaker = false;
             isLevelLaunched = true;
         }
-        System.out.println("Viens sur Godot mec!");
     }
 
     @Override
