@@ -84,7 +84,6 @@ public class Button extends GameObject2D{
         g2D.setColor(buttonMessageColor);
         g2D.drawString(buttonMessage, buttonMessageX, buttonMessageY);
 
-        System.out.println("width: " + getWidth() + " txtWidth " + g2D.getFontMetrics().stringWidth(buttonMessage));
 
     }
 
@@ -126,7 +125,6 @@ public class Button extends GameObject2D{
             if (testWidth > getWidth() - sizeDiff) {
                 buttonFontSize--;
             } else {
-                System.out.println("end");
                 break;
             }
         }

@@ -1,6 +1,5 @@
 package GameObjects;
 
-import com.ibm.jvm.trace.format.api.Message;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
@@ -24,7 +23,7 @@ public class LevelMaker extends GameObject2D{
     boolean canPlaceObj = true;
 
     ArrayList<GameObject2D> objects = new ArrayList<>();
-    int id_counter = 2;
+    int id_counter = 6;
 
     boolean isLevelLaunched = false;
     DropDownMenu rightClickMenu;
@@ -37,6 +36,10 @@ public class LevelMaker extends GameObject2D{
 
     String nextObjType = "";
     String nextObjTexture = "";
+
+    boolean isInGridMode = false;
+    int gridCellWidth = 50;
+    int gridCellHeight = 50;
 
 
     LevelMaker() throws IOException, FontFormatException {
@@ -58,7 +61,8 @@ public class LevelMaker extends GameObject2D{
 
         buttons.add(new Button(150, 150, 400, 100, "base", "Platform", "#2", ""));
         buttons.add(new Button(150, 150, 600, 100, "base", "Checkpoint", "#3", ""));
-        buttons.add(new Button(150, 150, 800, 100, "base", "Save", "#2", ""));
+        buttons.add(new Button(150, 150, 800, 100, "base", "Grid", "#4", ""));
+        buttons.add(new Button(150, 150, 1000, 100, "base", "Save", "#5", ""));
     }
 
     @Override
@@ -117,12 +121,20 @@ public class LevelMaker extends GameObject2D{
         if (MouseHandler.isLeftClickPressed && canPlaceObj){
             MouseHandler.resetClicks();
             id_counter += 1;
-            //place objects
+
+            int x = GamePanel.camera.x + MouseHandler.getX();
+            int y = GamePanel.camera.y + MouseHandler.getY();
+            if (isInGridMode){
+                if (x >= 0) x -= x%gridCellWidth;
+                else x -= gridCellWidth + x%gridCellWidth;
+
+                if (y > 0) y -= y%gridCellHeight;
+                else y -= gridCellHeight + y%gridCellHeight;
+            }
 
             //player
             if (hasNoPlayer()){
-                Player p = new Player(GamePanel.camera.x + MouseHandler.getX(),
-                        GamePanel.camera.y + MouseHandler.getY(),
+                Player p = new Player(x, y,
                         "#0", "");
                 GamePanel.camera.level.addToMainSubLevel(p);
                 objects.add(p);
@@ -131,16 +143,15 @@ public class LevelMaker extends GameObject2D{
 
             //platform
             else if (nextObjType.equals("Platform")) {
-                Platform p = new Platform(defaultObjWidth, defaultObjHeight,
-                        GamePanel.camera.x + MouseHandler.getX(), GamePanel.camera.y + MouseHandler.getY(),
+                Platform p = new Platform(defaultObjWidth, defaultObjHeight, x, y,
                         nextObjTexture, "#"+id_counter, "");
+
                 GamePanel.camera.level.addToMainSubLevel(p);
                 objects.add(p);
             }
             //checkpoint
             else if (nextObjType.equals("Checkpoint")) {
-                CheckPoint c = new CheckPoint(GamePanel.camera.x + MouseHandler.getX(),
-                        GamePanel.camera.y + MouseHandler.getY(), "#"+id_counter, "");
+                CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
                 GamePanel.camera.level.addToMainSubLevel(c);
                 objects.add(c);
             }
@@ -176,12 +187,13 @@ public class LevelMaker extends GameObject2D{
                                 txtInputMenu.setCategoryNames(Arrays.asList("Width: ", "Height: "));
                                 txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getWidth()), String.valueOf(go.getHeight())));
                                 txtInputMenu.setCategorySetValues(Arrays.asList(
-                                        i -> {go.setWidth(i); go.sprite.setWidth(i); defaultObjWidth = i; return null;},
-                                        i -> {go.setHeight(i); go.sprite.setHeight(i); defaultObjHeight = i; return null;}));
+                                        i -> {go.setWidth(i); go.sprite.setWidth(i); if (!isInGridMode) defaultObjWidth = i; return null;},
+                                        i -> {go.setHeight(i); go.sprite.setHeight(i); if (!isInGridMode) defaultObjHeight = i; canPlaceObj = true; return null;}));
 
                                 txtInputMenu.isOpen = true;
                                 rightClickMenu.activate();
 
+                                canPlaceObj = false;
                                 MouseHandler.resetClicks();
 
                                 return unused;
@@ -193,11 +205,12 @@ public class LevelMaker extends GameObject2D{
                                 txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getX()), String.valueOf(go.getY())));
                                 txtInputMenu.setCategorySetValues(Arrays.asList(
                                         i -> {go.setX(i); if (go.name.contains("Player")) player.spawnPointPos[0] = i; return null;},
-                                        i -> {go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i; return null;}));
+                                        i -> {go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i; canPlaceObj = true; return null;}));
 
                                 txtInputMenu.isOpen = true;
                                 rightClickMenu.activate();
 
+                                canPlaceObj = false;
                                 MouseHandler.resetClicks();
 
                                 return unused;
@@ -256,19 +269,32 @@ public class LevelMaker extends GameObject2D{
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
         if (!isLevelLaunched){
+            if (isInGridMode){
+
+                for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
+
+                        for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
+
+                            g2D.drawRect(x , y , gridCellWidth, gridCellHeight);
+
+
+                    }
+                }
+            }
+
             for (Button b : buttons){
                 b.draw(g2D, IO);
             }
-        }
 
-        rightClickMenu.draw(g2D, IO);
-        txtInputMenu.draw(g2D, IO);
+            rightClickMenu.draw(g2D, IO);
+            txtInputMenu.draw(g2D, IO);
+        }
     }
 
-    void buttonLogic() throws IOException, FontFormatException {
+    void buttonLogic() throws IOException {
 
         cameraCanMove = true;
-        canPlaceObj = true;
+        canPlaceObj = !txtInputMenu.isOpen && !rightClickMenu.isOpen;
 
         for (Button b : buttons){
             if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
@@ -281,60 +307,102 @@ public class LevelMaker extends GameObject2D{
 
                     MouseHandler.resetClicks();
 
-                    //un-trigger all buttons
-                    for (Button b2: buttons) {
-                        if (b2.isTriggered()) {
-                            b2.unfocusedHandler();
-                        }
-                    }
-
-                    b.triggerHandler();
-
                     nextObjType = b.buttonMessage;
 
-                    if (nextObjType.equals("Platform")) {
+                    switch (nextObjType) {
 
-                        nextObjTexture = "neon_green";
+                        case "Platform" -> {
+                            nextObjTexture = "neon_green";
+                            rightClickMenu.setX(MouseHandler.getX());
+                            rightClickMenu.setY(MouseHandler.getY());
+                            rightClickMenu.setButtonText(List.of("win", "killer", "neon_red", "neon_yellow", "neon_green"));
+                            rightClickMenu.setButtonExec(Arrays.asList(
+                                    unused -> {
+                                        nextObjTexture = "win";
+                                        rightClickMenu.activate();
+                                        MouseHandler.resetClicks();
+                                        GamePanel.camera.noUpdate = false;
+                                        return unused;
+                                    },
 
-                        rightClickMenu.setX(MouseHandler.getX());
-                        rightClickMenu.setY(MouseHandler.getY());
+                                    unused -> {
+                                        nextObjTexture = "killer";
+                                        rightClickMenu.activate();
+                                        MouseHandler.resetClicks();
+                                        GamePanel.camera.noUpdate = false;
+                                        return unused;
+                                    },
 
-                        rightClickMenu.setButtonText(List.of("win", "killer", "neon_red", "neon_yellow", "neon_green"));
-                        rightClickMenu.setButtonExec(Arrays.asList(
-                                unused -> {nextObjTexture = "win"; rightClickMenu.activate();
-                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+                                    unused -> {
+                                        nextObjTexture = "neon_red";
+                                        rightClickMenu.activate();
+                                        MouseHandler.resetClicks();
+                                        GamePanel.camera.noUpdate = false;
+                                        return unused;
+                                    },
 
-                                unused -> {nextObjTexture = "killer"; rightClickMenu.activate();
-                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
+                                    unused -> {
+                                        nextObjTexture = "neon_yellow";
+                                        rightClickMenu.activate();
+                                        MouseHandler.resetClicks();
+                                        GamePanel.camera.noUpdate = false;
+                                        return unused;
+                                    },
 
-                                unused -> {nextObjTexture = "neon_red"; rightClickMenu.activate();
-                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
-
-                                unused -> {nextObjTexture = "neon_yellow"; rightClickMenu.activate();
-                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;},
-
-                                unused -> {nextObjTexture = "neon_green"; rightClickMenu.activate();
-                                    MouseHandler.resetClicks(); GamePanel.camera.noUpdate = false; return unused;}
-                        ));
-
-                        rightClickMenu.setDisplayedWidth(500);
-                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*5 - 10);
-
-                        if (!rightClickMenu.isOpen){
-                            rightClickMenu.activate();
+                                    unused -> {
+                                        nextObjTexture = "neon_green";
+                                        rightClickMenu.activate();
+                                        MouseHandler.resetClicks();
+                                        GamePanel.camera.noUpdate = false;
+                                        return unused;
+                                    }
+                            ));
+                            rightClickMenu.setDisplayedWidth(500);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * 5 - 10);
+                            if (!rightClickMenu.isOpen) {
+                                rightClickMenu.activate();
+                            }
+                            GamePanel.camera.update();
+                            GamePanel.camera.noUpdate = true;
                         }
 
-                        GamePanel.camera.update();
-                        GamePanel.camera.noUpdate = true;
+                        case "Grid" -> {
+                            if (!isInGridMode) {
 
+                                txtInputMenu.setCategoryNames(List.of("Grid Cell Width", "Grid Cell Height"));
+                                txtInputMenu.setDefaultValues(List.of(Integer.toString(gridCellWidth), Integer.toString(gridCellHeight)));
+                                txtInputMenu.setCategorySetValues(List.of(
+                                        i -> {
+                                            gridCellWidth = i;
+                                            defaultObjWidth = i;
+                                            return null;
+                                        },
+                                        i -> {
+                                            gridCellHeight = i;
+                                            defaultObjHeight = i;
+                                            isInGridMode = true;
+                                            canPlaceObj = true;
+                                            return null;
+                                        }
+                                ));
+
+                                txtInputMenu.isOpen = true;
+                                canPlaceObj = false;
+
+                                GamePanel.camera.update();
+                                GamePanel.camera.noUpdate = true;
+                            } else {
+                                isInGridMode = false;
+                            }
+                        }
+
+                        case "Save" -> saveLevel("test");
                     }
-
-                    else if (nextObjType.equals("Save")) saveLevel("test");
                 }
 
                 break;
 
-            } else if (b.isFocused() && !b.isTriggered()){
+            } else if (b.isFocused()){
                 b.unfocusedHandler();
             }
         }
