@@ -222,7 +222,7 @@ public class Player extends Entity{
         }
 
 
-        if (getY() + GamePanel.camera.getY() > 1500 || KeyHandler.isSuicideKeyPressed || isDying){
+        if (getY() + GamePanel.camera.getY() > 2000 || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);
         }
 

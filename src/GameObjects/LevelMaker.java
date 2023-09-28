@@ -6,6 +6,7 @@ import main.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Image;
 import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.*;
@@ -29,6 +30,11 @@ public class LevelMaker extends GameObject2D{
 
     ArrayList<Button> buttons = new ArrayList<>();
     HashMap<String,ArrayList<String>> platformTextures = new HashMap<>();
+    HashMap<String,ArrayList<String>> platformTextureNames = new HashMap<>();
+    HashMap<String, ArrayList<Image>> platformImages = new HashMap<>();
+    ArrayList<String> backgroundTextureNames = new ArrayList<>();
+    ArrayList<int[]> backgroundDimensions = new ArrayList<>();
+
     int maxButtonY;
 
     int defaultObjWidth = 100;
@@ -36,10 +42,12 @@ public class LevelMaker extends GameObject2D{
 
     String nextObjType = "";
     String nextObjTexture = "";
+    int[] nextBackgroundDims;
+    
 
     boolean isInGridMode = false;
-    int gridCellWidth = 50;
-    int gridCellHeight = 50;
+    int gridCellWidth = 64;
+    int gridCellHeight = 64;
 
 
     LevelMaker() throws IOException, FontFormatException {
@@ -165,7 +173,7 @@ public class LevelMaker extends GameObject2D{
 
             for (GameObject2D go : objects){
 
-                if (go.pointIsIn(mouseX, mouseY)){
+                if (!go.type.contains("Background_") && go.pointIsIn(mouseX, mouseY)){
 
                     Function<Void, Void> delete =
                             unused -> {
@@ -244,6 +252,7 @@ public class LevelMaker extends GameObject2D{
                     rightClickMenu.setX(mouseX);
                     rightClickMenu.setY(mouseY);
                     rightClickMenu.setDisplayedWidth(150);
+                    rightClickMenu.setHasImages(false);
 
                     if (go.type.contains("Player")){
                         rightClickMenu.setButtonText(List.of("Move"));
@@ -280,7 +289,6 @@ public class LevelMaker extends GameObject2D{
             //save every object in its actual state
             ArrayList<GameObject2D> saveObj = new ArrayList<>();
             for (GameObject2D go : objects){
-                System.out.println(go.getDebugInfos());
                 saveObj.add(go.copy());
             }
             objects = saveObj;
@@ -297,6 +305,8 @@ public class LevelMaker extends GameObject2D{
 
         if (!isLevelLaunched){
             if (isInGridMode){
+
+                g2D.setColor(Color.darkGray);
 
                 for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
 
@@ -319,12 +329,14 @@ public class LevelMaker extends GameObject2D{
     public void initButtons() throws IOException, FontFormatException {
 
         platformTextures = new HashMap<>();
+        platformImages = new HashMap<>();
+        platformTextureNames = new HashMap<>();
         String lastButtonMsg = "";
 
         int x = 500;
         int y = 60;
 
-
+        //read platform button info
         try {
             BufferedReader reader = new BufferedReader(new FileReader("assets/textureRegistery/Platform.textureReg"));
             String line = reader.readLine();
@@ -343,9 +355,16 @@ public class LevelMaker extends GameObject2D{
                     }
 
                     platformTextures.put(lastButtonMsg, new ArrayList<>());
+                    platformTextureNames.put(lastButtonMsg, new ArrayList<>());
+                    platformImages.put(lastButtonMsg, new ArrayList<>());
                 }
                 else{
+
+                    String[] textureName = line.split("/");
                     platformTextures.get(lastButtonMsg).add(line);
+                    platformTextureNames.get(lastButtonMsg).add(textureName[textureName.length - 1]);
+                    platformImages.get(lastButtonMsg).add(ImageIO.read(new File("assets/Platform/" + line + "/0.png")));
+
                 }
                 line = reader.readLine();
             }
@@ -355,7 +374,25 @@ public class LevelMaker extends GameObject2D{
             throw new RuntimeException(e);
         }
 
-        for (String msg : Arrays.asList("Checkpoint", "To Player", "Grid", "Load", "Save")){
+        //read background button info
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("assets/textureRegistery/Background.textureReg"));
+            String line = reader.readLine();
+
+            while (line != null) {
+
+                String[] lineSplit = line.split(";");
+                backgroundTextureNames.add(lineSplit[0]);
+                backgroundDimensions.add(new int[]{Integer.parseInt(lineSplit[1]), Integer.parseInt(lineSplit[2])});
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //define other buttons
+        for (String msg : Arrays.asList("Background","Checkpoint", "To Player", "Grid", "Load", "Save")){
 
             buttons.add(new Button(150, 100, x, y, "base", msg, "#" + id_counter, ""));
             id_counter ++;
@@ -390,6 +427,46 @@ public class LevelMaker extends GameObject2D{
 
                         case "Checkpoint" -> nextObjType = "Checkpoint";
 
+                        case "Background" -> {
+                            rightClickMenu.setX(MouseHandler.getX());
+                            rightClickMenu.setY(MouseHandler.getY());
+                            rightClickMenu.setButtonText(backgroundTextureNames);
+                            rightClickMenu.setHasImages(false);
+
+                            ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
+
+                            for (int i = 0; i < backgroundTextureNames.size(); i++){
+                                int[] dim = backgroundDimensions.get(i);
+                                int finalI = i;
+
+                                buttonExec.add(unused -> {
+                                    id_counter += 1;
+
+                                    try {
+                                        Background bg = new Background(dim[0], dim[1], backgroundTextureNames.get(finalI), "#" + id_counter, "");
+                                        GamePanel.camera.level.addToMainSubLevel(bg);
+                                        objects.add(bg);
+
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    rightClickMenu.activate();
+                                    MouseHandler.resetClicks();
+                                    GamePanel.camera.noUpdate = false;
+                                    return unused;
+                                });
+                            }
+
+                            rightClickMenu.setButtonExec(buttonExec);
+                            rightClickMenu.setDisplayedWidth(500);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * backgroundTextureNames.size() - 10);
+                            if (!rightClickMenu.isOpen) {
+                                rightClickMenu.activate();
+                            }
+                            GamePanel.camera.update();
+                            GamePanel.camera.noUpdate = true;
+                        }
 
                         case "To Player" -> {
                             if (GameObject2D.player != null){
@@ -473,7 +550,9 @@ public class LevelMaker extends GameObject2D{
 
                             rightClickMenu.setX(MouseHandler.getX());
                             rightClickMenu.setY(MouseHandler.getY());
-                            rightClickMenu.setButtonText(platformTextures.get(b.buttonMessage));
+                            rightClickMenu.setButtonText(platformTextureNames.get(b.buttonMessage));
+                            rightClickMenu.setButtonImages(platformImages.get(b.buttonMessage));
+
 
                             //assigning function to every textures
                             ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
@@ -573,6 +652,14 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write("\n".getBytes());
+                }
+                else if (go.getType().contains("Background_")){
+                    fw.write("A".getBytes());
+                    fw.write(go.getWidth()/256);
+                    fw.write(go.getWidth()%256);
+                    fw.write(go.getHeight()/256);
+                    fw.write(go.getHeight()%256);
+                    fw.write((go.getType().substring(11) + "\n").getBytes());
                 }
             }
 

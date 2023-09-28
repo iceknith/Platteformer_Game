@@ -135,18 +135,23 @@ public class GameGrid {
 
     public void loadVisible(){
         resetGrid();
-        Vector<GameObject2D> GUI = new Vector<>();
+        ArrayList<GameObject2D> gui = new ArrayList<>();
+        GameObject2D background = null;
 
         for (GameObject2D go: level.getDisplayedObjects()) {
 
             if (isInGrid(go) || go.isGUI){
-                if (go.isGUI) GUI.add(go);
+                if (go.getType().contains("Background_")) background = go;
+                else if (go.isGUI) gui.add(go);
                 else visible.add(go);
                 level.addUpdatable(go);
                 addGOInGrid(go);
             }
         }
-        visible.addAll(GUI);
+        visible.addAll(gui);
+        if (background != null){
+            visible.insertElementAt(background, 0);
+        }
     }
 
     public void setNextLevel(String lvl){

@@ -160,6 +160,7 @@ public class TextInputMenu extends GameObject2D {
         }
         else if (categoryValues.get(editingFillSpace).length() <= 25) {
 
+            if (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9) key -= 0x30;
             String s = categoryValues.get(editingFillSpace) + (char) key;
             categoryValues.remove(editingFillSpace);
             categoryValues.add(editingFillSpace, s);

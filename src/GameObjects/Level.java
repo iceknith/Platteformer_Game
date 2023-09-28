@@ -298,6 +298,20 @@ public class Level {
                         objectsBuffer.add(d);
                     }
 
+                    case 'A' -> { //Background (arriere plan)
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+
+                        int cha;
+                        StringBuilder texture = new StringBuilder();
+                        while ((cha = reader.read()) != 10) { // 10 == '\n'
+                            texture.append((char) cha);
+                        }
+
+                        Background bg = new Background(w, h, texture.toString(),"#" + i, "");
+                        objectsBuffer.add(bg);
+                    }
+
                     case 'I' -> { //image
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();

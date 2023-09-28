@@ -16,6 +16,7 @@ test/middle_down_ext
 test/left_down_ext
 test/middle_right_ext
 test/middle_left_ext
+test/center_ext
 test/right_up_ext
 test/middle_up_ext
 test/left_up_ext
