@@ -59,19 +59,18 @@ public class Button extends GameObject2D{
 
         if (key_focused){
 
-
             if (KeyHandler.isSelectPressed){
                 triggerHandler();
             }
-            else{
-                if (isTriggered()){
-                    releasedHandler();
-                }else{
-                    focusHandler();
-                }
+            else if (isTriggered()){
+                releasedHandler();
+            }
+            else if (!isFocused()){
+                focusHandler();
             }
 
-        } else{
+
+        } else if (isFocused() || isTriggered()){
             unfocusedHandler();
         }
     }
@@ -109,7 +108,7 @@ public class Button extends GameObject2D{
         calibrateMessage(50);
     }
 
-    void releasedHandler() throws IOException {
+    void releasedHandler() throws IOException, FontFormatException {
         //is overwritten
         triggered = false;
     }

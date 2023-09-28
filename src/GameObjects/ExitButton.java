@@ -14,7 +14,7 @@ public class ExitButton extends Button{
     }
 
     @Override
-    void releasedHandler() throws IOException {
+    void releasedHandler() throws IOException, FontFormatException {
         super.releasedHandler();
 
         System.exit(0);

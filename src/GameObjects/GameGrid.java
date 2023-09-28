@@ -165,6 +165,7 @@ public class GameGrid {
 
 
     public void loadNextLevel() throws FileNotFoundException {
+        isOperational = false;
         resetGrid();
         setX(0);
         setY(0);

@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -157,7 +156,7 @@ public class Player extends Entity{
         if (KeyHandler.isRightPressed){
             walk(1, s, a, speedConversionPercent);
             sprite.setDirection(1);
-            if (getAnimation() == idle){
+            if (getAnimation().equals(idle)){
                 setAnimation(run, runAnimationSpeed);
             }
         }
@@ -166,7 +165,7 @@ public class Player extends Entity{
         if (KeyHandler.isLeftPressed){
             walk(-1, s, a, speedConversionPercent);
             sprite.setDirection(-1);
-            if (getAnimation() == idle){
+            if (getAnimation().equals(idle)){
                 setAnimation(run, runAnimationSpeed);
             }
         }

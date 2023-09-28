@@ -31,13 +31,24 @@ public class Level {
     boolean updateLevelMaker;
     LevelMaker lvlMaker;
 
+    public Level(){
+
+    }
+
     public Level(String name) throws FileNotFoundException {
         levelName = name;
         loadLevel();
     }
 
-    public Level(){
+    public Level(String name, LevelMaker levelMaker, boolean onlyMain){
+        levelName = name;
 
+        hasLevelMaker = true;
+        updateLevelMaker = true;
+        lvlMaker = levelMaker;
+
+        loadLevel(name, new ArrayList<>(), onlyMain);
+        addToMainSubLevel(levelMaker);
     }
 
     public String getLevelName(){
@@ -60,9 +71,10 @@ public class Level {
             subLevelBackHandler();
             wasMenuKeyPressed = true;
         }
-        else{if(!KeyHandler.isMenuKeyPressed){
+
+        else if(!KeyHandler.isMenuKeyPressed){
             wasMenuKeyPressed = false;
-        }}
+        }
 
         if (forceUpdate){
             GamePanel.camera.updateGrid();
@@ -73,6 +85,8 @@ public class Level {
             lvlMaker.update();
             return;
         }
+
+
 
         noUpdatableModification = true;
 
@@ -102,11 +116,11 @@ public class Level {
         }
         hasLevelMaker = false;
         lvlMaker = null;
-        loadLevel(levelName, new ArrayList<>());
+        loadLevel(levelName, new ArrayList<>(), false);
         updateLevelMaker = hasLevelMaker;
     }
 
-    public ArrayList<GameObject2D> loadLevel(String level, ArrayList<GameObject2D> objBuffer){
+    public ArrayList<GameObject2D> loadLevel(String level, ArrayList<GameObject2D> objBuffer, boolean loadOnlyMain){
 
         ArrayList<GameObject2D> objectsBuffer = objBuffer;
 
@@ -367,6 +381,11 @@ public class Level {
                         subLevels.add(subLvl);
 
                         objectsBuffer = new ArrayList<>();
+
+                        if (loadOnlyMain) {
+                            forceUpdate = true;
+                            return objectsBuffer;
+                        }
                     }
                     case 'F'->{ //file
 
@@ -376,7 +395,7 @@ public class Level {
                             lvlName.append((char) cha);
                         }
 
-                        objectsBuffer = loadLevel(lvlName.toString(), objectsBuffer);
+                        objectsBuffer = loadLevel(lvlName.toString(), objectsBuffer, loadOnlyMain);
                     }
                 }
             }
@@ -504,9 +523,9 @@ public class Level {
     public void addToSubLevel(GameObject2D go, String subLvlName){
         SubLevel subLvl = getSubLvl(subLvlName);
         subLvl.addObject(go);
-        /*if (subLvl.isUpdated){
+        if (subLvl.isUpdated){
             updatableBuffer.add(go);
-        }*/
+        }
         if (subLvl.isDisplayed){
             GamePanel.camera.updateGrid();
         }

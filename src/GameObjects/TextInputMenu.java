@@ -18,7 +18,7 @@ public class TextInputMenu extends GameObject2D {
 
     ArrayList<String> categoryNames;
     ArrayList<String> categoryValues;
-    ArrayList<Function<Integer, Void>> categorySetValues;
+    ArrayList<Function<String, Void>> categorySetValues;
     static int categoryHeight = 100;
     static int defaultWidth = 500;
     static int fillSpaceHeight = 50;
@@ -35,8 +35,10 @@ public class TextInputMenu extends GameObject2D {
     int editingFillSpace = -1;
     int selectedFillSpace = -1;
 
-    TextInputMenu(int x, int y, String id, String subLvl,
-                  List<String> categoryName, List<String> defaultValues, List<Function<Integer, Void>> variables) throws IOException {
+    boolean isInt;
+
+    TextInputMenu(int x, int y, String id, String subLvl, boolean isOnlyInt,
+                  List<String> categoryName, List<String> defaultValues, List<Function<String, Void>> variables) throws IOException {
         super(x-defaultWidth/2, y - (categoryHeight * categoryName.size())/2,
                 defaultWidth, categoryHeight * categoryName.size(), subLvl);
 
@@ -54,6 +56,8 @@ public class TextInputMenu extends GameObject2D {
 
         basePosX = x;
         basePosY = y;
+
+        isInt = isOnlyInt;
     }
 
     public void setCategoryNames(List<String> categoryName){
@@ -66,8 +70,12 @@ public class TextInputMenu extends GameObject2D {
         categoryValues = new ArrayList<>(defaultValues);
     }
 
-    public void setCategorySetValues(List<Function<Integer, Void>> variables){
+    public void setCategorySetValues(List<Function<String, Void>> variables){
         categorySetValues = new ArrayList<>(variables);
+    }
+
+    public void setAsInt(boolean isOnlyInt){
+        isInt = isOnlyInt;
     }
 
     public boolean pointIsOnRect(int pointX, int pointY, int x, int y, int w, int h){
@@ -114,7 +122,6 @@ public class TextInputMenu extends GameObject2D {
         if (MouseHandler.isLeftClickPressed){
             editingFillSpace = selectedFillSpace;
             if (isButtonSelected){
-                validate();
                 //resetting variables
                 isButtonSelected = false;
                 selectedFillSpace = -1;
@@ -123,39 +130,69 @@ public class TextInputMenu extends GameObject2D {
 
                 MouseHandler.resetClicks();
                 GamePanel.camera.noUpdate = false;
+
+                validate();
             }
         }
 
         //editing logic
-        if (editingFillSpace != -1 && KeyHandler.getLastKeyPressed() != -1){
+        if (editingFillSpace != -1 && KeyHandler.getLastKeyPressed() != -1) {
 
             int key = KeyHandler.getLastKeyPressed();
             KeyHandler.resetLastKeyPressed();
 
-            if (key == KeyEvent.VK_BACK_SPACE){
-                if (!categoryValues.get(editingFillSpace).isEmpty()){
-                    String s = categoryValues.get(editingFillSpace).substring(0,categoryValues.get(editingFillSpace).length() - 1);
-                    categoryValues.remove(editingFillSpace);
-                    categoryValues.add(editingFillSpace, s);
-                }
+            if (isInt) {
+                intEditing(key);
+            } else {
+                stringEditing(key);
+            }
+        }
+    }
+
+    void stringEditing(int key){
+
+        if (key == KeyEvent.VK_BACK_SPACE){
+            if (!categoryValues.get(editingFillSpace).isEmpty()){
+                String s = categoryValues.get(editingFillSpace).substring(0,categoryValues.get(editingFillSpace).length() - 1);
+                categoryValues.remove(editingFillSpace);
+                categoryValues.add(editingFillSpace, s);
+            }
+        }
+        else if (categoryValues.get(editingFillSpace).length() <= 25) {
+
+            String s = categoryValues.get(editingFillSpace) + (char) key;
+            categoryValues.remove(editingFillSpace);
+            categoryValues.add(editingFillSpace, s);
+
+        }
+
+    }
+
+    void intEditing(int key){
+
+        if (key == KeyEvent.VK_BACK_SPACE){
+            if (!categoryValues.get(editingFillSpace).isEmpty()){
+                String s = categoryValues.get(editingFillSpace).substring(0,categoryValues.get(editingFillSpace).length() - 1);
+                categoryValues.remove(editingFillSpace);
+                categoryValues.add(editingFillSpace, s);
+            }
+        }
+
+        else if(((KeyEvent.VK_0 <= key && key <= KeyEvent.VK_9) ||
+                (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9)||
+                key == KeyEvent.VK_MINUS || key == KeyEvent.VK_SUBTRACT) &&
+                categoryValues.get(editingFillSpace).length() <= 5){
+
+            if (key == KeyEvent.VK_SUBTRACT) key = KeyEvent.VK_MINUS;
+            else if (KeyEvent.VK_NUMPAD0 <= key) key -= 0x30;
+
+            if (!(key == KeyEvent.VK_MINUS && !categoryValues.get(editingFillSpace).isEmpty())){
+
+                String s = categoryValues.get(editingFillSpace) + (char) key;
+                categoryValues.remove(editingFillSpace);
+                categoryValues.add(editingFillSpace, s);
             }
 
-            else if(((KeyEvent.VK_0 <= key && key <= KeyEvent.VK_9) ||
-                    (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9)||
-                    key == KeyEvent.VK_MINUS || key == KeyEvent.VK_SUBTRACT) &&
-                    categoryValues.get(editingFillSpace).length() <= 5){
-
-                if (key == KeyEvent.VK_SUBTRACT) key = KeyEvent.VK_MINUS;
-                else if (KeyEvent.VK_NUMPAD0 <= key) key -= 0x30;
-
-                if (!(key == KeyEvent.VK_MINUS && !categoryValues.get(editingFillSpace).isEmpty())){
-
-                    String s = categoryValues.get(editingFillSpace) + (char) key;
-                    categoryValues.remove(editingFillSpace);
-                    categoryValues.add(editingFillSpace, s);
-                }
-
-            }
         }
     }
 
@@ -224,8 +261,8 @@ public class TextInputMenu extends GameObject2D {
 
     void validate(){
         for (int i = 0; i < categoryValues.size(); i++){
-            if (categoryValues.get(i).isEmpty()) categorySetValues.get(i).apply(0);
-            else categorySetValues.get(i).apply(Integer.valueOf(categoryValues.get(i)));
+            if (categoryValues.get(i).isEmpty()) categorySetValues.get(i).apply("0");
+            else categorySetValues.get(i).apply(categoryValues.get(i));
         }
     }
 }
