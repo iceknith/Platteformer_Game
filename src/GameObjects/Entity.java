@@ -126,23 +126,6 @@ public class Entity extends GameObject2D{
             getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
             return;
         }
-
-        if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY()){
-            if (go.hasPhysicalCollisions){
-                setY(go.getY() - getHeight() - 1);
-                velocityY = go.getVelocityY();
-            }
-            go.collision(this);
-            return;
-        }
-        if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
-            if (go.hasPhysicalCollisions){
-                setY(go.getY() + go.getHeight() + 1);
-                velocityY = go.getVelocityY();
-            }
-            go.collision(this);
-            return;
-        }
         if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
             if (go.hasPhysicalCollisions){
                 setX(go.getX() - getWidth() - 1);
@@ -151,23 +134,32 @@ public class Entity extends GameObject2D{
             go.collision(this);
             return;
         }
+
         if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
             if (go.hasPhysicalCollisions){
                 setX(go.getX() + go.getWidth() + 1);
                 velocityX = go.getVelocityX();
             }
             go.collision(this);
-        }
-    }
-
-    void checkGround(GameObject2D go){
-        if (getY() + getHeight() <= go.getY() || getY() >= go.getY() + go.getHeight() ||
-                getX() >= go.getX() + go.getWidth() || getX() + getWidth() <= go.getX()){
             return;
         }
 
-        if(getPreviousY() + getHeight() <= go.getPreviousY() && go.hasPhysicalCollisions){
-            isOnGround = true;
+        if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
+            if (go.hasPhysicalCollisions){
+                isOnGround = true;
+                setY(go.getY() - getHeight() - 1);
+                velocityY = go.getVelocityY();
+            }
+            go.collision(this);
+            return;
+        }
+
+        if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
+            if (go.hasPhysicalCollisions){
+                setY(go.getY() + go.getHeight() + 1);
+                velocityY = go.getVelocityY();
+            }
+            go.collision(this);
         }
     }
 
@@ -200,7 +192,7 @@ public class Entity extends GameObject2D{
 
         isOnGround = false;
         for (GameObject2D go: getNear()){
-            checkGround(go);
+            //checkGround(go);
             collision(go);
         }
     }

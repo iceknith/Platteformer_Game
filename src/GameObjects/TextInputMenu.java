@@ -62,7 +62,7 @@ public class TextInputMenu extends GameObject2D {
 
     public void setCategoryNames(List<String> categoryName){
         categoryNames = new ArrayList<>(categoryName);
-        setHeight(fillSpaceHeight * (categoryNames.size() + 2) + 10);
+        setHeight(fillSpaceHeight * 2 * categoryNames.size() + 10);
         setY(basePosY - getHeight()/2);
     }
 
@@ -181,7 +181,8 @@ public class TextInputMenu extends GameObject2D {
 
         else if(((KeyEvent.VK_0 <= key && key <= KeyEvent.VK_9) ||
                 (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9)||
-                key == KeyEvent.VK_MINUS || key == KeyEvent.VK_SUBTRACT) &&
+                key == KeyEvent.VK_MINUS || key == KeyEvent.VK_SUBTRACT ||
+                key == KeyEvent.VK_PERIOD) &&
                 categoryValues.get(editingFillSpace).length() <= 5){
 
             if (key == KeyEvent.VK_SUBTRACT) key = KeyEvent.VK_MINUS;

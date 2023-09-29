@@ -7,7 +7,7 @@
       </Languages>
     </inspection_tool>
     <inspection_tool class="ExtractMethodRecommender" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="minLength" value="959" />
+      <option name="minLength" value="1204" />
     </inspection_tool>
     <inspection_tool class="TrivialIf" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreChainedIf" value="true" />

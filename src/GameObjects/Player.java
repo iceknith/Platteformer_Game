@@ -67,6 +67,7 @@ public class Player extends Entity{
         speedConversionPercent = 35;
 
         sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
+        sprite.offsetY -= 1; //make it so that the player is visually in the ground
 
         idle = getAnimationList("Player", "idle", 3);
         run = getAnimationList("Player", "run", 7);
@@ -171,10 +172,12 @@ public class Player extends Entity{
         }
 
         //stopping
-        if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed && velocityX != 0){
-            int direction = (int) Math.signum(velocityX);
-            stop(direction, f);
-            if (isOnGround && getAnimation().equals(idle)){
+        if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed){
+            if (velocityX != 0){
+                int direction = (int) Math.signum(velocityX);
+                stop(direction, f);
+            }
+            if (isOnGround && getAnimation().equals(run)){
                 setAnimation(idle, idleAnimationSpeed);
             }
         }

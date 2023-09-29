@@ -34,6 +34,7 @@ public class LevelMaker extends GameObject2D{
     HashMap<String, ArrayList<Image>> platformImages = new HashMap<>();
     ArrayList<String> backgroundTextureNames = new ArrayList<>();
     ArrayList<int[]> backgroundDimensions = new ArrayList<>();
+    Background background = null;
 
     int maxButtonY;
 
@@ -435,6 +436,41 @@ public class LevelMaker extends GameObject2D{
 
                             ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
 
+                            //modify background button
+                            if (background != null){
+                                rightClickMenu.buttonText.add(0, "Settings");
+
+                                buttonExec.add(unused -> {
+                                    txtInputMenu.setAsInt(true);
+
+                                    txtInputMenu.setCategoryNames(Arrays.asList(
+                                            "x :", "y :", "Zoom :", "Scrolling Slowness :", "repeats infinitely x:", "repeats infinitely y:"
+                                    ));
+                                    txtInputMenu.setDefaultValues(Arrays.asList(
+                                            String.valueOf(background.getX()), String.valueOf(background.getY()),
+                                            String.valueOf(background.getZoom()), String.valueOf(background.getScrollingSlowness()),
+                                            String.valueOf(0), String.valueOf(0)
+                                    ));
+                                    txtInputMenu.setCategorySetValues(Arrays.asList(
+                                            s -> {int i = Integer.parseInt(s); background.setX(i); canPlaceObj = true; return null;},
+                                            s -> {int i = Integer.parseInt(s); background.setY(i);canPlaceObj = true;return null;},
+                                            s -> {float i = Float.parseFloat(s); background.setZoom(Math.abs(i));canPlaceObj = true;return null;},
+                                            s -> {float i = Float.parseFloat(s); background.setScrollingSlowness(Math.abs(i));canPlaceObj = true;return null;},
+                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatX(i >= 0);canPlaceObj = true;return null;},
+                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatY(i >= 0);canPlaceObj = true;return null;}
+                                    ));
+
+                                    txtInputMenu.isOpen = true;
+                                    rightClickMenu.activate();
+
+                                    canPlaceObj = false;
+                                    MouseHandler.resetClicks();
+
+                                    return unused;
+                                });
+                            }
+
+                            //add background selection buttons
                             for (int i = 0; i < backgroundTextureNames.size(); i++){
                                 int[] dim = backgroundDimensions.get(i);
                                 int finalI = i;
@@ -444,8 +480,15 @@ public class LevelMaker extends GameObject2D{
 
                                     try {
                                         Background bg = new Background(dim[0], dim[1], backgroundTextureNames.get(finalI), "#" + id_counter, "");
+
+                                        if (background != null){
+                                            GamePanel.camera.level.getSubLvl("main").objectList.remove(background);
+                                            objects.remove(background);
+                                        }
+
                                         GamePanel.camera.level.addToMainSubLevel(bg);
                                         objects.add(bg);
+                                        background = bg;
 
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
@@ -460,7 +503,7 @@ public class LevelMaker extends GameObject2D{
 
                             rightClickMenu.setButtonExec(buttonExec);
                             rightClickMenu.setDisplayedWidth(500);
-                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * backgroundTextureNames.size() - 10);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * buttonExec.size() - 10);
                             if (!rightClickMenu.isOpen) {
                                 rightClickMenu.activate();
                             }
@@ -655,11 +698,22 @@ public class LevelMaker extends GameObject2D{
                 }
                 else if (go.getType().contains("Background_")){
                     fw.write("A".getBytes());
-                    fw.write(go.getWidth()/256);
-                    fw.write(go.getWidth()%256);
-                    fw.write(go.getHeight()/256);
-                    fw.write(go.getHeight()%256);
-                    fw.write((go.getType().substring(11) + "\n").getBytes());
+                    fw.write(background.getWidth()/256);
+                    fw.write(background.getWidth()%256);
+                    fw.write(background.getHeight()/256);
+                    fw.write(background.getHeight()%256);
+
+                    fw.write((background.getX() + 32767)/256);
+                    fw.write((background.getX() + 32767)%256);
+                    fw.write((background.getY() + 32767)/256);
+                    fw.write((background.getY() + 32767)%256);
+
+                    fw.write((int) (background.getZoom() * 100)/256);
+                    fw.write((int) (background.getZoom() * 100)%256);
+                    fw.write((int) (background.getScrollingSlowness() * 100)/256);
+                    fw.write((int) (background.getScrollingSlowness() * 100)%256);
+
+                    fw.write((background.getType().substring(11) + "\n").getBytes());
                 }
             }
 

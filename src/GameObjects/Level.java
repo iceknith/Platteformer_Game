@@ -302,13 +302,19 @@ public class Level {
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
 
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        float zoomAmount = (float) (reader.read() * 256 + reader.read()) / 100;
+                        float scrollSlowness = (float) (reader.read() * 256 + reader.read()) / 100;
+
                         int cha;
                         StringBuilder texture = new StringBuilder();
                         while ((cha = reader.read()) != 10) { // 10 == '\n'
                             texture.append((char) cha);
                         }
 
-                        Background bg = new Background(w, h, texture.toString(),"#" + i, "");
+                        Background bg = new Background(posX, posY, w, h, zoomAmount, scrollSlowness, texture.toString(),"#" + i, "");
                         objectsBuffer.add(bg);
                     }
 

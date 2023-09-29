@@ -12,6 +12,8 @@ public class Background extends GameObject2D{
 
     float zoom;
     float scrollingSlowness;
+    boolean doRepeatX;
+    boolean doRepeatY;
 
     Background(int w, int h, String textureName, String id, String subLvl) throws IOException{
         this(0, -2000, w, h, 7f, 0.3f, textureName, id, subLvl);
@@ -45,14 +47,25 @@ public class Background extends GameObject2D{
         return scrollingSlowness;
     }
 
+    @Override
+    public int getX(){
+        return super.getX() + (int)(zoom * (getWidth()/2));
+    }
+
+    @Override
+    public int getY(){
+        return super.getY() + (int)(zoom * (getHeight()/2));
+    }
+
+    @Override
     public void setX(int posX){
         super.setX(posX - (int)(zoom * (getWidth()/2)));
     }
 
+    @Override
     public void setY(int posY){
         super.setY(posY - (int)(zoom * (getHeight()/2)));
     }
-
 
     public void setZoom(float newZoom){
         zoom = newZoom;
@@ -60,6 +73,14 @@ public class Background extends GameObject2D{
 
     public void setScrollingSlowness(float newScrollingSlowness){
         scrollingSlowness = newScrollingSlowness;
+    }
+
+    public void setDoRepeatX(boolean doRepeat){
+        doRepeatX = doRepeat;
+    }
+
+    public void setDoRepeatY(boolean doRepeat){
+        doRepeatY = doRepeat;
     }
 
     @Override
