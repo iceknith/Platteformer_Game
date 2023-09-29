@@ -174,13 +174,13 @@ public class Player extends Entity{
         if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed && velocityX != 0){
             int direction = (int) Math.signum(velocityX);
             stop(direction, f);
-            if (isOnGround && getAnimation() != idle){
+            if (isOnGround && getAnimation().equals(idle)){
                 setAnimation(idle, idleAnimationSpeed);
             }
         }
 
         //landing
-        if(isOnGround && (getAnimation() == fall || getAnimation() == fallFast || getAnimation() == jump)){
+        if(isOnGround && (getAnimation().equals(fall) || getAnimation().equals(fallFast) || getAnimation().equals(jump))){
             setAnimation(land, landAnimationSpeed);
             setNextAnimation(idle, idleAnimationSpeed);
         }

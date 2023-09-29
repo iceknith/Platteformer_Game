@@ -161,12 +161,12 @@ public class Entity extends GameObject2D{
     }
 
     void checkGround(GameObject2D go){
-        if (getY() + getHeight() + 1 < go.getY() || getY() > go.getY() + go.getHeight() ||
-                getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+        if (getY() + getHeight() <= go.getY() || getY() >= go.getY() + go.getHeight() ||
+                getX() >= go.getX() + go.getWidth() || getX() + getWidth() <= go.getX()){
             return;
         }
 
-        if(getY() + getHeight() + 1 >= go.getY() && getPreviousY() + getHeight() < go.getPreviousY() && go.hasPhysicalCollisions){
+        if(getPreviousY() + getHeight() <= go.getPreviousY() && go.hasPhysicalCollisions){
             isOnGround = true;
         }
     }
@@ -200,8 +200,8 @@ public class Entity extends GameObject2D{
 
         isOnGround = false;
         for (GameObject2D go: getNear()){
-            collision(go);
             checkGround(go);
+            collision(go);
         }
     }
 

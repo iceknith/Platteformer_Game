@@ -14,11 +14,11 @@ public class Background extends GameObject2D{
     float scrollingSlowness;
 
     Background(int w, int h, String textureName, String id, String subLvl) throws IOException{
-        this(0, 0, w, h, 5f, 0.3f, textureName, id, subLvl);
+        this(0, -2000, w, h, 7f, 0.3f, textureName, id, subLvl);
     }
 
     Background(int x, int y, int w, int h, float zoomAmount, float scrollSlowness, String textureName, String id, String subLvl) throws IOException {
-        super(x, y, w, h, subLvl);
+        super(x - (int)(zoomAmount * (w/2)), y - (int)(zoomAmount * (h/2)), w, h, subLvl);
 
         isGUI = true;
 
@@ -28,9 +28,6 @@ public class Background extends GameObject2D{
 
         zoom = zoomAmount;
         scrollingSlowness = scrollSlowness;
-
-        setX((int) (x * zoom));
-        setY((int) (y * zoom));
     }
 
     Background(Background go) {
@@ -48,6 +45,15 @@ public class Background extends GameObject2D{
         return scrollingSlowness;
     }
 
+    public void setX(int posX){
+        super.setX(posX - (int)(zoom * (getWidth()/2)));
+    }
+
+    public void setY(int posY){
+        super.setY(posY - (int)(zoom * (getHeight()/2)));
+    }
+
+
     public void setZoom(float newZoom){
         zoom = newZoom;
     }
@@ -64,10 +70,10 @@ public class Background extends GameObject2D{
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
-        int posX = getX() + getSprite().getOffsetX(getHitbox()) - (int) (GamePanel.camera.getX() * scrollingSlowness);
+        int posX = getX() - (int) (GamePanel.camera.getX() * scrollingSlowness);
         posX = Math.max(GamePanel.camera.width - (int) (getWidth() * zoom), Math.min(0, posX));
 
-        int posY = getY() + getSprite().getOffsetY(getHitbox()) - (int) (GamePanel.camera.getY() * scrollingSlowness);
+        int posY = getY() - (int) (GamePanel.camera.getY() * scrollingSlowness);
         posY = Math.max(GamePanel.camera.height - (int) (getHeight() * zoom), Math.min(0, posY));
 
         g2D.drawImage(getSprite().getImage(), posX, posY,
