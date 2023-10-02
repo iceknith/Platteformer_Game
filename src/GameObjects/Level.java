@@ -307,6 +307,10 @@ public class Level {
 
                         float zoomAmount = (float) (reader.read() * 256 + reader.read()) / 100;
                         float scrollSlowness = (float) (reader.read() * 256 + reader.read()) / 100;
+                        int r = reader.read();
+                        System.out.println(r);
+                        boolean isInfiniteX = r == 1;
+                        boolean isInfiniteY = reader.read() == 1;
 
                         int cha;
                         StringBuilder texture = new StringBuilder();
@@ -314,7 +318,8 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        Background bg = new Background(posX, posY, w, h, zoomAmount, scrollSlowness, texture.toString(),"#" + i, "");
+                        Background bg = new Background(posX, posY, w, h, zoomAmount, scrollSlowness,
+                                isInfiniteX, isInfiniteY, texture.toString(),"#" + i, "");
                         objectsBuffer.add(bg);
                     }
 

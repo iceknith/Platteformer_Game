@@ -16,10 +16,10 @@ public class Background extends GameObject2D{
     boolean doRepeatY;
 
     Background(int w, int h, String textureName, String id, String subLvl) throws IOException{
-        this(0, -2000, w, h, 7f, 0.3f, textureName, id, subLvl);
+        this(0, -2000, w, h, 7f, 0.3f, false, false, textureName, id, subLvl);
     }
 
-    Background(int x, int y, int w, int h, float zoomAmount, float scrollSlowness, String textureName, String id, String subLvl) throws IOException {
+    Background(int x, int y, int w, int h, float zoomAmount, float scrollSlowness, boolean repeatX, boolean repeatY, String textureName, String id, String subLvl) throws IOException {
         super(x - (int)(zoomAmount * (w/2)), y - (int)(zoomAmount * (h/2)), w, h, subLvl);
 
         isGUI = true;
@@ -31,6 +31,9 @@ public class Background extends GameObject2D{
 
         zoom = zoomAmount;
         scrollingSlowness = scrollSlowness;
+
+        doRepeatX = repeatX;
+        doRepeatY = repeatY;
     }
 
     Background(Background go) {
@@ -38,6 +41,9 @@ public class Background extends GameObject2D{
 
         zoom = go.zoom;
         scrollingSlowness = go.scrollingSlowness;
+
+        doRepeatX = go.doRepeatX;
+        doRepeatY = go.doRepeatY;
     }
 
     public float getZoom(){

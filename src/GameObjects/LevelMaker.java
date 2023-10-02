@@ -729,6 +729,12 @@ public class LevelMaker extends GameObject2D{
                     fw.write((int) (background.getScrollingSlowness() * 100)/256);
                     fw.write((int) (background.getScrollingSlowness() * 100)%256);
 
+                    if (background.doRepeatX) fw.write(1);
+                    else fw.write(0);
+
+                    if (background.doRepeatY) fw.write(1);
+                    else fw.write(0);
+
                     fw.write((background.getType().substring(11) + "\n").getBytes());
                 }
             }

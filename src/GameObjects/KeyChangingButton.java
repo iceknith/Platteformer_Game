@@ -47,7 +47,7 @@ public class KeyChangingButton extends Button{
     }
 
     @Override
-    void calibrateMessage(int sizeDiff){
+    void calibrateMessage(int sizeDiff, Graphics2D g2D){
     }
 
     @Override

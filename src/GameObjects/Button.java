@@ -25,6 +25,9 @@ public class Button extends GameObject2D{
 
     Color buttonMessageColor;
 
+    int calibrateMsgDiff = 0;
+    boolean calibrateMsg;
+
 
     public Button(int w, int h, int x, int y, String textureName, String message, String id, String subLvlName) throws IOException, FontFormatException {
         super(x-w/2,y-h/2,w,h,subLvlName);
@@ -43,7 +46,8 @@ public class Button extends GameObject2D{
 
         buttonMessageColor = new Color(199, 219, 237);
 
-        calibrateMessage(10);
+        calibrateMsgDiff = 10;
+        calibrateMsg = true;
     }
 
     public boolean isFocused(){return focused;}
@@ -79,6 +83,8 @@ public class Button extends GameObject2D{
         super.draw(g2D, imageObserver);
 
         //draw message
+        if (calibrateMsg) calibrateMessage(calibrateMsgDiff, g2D);
+
         g2D.setFont(buttonFont);
         g2D.setColor(buttonMessageColor);
         g2D.drawString(buttonMessage, buttonMessageX, buttonMessageY);
@@ -91,21 +97,23 @@ public class Button extends GameObject2D{
         focused = false;
         triggered = false;
 
-        calibrateMessage(15);
+        calibrateMsgDiff = 15;
     }
 
     void focusHandler() throws IOException {
         sprite = new Sprite(ImageIO.read(new File("assets/Button/"+type.substring(7)+"/focused/0.png")), hitbox);
         focused = true;
 
-        calibrateMessage(30);
+        calibrateMsgDiff = 30;
+        calibrateMsg = true;
     }
 
     void triggerHandler() throws IOException, FontFormatException {
         sprite = new Sprite(ImageIO.read(new File("assets/Button/"+type.substring(7)+"/clicked/0.png")), hitbox);
         triggered = true;
 
-        calibrateMessage(50);
+        calibrateMsgDiff = 50;
+        calibrateMsg = true;
     }
 
     void releasedHandler() throws IOException, FontFormatException {
@@ -113,13 +121,13 @@ public class Button extends GameObject2D{
         triggered = false;
     }
 
-    void calibrateMessage(int sizeDiff){
+    void calibrateMessage(int sizeDiff, Graphics2D g2D){
 
         buttonFontSize = getWidth();
 
         for (int i = 0; i < getWidth(); i++) {
             Font font = new Font(buttonFontName, Font.PLAIN, buttonFontSize);
-            int testWidth = GamePanel.getGamePannel().getFontMetrics(font).stringWidth(buttonMessage);
+            int testWidth = g2D.getFontMetrics(font).stringWidth(buttonMessage);
 
             if (testWidth > getWidth() - sizeDiff) {
                 buttonFontSize--;
