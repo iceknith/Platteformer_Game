@@ -219,6 +219,10 @@ public class GameObject2D{
         throw new Exception("Method used on a non-button GameObject");
     }
 
+    public Background getBackground() throws Exception {
+        throw new Exception("Method used on a non-Background GameObject");
+    }
+
     public Player getThisPlayer(){
         return null;
     }

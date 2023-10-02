@@ -334,7 +334,7 @@ public class LevelMaker extends GameObject2D{
         platformTextureNames = new HashMap<>();
         String lastButtonMsg = "";
 
-        int x = 500;
+        int x = 400;
         int y = 60;
 
         //read platform button info
@@ -347,11 +347,14 @@ public class LevelMaker extends GameObject2D{
                 if (line.startsWith("-")){
                     lastButtonMsg = line.substring(1);
 
-                    buttons.add(new Button(150, 100, x, y, "base", lastButtonMsg, "#" + id_counter, ""));
+                    Button b = new Button(150, 100, x, y, "base", lastButtonMsg, "#" + id_counter, "");
+                    b.buttonMessageColor = Color.yellow;
+
+                    buttons.add(b);
                     id_counter ++;
                     x += 150;
-                    if (x >= GamePanel.camera.width - 500){
-                        x = 500;
+                    if (x >= GamePanel.camera.width - 400){
+                        x = 400;
                         y += 100;
                     }
 
@@ -393,12 +396,17 @@ public class LevelMaker extends GameObject2D{
         }
 
         //define other buttons
-        for (String msg : Arrays.asList("Background","Checkpoint", "To Player", "Grid", "Load", "Save")){
+        for (String msg : Arrays.asList("Checkpoint", "Background", "To Player", "Grid", "Load", "Save")){
 
-            buttons.add(new Button(150, 100, x, y, "base", msg, "#" + id_counter, ""));
+            Button b = new Button(150, 100, x, y, "base", msg, "#" + id_counter, "");
+            switch (msg){
+                case "Checkpoint", "Background" -> b.buttonMessageColor = Color.orange;
+                default -> b.buttonMessageColor = Color.pink;
+            }
+            buttons.add(b);
             id_counter ++;
-            if (x >= GamePanel.camera.width - 300){
-                x = 500;
+            if (x >= GamePanel.camera.width - 400){
+                x = 400;
                 y += 100;
             }
             x += 150;
@@ -449,15 +457,15 @@ public class LevelMaker extends GameObject2D{
                                     txtInputMenu.setDefaultValues(Arrays.asList(
                                             String.valueOf(background.getX()), String.valueOf(background.getY()),
                                             String.valueOf(background.getZoom()), String.valueOf(background.getScrollingSlowness()),
-                                            String.valueOf(0), String.valueOf(0)
+                                            String.valueOf(background.getDoRepeatXInt()), String.valueOf(background.getDoRepeatYInt())
                                     ));
                                     txtInputMenu.setCategorySetValues(Arrays.asList(
                                             s -> {int i = Integer.parseInt(s); background.setX(i); canPlaceObj = true; return null;},
                                             s -> {int i = Integer.parseInt(s); background.setY(i);canPlaceObj = true;return null;},
                                             s -> {float i = Float.parseFloat(s); background.setZoom(Math.abs(i));canPlaceObj = true;return null;},
                                             s -> {float i = Float.parseFloat(s); background.setScrollingSlowness(Math.abs(i));canPlaceObj = true;return null;},
-                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatX(i >= 0);canPlaceObj = true;return null;},
-                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatY(i >= 0);canPlaceObj = true;return null;}
+                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatX(i > 0);canPlaceObj = true;return null;},
+                                            s -> {int i = Integer.parseInt(s); background.setDoRepeatY(i > 0);canPlaceObj = true;return null;}
                                     ));
 
                                     txtInputMenu.isOpen = true;
@@ -559,7 +567,11 @@ public class LevelMaker extends GameObject2D{
                             txtInputMenu.setDefaultValues(List.of("TEST"));
                             txtInputMenu.setCategorySetValues(List.of(
                                     i -> {
-                                        loadLevel(i);
+                                        try {
+                                            loadLevel(i);
+                                        } catch (Exception e) {
+                                            throw new RuntimeException(e);
+                                        }
                                         return null;
                                     }));
 
@@ -629,7 +641,7 @@ public class LevelMaker extends GameObject2D{
         }
     }
 
-    public void loadLevel(String lvlName){
+    public void loadLevel(String lvlName) throws Exception {
         File level = new File("assets/level/"+lvlName+".lvl");
 
         if (level.exists()){
@@ -650,6 +662,10 @@ public class LevelMaker extends GameObject2D{
             for (GameObject2D go: c.level.getSubLvl("main").getObjectList()){
                 if (!Objects.equals(go.type, "LevelMaker_")){
                     objects.add(go);
+
+                    if (go.name.contains("Background_")){
+                        background = go.getBackground();
+                    }
                 }
             }
         }

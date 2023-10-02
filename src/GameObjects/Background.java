@@ -23,6 +23,7 @@ public class Background extends GameObject2D{
         super(x - (int)(zoomAmount * (w/2)), y - (int)(zoomAmount * (h/2)), w, h, subLvl);
 
         isGUI = true;
+        hasPhysicalCollisions = false;
 
         type = "Background_" + textureName;
         name = type+id;
@@ -55,6 +56,29 @@ public class Background extends GameObject2D{
     @Override
     public int getY(){
         return super.getY() + (int)(zoom * (getHeight()/2));
+    }
+
+    @Override
+    public Background getBackground(){
+        return this;
+    }
+
+    public boolean getDoRepeatX(){
+        return doRepeatX;
+    }
+
+    public boolean getDoRepeatY(){
+        return doRepeatY;
+    }
+
+    public int getDoRepeatXInt(){
+        if (doRepeatX) return 1;
+        return -1;
+    }
+
+    public int getDoRepeatYInt(){
+        if (doRepeatY) return 1;
+        return -1;
     }
 
     @Override
@@ -92,12 +116,38 @@ public class Background extends GameObject2D{
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
         int posX = getX() - (int) (GamePanel.camera.getX() * scrollingSlowness);
-        posX = Math.max(GamePanel.camera.width - (int) (getWidth() * zoom), Math.min(0, posX));
+        if (doRepeatX){
+            posX += (int) (Math.signum(posX) * getWidth() * zoom) * (int) (posX / (getWidth() * zoom));
+        }
+        else{
+            posX = Math.max(GamePanel.camera.width - (int) (getWidth() * zoom), Math.min(0, posX));
+        }
 
         int posY = getY() - (int) (GamePanel.camera.getY() * scrollingSlowness);
-        posY = Math.max(GamePanel.camera.height - (int) (getHeight() * zoom), Math.min(0, posY));
+        if (doRepeatY){
+            posY += (int) (Math.signum(posY) * getHeight() * zoom) * (int) (posY / (getHeight() * zoom));
+        }
+        else{
+            posY = Math.max(GamePanel.camera.height - (int) (getHeight() * zoom), Math.min(0, posY));
+        }
 
         g2D.drawImage(getSprite().getImage(), posX, posY,
                 (int) (getSprite().getWidth() * zoom), (int) (getSprite().getHeight() * zoom), IO);
+
+        if (doRepeatX){
+            g2D.drawImage(getSprite().getImage(),
+                    posX - (int) (Math.signum(posX) * getSprite().getWidth() * zoom), posY,
+                    (int) (getSprite().getWidth() * zoom), (int) (getSprite().getHeight() * zoom), IO);
+        }
+        if (doRepeatY){
+            g2D.drawImage(getSprite().getImage(),
+                    posX, posY - (int) (Math.signum(posY) * getSprite().getHeight() * zoom),
+                    (int) (getSprite().getWidth() * zoom), (int) (getSprite().getHeight() * zoom), IO);
+        }
+        if (doRepeatX && doRepeatY){
+            g2D.drawImage(getSprite().getImage(),
+                    posX - (int) (Math.signum(posX) * getSprite().getWidth() * zoom), posY - (int) (Math.signum(posY) * getSprite().getHeight() * zoom),
+                    (int) (getSprite().getWidth() * zoom), (int) (getSprite().getHeight() * zoom), IO);
+        }
     }
 }
