@@ -1,5 +1,6 @@
 package GameObjects;
 
+import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
 
@@ -125,26 +126,32 @@ public class Camera extends GameGrid {
     void levelMakerCameraUpdate(){
 
         if (!LevelMaker.cameraCanMove) return;
+        boolean doMove = false;
 
         //movement X
         if (MouseHandler.getX() <= width/8){
             velocityX = Math.max((double) width/8 - MouseHandler.getX(), -50);
+            doMove = true;
         }
         else if (MouseHandler.getX() >= width*7/8){
             velocityX = Math.min((double) width*7/8 - MouseHandler.getX(), 50);
+            doMove = true;
+
         }
-        else velocityX = 0;
 
         //movement Y
         if (MouseHandler.getY() <= height/8){
             velocityY = Math.max((double) height/8 - MouseHandler.getY(), -50);
+            doMove = true;
+
         }
         else if (MouseHandler.getY() >= height*7/8){
             velocityY = Math.min((double) height*7/8 - MouseHandler.getY(), 50);
-        }
-        else velocityY = 0;
+            doMove = true;
 
-        move();
+        }
+
+        if (doMove) move();
     }
 
     public int getHardBorderX(){return hardBorderX;}

@@ -94,6 +94,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 deltaTime = deltaTime / 100000000; //in seconds
                 try {
+
                     update();
 
                     if (camera.hasNextLevel()){

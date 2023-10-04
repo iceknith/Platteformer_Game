@@ -319,6 +319,7 @@ public class LevelMaker extends GameObject2D{
                 }
             }
 
+
             for (Button b : buttons){
                 b.draw(g2D, IO);
             }
