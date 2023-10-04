@@ -311,10 +311,11 @@ public class LevelMaker extends GameObject2D{
 
                 for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
 
-                        for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
-                            g2D.drawRect(x , y , gridCellWidth, gridCellHeight);
+                    g2D.drawLine(x, 0, x, GamePanel.camera.height);
+                }
+                for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
 
-                    }
+                    g2D.drawLine(0 , y, GamePanel.camera.width, y);
                 }
             }
 
@@ -422,7 +423,7 @@ public class LevelMaker extends GameObject2D{
         if (MouseHandler.getY() > maxButtonY || txtInputMenu.isOpen || rightClickMenu.isOpen) return;
 
         for (Button b : buttons){
-            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){ //suspicious unoptimisation
 
                 cameraCanMove = false;
                 canPlaceObj = false;
