@@ -12,12 +12,14 @@ public class SubLevel {
 
     public SubLevel(String subLevelName, ArrayList<GameObject2D> goList) throws Exception {
         name = subLevelName;
-        objectList = goList;
-        for (GameObject2D go: objectList) {
+
+        for (GameObject2D go: goList) {
             go.setSubLevelName(name);
             if (go.type.contains("Button_")){
                 buttons.add(go.getButton());
             }
+            if (go.isGUI || go.type.equals("Player")) premaDisplayedObjects.add(go);
+            objectList.add(go);
         }
         if (!buttons.isEmpty()){
             buttons.get(0).setKey_focused(true);
@@ -26,6 +28,7 @@ public class SubLevel {
     }
 
     ArrayList<GameObject2D> objectList = new ArrayList<>();
+    ArrayList<GameObject2D> premaDisplayedObjects = new ArrayList<>();
     String name;
     
     public boolean isDisplayed;

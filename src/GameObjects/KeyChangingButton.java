@@ -35,8 +35,8 @@ public class KeyChangingButton extends Button{
         KeyHandler.resetLastKeyPressed();
 
         //setting up key waiter
-        int w = GamePanel.camera.getWidth()/2;
-        int h = GamePanel.camera.getHeight()/2;
+        int w = GamePanel.camera.getScreenWidth()/2;
+        int h = GamePanel.camera.getScreenHeight()/2;
 
         SubLevel s = new SubLevel("key waiter");
         KeyWaitingButton waiter = new KeyWaitingButton(400,200, w-225, h-100, "keyWaiter", "Press any key", "None", buttonKey, s, "key waiter");

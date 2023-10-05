@@ -37,7 +37,7 @@ public class LevelChangingButton extends Button{
 
             c.level.addSubLvl(new SubLevel(subLvlName));
 
-            TextInputMenu txtInputMenu = new TextInputMenu(c.width/2, c.height/2,
+            TextInputMenu txtInputMenu = new TextInputMenu(c.screenWidth /2, c.screenHeight /2,
                     "#0", subLvlName, false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             c.level.addToSubLevel(txtInputMenu, subLvlName);
 

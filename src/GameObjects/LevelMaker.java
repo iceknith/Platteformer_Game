@@ -66,7 +66,7 @@ public class LevelMaker extends GameObject2D{
         rightClickMenu = new DropDownMenu(0,0, 150, 3*buttonHeight, "# " + id_counter, "",
                 new ArrayList<>(), new ArrayList<>());
         id_counter ++;
-        txtInputMenu = new TextInputMenu(GamePanel.camera.width/2, GamePanel.camera.height/2,
+        txtInputMenu = new TextInputMenu(GamePanel.camera.screenWidth /2, GamePanel.camera.screenHeight /2,
                 "#" + id_counter, "", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         id_counter ++;
 
@@ -96,8 +96,8 @@ public class LevelMaker extends GameObject2D{
                     if (Objects.equals(go.getType(), "Player")){
                         player = go.getThisPlayer();
 
-                        GamePanel.camera.x = player.getX() - GamePanel.camera.width/2;
-                        GamePanel.camera.y = player.getY() - GamePanel.camera.height/2;
+                        GamePanel.camera.screenX = player.getX() - GamePanel.camera.screenWidth /2;
+                        GamePanel.camera.screenY = player.getY() - GamePanel.camera.screenHeight /2;
                     }
 
                 }
@@ -130,8 +130,8 @@ public class LevelMaker extends GameObject2D{
             MouseHandler.resetClicks();
             id_counter += 1;
 
-            int x = GamePanel.camera.x + MouseHandler.getX();
-            int y = GamePanel.camera.y + MouseHandler.getY();
+            int x = GamePanel.camera.screenX + MouseHandler.getX();
+            int y = GamePanel.camera.screenY + MouseHandler.getY();
             if (isInGridMode){
                 if (x >= 0) x -= x%gridCellWidth;
                 else x -= gridCellWidth + x%gridCellWidth;
@@ -309,20 +309,20 @@ public class LevelMaker extends GameObject2D{
         //draw mouse coos
         g2D.setColor(Color.white);
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
-        g2D.drawString("X : " + (GamePanel.camera.x + MouseHandler.getX()),15,25);
-        g2D.drawString("Y : " +  (GamePanel.camera.y + MouseHandler.getY()),15,50);
+        g2D.drawString("X : " + (GamePanel.camera.screenX + MouseHandler.getX()),15,25);
+        g2D.drawString("Y : " +  (GamePanel.camera.screenY + MouseHandler.getY()),15,50);
 
 
         if (isInGridMode){
             g2D.setColor(Color.darkGray);
 
-            for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
+            for (int x = - gridCellWidth - GamePanel.camera.getScreenX()%gridCellWidth; x <= GamePanel.camera.getScreenWidth(); x += gridCellWidth) {
 
-                    g2D.drawLine(x, 0, x, GamePanel.camera.height);
+                    g2D.drawLine(x, 0, x, GamePanel.camera.screenHeight);
                 }
-            for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
+            for (int y = - gridCellHeight - GamePanel.camera.getScreenY()%gridCellHeight; y <= GamePanel.camera.getScreenHeight(); y += gridCellHeight) {
 
-                g2D.drawLine(0 , y, GamePanel.camera.width, y);
+                g2D.drawLine(0 , y, GamePanel.camera.screenWidth, y);
             }
         }
 
@@ -343,7 +343,7 @@ public class LevelMaker extends GameObject2D{
         String lastButtonMsg = "";
 
         int x = 400;
-        int y = 60;
+        int y = GamePanel.camera.screenHeight /8 - 50;
 
         //read platform button info
         try {
@@ -361,7 +361,7 @@ public class LevelMaker extends GameObject2D{
                     buttons.add(b);
                     id_counter ++;
                     x += 150;
-                    if (x >= GamePanel.camera.width - 400){
+                    if (x >= GamePanel.camera.screenWidth - 400){
                         x = 400;
                         y += 100;
                     }
@@ -413,7 +413,7 @@ public class LevelMaker extends GameObject2D{
             }
             buttons.add(b);
             id_counter ++;
-            if (x >= GamePanel.camera.width - 400){
+            if (x >= GamePanel.camera.screenWidth - 400){
                 x = 400;
                 y += 100;
             }
@@ -529,8 +529,8 @@ public class LevelMaker extends GameObject2D{
 
                         case "To Player" -> {
                             if (GameObject2D.player != null){
-                                GamePanel.camera.setX(GameObject2D.player.getX() - GamePanel.camera.getWidth()/2);
-                                GamePanel.camera.setY(GameObject2D.player.getY() - GamePanel.camera.getHeight()/2);
+                                GamePanel.camera.setScreenX(GameObject2D.player.getX() - GamePanel.camera.getScreenWidth()/2);
+                                GamePanel.camera.setScreenY(GameObject2D.player.getY() - GamePanel.camera.getScreenHeight()/2);
                             }
                         }
 
@@ -656,7 +656,6 @@ public class LevelMaker extends GameObject2D{
 
             Camera c = GamePanel.camera;
 
-            c.resetGrid();
             objects = new ArrayList<>();
             setX(0);
             setY(0);

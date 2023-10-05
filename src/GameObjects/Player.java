@@ -225,7 +225,7 @@ public class Player extends Entity{
         }
 
 
-        if (getY() + GamePanel.camera.getY() > 2000 || KeyHandler.isSuicideKeyPressed || isDying){
+        if (getY() + GamePanel.camera.getScreenY() > 2000 || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);
         }
 
@@ -241,8 +241,8 @@ public class Player extends Entity{
             setNextAnimation(idle, idleAnimationSpeed);
         }
         else{
-            if (getAnimation() != death){
-                GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.width/2, spawnPoint[1] - GamePanel.camera.height/2);
+            if (!getAnimation().equals(death)){
+                GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.screenWidth /2, spawnPoint[1] - GamePanel.camera.screenHeight /2);
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
 

@@ -34,10 +34,10 @@ public class InGameTimer extends GameObject2D{
         String timerText = GamePanel.inGameTimer/60000 + " min " + (GamePanel.inGameTimer/1000)%60 + " s " + GamePanel.inGameTimer%1000 + " ms";
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 25));
-        g2D.fillRect(GamePanel.camera.width-g2D.getFontMetrics().stringWidth(timerText)-20,0,
+        g2D.fillRect(GamePanel.camera.screenWidth -g2D.getFontMetrics().stringWidth(timerText)-20,0,
                 g2D.getFontMetrics().stringWidth(timerText)+20, g2D.getFontMetrics().getHeight()+50);
 
         g2D.setColor(Color.white);
-        g2D.drawString(timerText, GamePanel.camera.width-g2D.getFontMetrics().stringWidth(timerText)-10, 50);
+        g2D.drawString(timerText, GamePanel.camera.screenWidth -g2D.getFontMetrics().stringWidth(timerText)-10, 50);
     }
 }

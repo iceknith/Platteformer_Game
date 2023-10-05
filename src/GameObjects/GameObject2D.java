@@ -178,8 +178,8 @@ public class GameObject2D{
                     getY() <= y && y <= getY() + getHeight();
         }
         Camera camera = GamePanel.camera;
-        return getX() - camera.getX() <= x && x <= getX() + getWidth() - camera.getX() &&
-                getY() - camera.getY() <= y && y <= getY() + getHeight() - camera.getY();
+        return getX() - camera.getScreenX() <= x && x <= getX() + getWidth() - camera.getScreenX() &&
+                getY() - camera.getScreenY() <= y && y <= getY() + getHeight() - camera.getScreenY();
     }
 
     public void draw(Graphics2D g2D, ImageObserver IO){
@@ -190,8 +190,8 @@ public class GameObject2D{
                     getSprite().getWidth(),getSprite().getHeight(), IO);
         }else{
             g2D.drawImage(getSprite().getImage(),
-                    getSprite().getOffsetX(getHitbox()) - GamePanel.camera.getX() ,
-                    getSprite().getOffsetY(getHitbox()) - GamePanel.camera.getY(),
+                    getSprite().getOffsetX(getHitbox()) - GamePanel.camera.getScreenX() ,
+                    getSprite().getOffsetY(getHitbox()) - GamePanel.camera.getScreenY(),
                     getSprite().getWidth(), getSprite().getHeight(), IO);
         }
     }

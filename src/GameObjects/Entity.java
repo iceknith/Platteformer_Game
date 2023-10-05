@@ -118,7 +118,7 @@ public class Entity extends GameObject2D{
 
     void fall(){
         if (! isOnGround){
-            velocityY -= gravity * GamePanel.deltaTime * 6;
+            velocityY = Math.max(-50, velocityY - (gravity * GamePanel.deltaTime * 6));
         }
     }
 
@@ -202,7 +202,6 @@ public class Entity extends GameObject2D{
         prevY = getY();
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
-
         wasOnGround = isOnGround;
         isOnGround = false;
         for (GameObject2D go: getNear()){

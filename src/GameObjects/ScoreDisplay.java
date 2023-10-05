@@ -24,10 +24,10 @@ public class ScoreDisplay extends GameObject2D {
         x = posX;
         y = posY;
         if (x==0){
-            x = GamePanel.camera.width/2;
+            x = GamePanel.camera.screenWidth /2;
         }
         if (y==0){
-            y = GamePanel.camera.height/7;
+            y = GamePanel.camera.screenHeight /7;
         }
     }
 

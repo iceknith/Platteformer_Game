@@ -1,6 +1,5 @@
 package GameObjects;
 
-import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
 
@@ -56,6 +55,9 @@ public class Camera extends GameGrid {
     }
 
     public void updateAll() throws IOException, FontFormatException {
+
+        //if (GamePanel.is_painting) return;
+
         //update every game object
         level.update();
 
@@ -79,17 +81,17 @@ public class Camera extends GameGrid {
 
         //variation = the difference between the center of the screen and the furthest corner of the player
         int variationX;
-        if (Math.abs(getX() + width/2 - p.getX()) > Math.abs(getX() + width/2 - p.getX() - p.getWidth())){
-            variationX = getX() + width/2 - p.getX();
+        if (Math.abs(getScreenX() + screenWidth /2 - p.getX()) > Math.abs(getScreenX() + screenWidth /2 - p.getX() - p.getWidth())){
+            variationX = getScreenX() + screenWidth /2 - p.getX();
         }else{
-            variationX = getX() + width/2 - p.getX() - p.getWidth();
+            variationX = getScreenX() + screenWidth /2 - p.getX() - p.getWidth();
         }
 
         int variationY;
-        if (Math.abs(getY() + height/2 - p.getY()) > Math.abs(getY() + height/2 - p.getY() - p.getHeight())){
-            variationY = getY() + height/2 - p.getY();
+        if (Math.abs(getScreenY() + screenHeight /2 - p.getY()) > Math.abs(getScreenY() + screenHeight /2 - p.getY() - p.getHeight())){
+            variationY = getScreenY() + screenHeight /2 - p.getY();
         }else{
-            variationY = getY() + height/2 - p.getY() - p.getHeight();
+            variationY = getScreenY() + screenHeight /2 - p.getY() - p.getHeight();
         }
 
         //x tests
@@ -129,27 +131,29 @@ public class Camera extends GameGrid {
         boolean doMove = false;
 
         //movement X
-        if (MouseHandler.getX() <= width/8){
-            velocityX = Math.max((double) width/8 - MouseHandler.getX(), -50);
+        if (MouseHandler.getX() <= screenWidth /8){
+            velocityX = Math.max((double) screenWidth /8 - MouseHandler.getX(), -50);
             doMove = true;
         }
-        else if (MouseHandler.getX() >= width*7/8){
-            velocityX = Math.min((double) width*7/8 - MouseHandler.getX(), 50);
+        else if (MouseHandler.getX() >= screenWidth *7/8){
+            velocityX = Math.min((double) screenWidth *7/8 - MouseHandler.getX(), 50);
             doMove = true;
 
         }
+        else velocityX = 0;
 
         //movement Y
-        if (MouseHandler.getY() <= height/8){
-            velocityY = Math.max((double) height/8 - MouseHandler.getY(), -50);
+        if (MouseHandler.getY() <= screenHeight /8){
+            velocityY = Math.max((double) screenHeight /8 - MouseHandler.getY(), -50);
             doMove = true;
 
         }
-        else if (MouseHandler.getY() >= height*7/8){
-            velocityY = Math.min((double) height*7/8 - MouseHandler.getY(), 50);
+        else if (MouseHandler.getY() >= screenHeight *7/8){
+            velocityY = Math.min((double) screenHeight *7/8 - MouseHandler.getY(), 50);
             doMove = true;
 
         }
+        else velocityY = 0;
 
         if (doMove) move();
     }
@@ -176,12 +180,14 @@ public class Camera extends GameGrid {
 
         //little logic to make sure that the camera moves, even when it moves slowly
         if (movX == 0 && velocityX != 0){
-            x -= (int) Math.signum(velocityX);
-        }else{x -= movX;}
+            screenX -= (int) Math.signum(velocityX);
+        }else{
+            screenX -= movX;}
 
         if (movY == 0 && velocityY != 0){
-            y -= (int) Math.signum(velocityY);
-        }else{y -= movY;}
+            screenY -= (int) Math.signum(velocityY);
+        }else{
+            screenY -= movY;}
 
 
         if (velocityX != 0 || velocityY != 0){
@@ -190,8 +196,8 @@ public class Camera extends GameGrid {
     }
 
     public void move(int posX, int posY){
-        x = posX;
-        y = posY;
+        screenX = posX;
+        screenY = posY;
     }
 
     void stopMovementX(){

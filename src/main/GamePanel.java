@@ -92,7 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             if(deltaTime >= frameInterval && (camera.isOperational || !is_painting || !is_updating)){
 
-                deltaTime = deltaTime / 100000000; //in seconds
+                deltaTime = deltaTime / 100000000; //in tenth of seconds
                 try {
 
                     update();
@@ -122,13 +122,12 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() throws IOException, FontFormatException {
-        if (!is_painting){
-            is_updating = true;
+        if (is_painting) return;
 
-            camera.updateAll();
+        is_updating = true;
+        camera.updateAll();
+        is_updating = false;
 
-            is_updating = false;
-        }
     }
 
     public void paintComponent(Graphics g){
@@ -137,11 +136,10 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        super.paintComponent(g);
         is_painting = true;
+        super.paintComponent(g);
 
         Graphics2D g2D = (Graphics2D) g;
-
         try {
             for (GameObject2D go: camera.getVisible()) {
                 go.draw(g2D, this);
@@ -167,7 +165,7 @@ public class GamePanel extends JPanel implements Runnable {
             for (int i = 0; i < camera.getVisible().size(); i++) {
                 GameObject2D go = camera.getVisible().get(i);
                 if (! go.isGUI){
-                    g2D.drawRect(go.getX() - camera.getX(), go.getY() - camera.getY(), go.getWidth(), go.getHeight());
+                    g2D.drawRect(go.getX() - camera.getScreenX(), go.getY() - camera.getScreenY(), go.getWidth(), go.getHeight());
                 }
             }
 

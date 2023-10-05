@@ -121,20 +121,20 @@ public class Background extends GameObject2D{
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
-        int posX = getX() - (int) (GamePanel.camera.getX() * scrollingSlowness);
+        int posX = getX() - (int) (GamePanel.camera.getScreenX() * scrollingSlowness);
         if (doRepeatX){
             posX += (int) (Math.signum(posX) * getWidth() * zoom) * (int) (posX / (getWidth() * zoom));
         }
         else{
-            posX = Math.max(GamePanel.camera.width - (int) (getWidth() * zoom), Math.min(0, posX));
+            posX = Math.max(GamePanel.camera.screenWidth - (int) (getWidth() * zoom), Math.min(0, posX));
         }
 
-        int posY = getY() - (int) (GamePanel.camera.getY() * scrollingSlowness);
+        int posY = getY() - (int) (GamePanel.camera.getScreenY() * scrollingSlowness);
         if (doRepeatY){
             posY += (int) (Math.signum(posY) * getHeight() * zoom) * (int) (posY / (getHeight() * zoom));
         }
         else{
-            posY = Math.max(GamePanel.camera.height - (int) (getHeight() * zoom), Math.min(0, posY));
+            posY = Math.max(GamePanel.camera.screenHeight - (int) (getHeight() * zoom), Math.min(0, posY));
         }
 
         g2D.drawImage(getSprite().getImage(), posX, posY,

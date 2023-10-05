@@ -3,6 +3,7 @@ package GameObjects;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class GameGrid {
@@ -12,17 +13,17 @@ public class GameGrid {
     Vector<GameObject2D> visible = new Vector<>();
     Level level = new Level();
 
+    int screenX;
+    int screenY;
+
     int x;
     int y;
-
-    int cellXNum = 10;
-    int cellYNum = 10;
 
     int cellWidth;
     int cellHeight;
 
-    int width;
-    int height;
+    int screenWidth;
+    int screenHeight;
 
     public boolean isOperational = false;
 
@@ -30,14 +31,14 @@ public class GameGrid {
 
     public GameGrid(int w, int h, int gridX, int gridY) {
 
-        width = w;
-        height = h;
+        screenWidth = w;
+        screenHeight = h;
 
-        cellWidth = width / cellXNum;
-        cellHeight = height / cellYNum;
+        cellWidth = 64;
+        cellHeight = 64;
 
-        x = gridX;
-        y = gridY;
+        screenX = gridX;
+        screenY = gridY;
 
         grid = new ArrayList<>();
     }
@@ -46,31 +47,24 @@ public class GameGrid {
         return grid.get(cellX).get(cellY);
     }
 
-    public int getX() {return x;}
+    public int getScreenX() {return screenX;}
 
-    public int getY() {return y;}
+    public int getScreenY() {return screenY;}
 
-    public int getWidth() {return width;}
+    public int getScreenWidth() {return screenWidth;}
 
-    public int getHeight() {return height;}
+    public int getScreenHeight() {return screenHeight;}
 
     public ArrayList<GameObject2D> getUpdatable(){return level.getUpdatable();}
 
     public Vector<GameObject2D> getVisible(){return visible;}
 
 
-    public void setX(int posX) {x = posX;}
+    public void setScreenX(int posX) {
+        screenX = posX;}
 
-    public void setY(int posY) {y = posY;}
-
-    public void initialise(double w, double h){
-        for (int x = 0; x < w; x ++){
-            grid.add(new ArrayList<>());
-            for (int y = 0; y < h; y ++){
-                grid.get(x).add(new ArrayList<>());
-            }
-        }
-    }
+    public void setScreenY(int posY) {
+        screenY = posY;}
 
     public void deleteGOInGrid(GameObject2D r){
         ArrayList<int[]> cellPos = findRectPosInGrid(r);
@@ -82,29 +76,109 @@ public class GameGrid {
 
     public void addGOInGrid(GameObject2D r){
 
+        if (r.isGUI || r.type.equals("Player")) return;
+
+        //if grid is empty
+        if (grid.isEmpty()){
+            grid = new ArrayList<>(List.of(new ArrayList<>(List.of(new ArrayList<>()))));
+        }
+
+        if(!isInGrid(r)){
+            ///--- Adjust Grid size, if r is not in it ---///
+
+            // if rectangle is on top of the current Grid
+            if (r.getY() < y){
+                //adjusting the grid size to include the new Game Object
+                int oldY = y;
+                y = (int) (r.getY() + Math.signum(r.getY()) * (cellHeight - r.getY()%cellHeight));
+
+                //adding the empty lineY to grid
+                for (ArrayList<ArrayList<GameObject2D>> lineX : grid){
+                    for (int indexY = 0; indexY < Math.abs(oldY - y)/cellHeight; indexY++){
+                        lineX.add(0, new ArrayList<>());
+                    }
+                }
+            }
+
+            // if rectangle is under the current Grid
+            if (r.getY() > y + grid.get(0).size() * cellHeight){
+                //adjusting the grid size to include the new Game Object
+                int oldY = y + grid.get(0).size() * cellHeight;
+                y = (int) (r.getY() + Math.signum(r.getY()) * (cellHeight - r.getY()%cellHeight));
+
+                //adding the empty lineY to grid
+                for (ArrayList<ArrayList<GameObject2D>> lineX : grid){
+                    for (int indexY = 0; indexY < Math.abs(oldY - y)/cellHeight; indexY++){
+                        lineX.add(new ArrayList<>());
+                    }
+                }
+            }
+
+            // if rectangle is on the left of the current Grid
+            if (r.getX() < x){
+                //adjusting the grid size to include the new Game Object
+                int oldX = x;
+                x = (int) (r.getX() + Math.signum(r.getX()) * (cellWidth - r.getX()%cellWidth));
+
+                //adding the empty lineX to grid
+                for (int indexX = 0; indexX < Math.abs(oldX - x)/cellWidth; indexX++){
+                    grid.add(0, new ArrayList<>());
+
+                    for (int y = 0; y < grid.get(1).size(); y++){
+                        grid.get(0).add(new ArrayList<>());
+                    }
+                }
+            }
+
+            // if rectangle is on the right of the current Grid
+            if (r.getX() > x + grid.size() * cellWidth){
+                //adjusting the grid size to include the new Game Object
+                int oldX = x + grid.size() * cellWidth;
+                x = (int) (r.getX() + Math.signum(r.getX()) * (cellWidth - r.getX()%cellWidth));
+
+                //adding the empty lineX to grid
+                for (int indexX = 0; indexX < Math.abs(oldX - x)/cellWidth; indexX++){
+                    grid.add(new ArrayList<>());
+
+                    for (int y = 0; y < grid.get(0).size(); y++){
+                        grid.get(grid.size() - 1).add(new ArrayList<>());
+                    }
+                }
+            }
+
+            // verification check
+            if (!isInGrid(r)) {
+                System.out.println("Error, the grid adjustment is faulty:");
+                System.out.println("Grid infos:");
+                System.out.println("X: " + x + ", Y: " + y + ", Width : " + grid.size() * cellWidth + ", Height : " + grid.get(0).size() * cellHeight);
+                System.out.println("GO info:\n" + r.getDebugInfos() + "\n----------\n");
+                return;
+            }
+        }
+
+        //add r to grid
         ArrayList<int[]> cellPos = findRectPosInGrid(r);
 
         for (int[] pos: cellPos) {
             grid.get(pos[0]).get(pos[1]).add(r);
         }
-        //visualiseGrid();
     }
 
     public ArrayList<int[]> findRectPosInGrid(GameObject2D r){
 
-        int x1 = (r.getX() - getX()) / cellWidth;
-        int y1 = (r.getY() - getY()) / cellHeight;
-        int x2 = (r.getX() - getX() + r.getWidth()) / cellWidth;
-        int y2 = (r.getY() - getY() + r.getHeight()) / cellHeight;
+        int x1 = (r.getX() - x) / cellWidth;
+        int y1 = (r.getY() - y) / cellHeight;
+        int x2 = (r.getX() - x + r.getWidth()) / cellWidth;
+        int y2 = (r.getY() - y + r.getHeight()) / cellHeight;
 
 
         ArrayList<int[]> result = new ArrayList<>();
         for (int x = x1; x <= x2; x ++){
-            if (x >= cellXNum || x < 0){
+            if (x >= grid.size() || x < 0){
                 continue;
             }
             for (int y = y1; y <= y2; y ++){
-                if (y >= cellYNum || y < 0){
+                if (y >= grid.get(0).size() || y < 0){
                     continue;
                 }
                 result.add(new int[] {x, y});
@@ -118,37 +192,69 @@ public class GameGrid {
         int posY = go.getSprite().getOffsetY(go.getHitbox());
 
         //if one rect is on the left of the other
-        if(x > posX + go.getSprite().getWidth() || posX > x + width){
+        if(x > posX + go.getSprite().getWidth() || posX > x + cellWidth * grid.size()){
             return false;
         }
 
         //if one rect is above the other
-        return y <= posY + go.getSprite().getHeight() && posY <= y + height;
+        return y <= posY + go.getSprite().getHeight() && posY <= y + cellHeight * grid.get(0).size();
     }
 
-    public void resetGrid(){
+    public void initialiseGrid(ArrayList<GameObject2D> levelObjects){
         visible.clear();
         level.clearUpdatable();
         grid.clear();
-        initialise(cellXNum, cellYNum);
+        x = 0; y = 0;
+
+        for (GameObject2D go : levelObjects){
+            addGOInGrid(go);
+        }
+
+        System.out.println("grid has been initialised :");
+        visualiseGrid();
     }
 
     public void loadVisible(){
-        resetGrid();
-        ArrayList<GameObject2D> gui = new ArrayList<>();
-        GameObject2D background = null;
 
-        for (GameObject2D go: level.getDisplayedObjects()) {
+        visible.clear();
 
-            if (isInGrid(go) || go.isGUI){
-                if (go.getType().contains("Background_")) background = go;
-                else if (go.isGUI) gui.add(go);
-                else visible.add(go);
-                level.addUpdatable(go);
-                addGOInGrid(go);
+        //handle objects
+        if (!grid.isEmpty()){
+            /*int startIndexX = Math.max((screenX - x)/cellWidth, 0);
+            int endIndexX = Math.min((screenX + screenWidth - x)/cellWidth, grid.size());
+            int startIndexY = Math.max((screenY - y)/cellHeight, 0);
+            int endIndexY = Math.min((screenY + screenHeight - y)/cellHeight, grid.get(0).size());*/
+            int startIndexX = 0;
+            int endIndexX = grid.size();
+            int startIndexY = 0;
+            int endIndexY = grid.get(0).size();
+
+            for (int indexX = startIndexX; indexX < endIndexX; indexX ++){
+
+                for (int indexY = startIndexY; indexY < endIndexY; indexY ++){
+
+                    if (!grid.get(indexX).get(indexY).isEmpty()){
+
+                        for (GameObject2D go : grid.get(indexX).get(indexY)){
+                            level.addUpdatable(go);
+                            visible.add(go);
+                        }
+                    }
+                }
             }
         }
-        visible.addAll(gui);
+
+        //handle gui and background
+        GameObject2D background = null;
+        for (GameObject2D go : level.getPermaDisplayed()){
+            level.addUpdatable(go);
+            if (go.type.contains("Background_")) {
+                background = go;
+            }
+            else{
+                visible.add(go);
+            }
+        }
         if (background != null){
             visible.insertElementAt(background, 0);
         }
@@ -168,16 +274,15 @@ public class GameGrid {
         return nextLevel;
     }
 
-
     public void loadNextLevel() throws FileNotFoundException {
         isOperational = false;
-        resetGrid();
-        setX(0);
-        setY(0);
+        setScreenX(0);
+        setScreenY(0);
 
         level = new Level(nextLevel);
         deleteNextLevel();
 
+        initialiseGrid(level.getSubLvl("main").objectList);
         loadVisible();
         isOperational = true;
     }
@@ -187,15 +292,23 @@ public class GameGrid {
     }
 
     public void visualiseGrid(){
-        int j = 0;
-        for (ArrayList<GameObject2D> y: grid.get(0)) {
-            int i = 0;
+        if (grid.isEmpty()) {
+            System.out.println("The grid is empty");
+            return;
+        }
+        System.out.println("Grid infos:");
+        System.out.println("X: " + x + ", Y: " + y + ", Width : " + grid.size() * cellWidth + ", Height : " + grid.get(0).size() * cellHeight);
+        for (int y = 0; y < grid.get(0).size(); y++) {
             for (ArrayList<ArrayList<GameObject2D>> x: grid){
-                System.out.print(grid.get(i).get(j) + " ");
-                i++;
+                StringBuilder msg = new StringBuilder(" [ ");
+
+                for (GameObject2D go : x.get(y)){
+                    msg.append(go.name);
+                }
+                msg.append(" ] ");
+                System.out.print(msg);
             }
             System.out.println();
-            j++;
         }
         System.out.println();
     }

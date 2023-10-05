@@ -28,8 +28,8 @@ public class ScoreRegister extends GameObject2D{
         lineSize = 7;
         keyWidth = 100;
         keyHeight = 100;
-        kX = GamePanel.camera.width/2 - (lineSize-1)*keyWidth/2;
-        kY = GamePanel.camera.height/2;
+        kX = GamePanel.camera.screenWidth /2 - (lineSize-1)*keyWidth/2;
+        kY = GamePanel.camera.screenHeight /2;
 
         //adding letters to keyboard
         for (int i = 0; i < alphabet.length(); i++){
@@ -114,12 +114,12 @@ public class ScoreRegister extends GameObject2D{
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 60));
 
         g2D.setColor(new Color(0f, 0f, 0f, .5f));
-        g2D.fillRect(GamePanel.camera.width/2-400, GamePanel.camera.height/4-50-g2D.getFontMetrics().getHeight()/2, 800, 100);
+        g2D.fillRect(GamePanel.camera.screenWidth /2-400, GamePanel.camera.screenHeight /4-50-g2D.getFontMetrics().getHeight()/2, 800, 100);
 
         g2D.setColor(Color.white);
-        g2D.drawRect(GamePanel.camera.width/2-400, GamePanel.camera.height/4-50-g2D.getFontMetrics().getHeight()/2, 800, 100);
+        g2D.drawRect(GamePanel.camera.screenWidth /2-400, GamePanel.camera.screenHeight /4-50-g2D.getFontMetrics().getHeight()/2, 800, 100);
 
-        g2D.drawString(playerName, GamePanel.camera.width/2-g2D.getFontMetrics().stringWidth(playerName)/2, GamePanel.camera.height/4);
+        g2D.drawString(playerName, GamePanel.camera.screenWidth /2-g2D.getFontMetrics().stringWidth(playerName)/2, GamePanel.camera.screenHeight /4);
 
     }
 
@@ -229,7 +229,7 @@ public class ScoreRegister extends GameObject2D{
         }
 
         pw.close();
-
+        KeyHandler.isSelectPressed = false;
         KeyHandler.isSelectPressed = false;
         GamePanel.camera.setNextLevel("menu");
     }

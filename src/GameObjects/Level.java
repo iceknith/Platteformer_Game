@@ -55,14 +55,14 @@ public class Level {
         return levelName;
     }
 
-    public ArrayList<GameObject2D> getDisplayedObjects() {
-        ArrayList<GameObject2D> displayedObjects = new ArrayList<>();
+    public ArrayList<GameObject2D> getPermaDisplayed() {
+        ArrayList<GameObject2D> displayedGUI = new ArrayList<>();
         for (SubLevel subLvl : subLevels) {
             if (subLvl.isDisplayed){
-                displayedObjects.addAll(subLvl.objectList);
+                displayedGUI.addAll(subLvl.premaDisplayedObjects);
             }
         }
-        return displayedObjects;
+        return displayedGUI;
     }
 
     public void update() throws IOException, FontFormatException {
@@ -85,8 +85,6 @@ public class Level {
             lvlMaker.update();
             return;
         }
-
-
 
         noUpdatableModification = true;
 
@@ -152,8 +150,8 @@ public class Level {
 
                         GameObject2D.setPlayer(new Player(x, y,"#" + i, ""));
                         objectsBuffer.add(GameObject2D.getPlayer());
-                        GamePanel.camera.setX(x - GamePanel.camera.getWidth()/2);
-                        GamePanel.camera.setY(y - GamePanel.camera.getHeight()/2);
+                        GamePanel.camera.setScreenX(x - GamePanel.camera.getScreenWidth()/2);
+                        GamePanel.camera.setScreenY(y - GamePanel.camera.getScreenHeight()/2);
                     }
                     case 'T' -> { //InGameTimer
                         InGameTimer t = new InGameTimer("");
@@ -190,8 +188,8 @@ public class Level {
                             case 'L' -> { //levelChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                                int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder lvl = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -216,8 +214,8 @@ public class Level {
                             case 'S' -> { //subLevelChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                                int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder subLvl = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -242,8 +240,8 @@ public class Level {
                             case 'K' -> {//KeyChangingButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                                int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder keyName = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -267,8 +265,8 @@ public class Level {
                             case 'E' -> { //ExitButton
                                 int w = reader.read()*256 + reader.read();
                                 int h = reader.read()*256 + reader.read();
-                                int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                                int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                                int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                                int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                                 StringBuilder messageName = new StringBuilder();
                                 while ((cha = reader.read()) != 59) { //59 == ';'
@@ -290,8 +288,8 @@ public class Level {
                     case 'D' -> { //drop down menu
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
-                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                        int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                         DropDownMenu d = new DropDownMenu(posX, posY, w, h, "#" + i, "",
                                 new ArrayList<>(), new ArrayList<>());
@@ -326,12 +324,12 @@ public class Level {
                     case 'I' -> { //image
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();
-                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                        int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                         if (w == 0 && h == 0){
-                            w = GamePanel.camera.width;
-                            h = GamePanel.camera.height;
+                            w = GamePanel.camera.screenWidth;
+                            h = GamePanel.camera.screenHeight;
 
                             posX += w/2;
                             posY += h/2;
@@ -349,15 +347,15 @@ public class Level {
                     }
 
                     case 'S' -> { //Score Display
-                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                        int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                         ScoreDisplay s = new ScoreDisplay(posX, posY, "");
                         objectsBuffer.add(s);
                     }
                     case 'H' -> { //High Score Display
-                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                        int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                         int cha;
 
@@ -373,8 +371,8 @@ public class Level {
                         objectsBuffer.add(h);
                     }
                     case 'R' -> { //High Score Register
-                        int posX = GamePanel.camera.width * (reader.read()*256 + reader.read())/1000;
-                        int posY = GamePanel.camera.height * (reader.read()*256 + reader.read())/1000;
+                        int posX = GamePanel.camera.screenWidth * (reader.read()*256 + reader.read())/1000;
+                        int posY = GamePanel.camera.screenHeight * (reader.read()*256 + reader.read())/1000;
 
                         ScoreRegister r = new ScoreRegister(posX, posY, "");
                         objectsBuffer.add(r);
@@ -570,7 +568,7 @@ public class Level {
     }
 
     public boolean hasNoPlayer(){
-        for (GameObject2D go: getDisplayedObjects()) {
+        for (GameObject2D go: getPermaDisplayed()) {
             if (go.type.equals("Player")){
                 return false;
             }
