@@ -31,6 +31,7 @@ public class Entity extends GameObject2D{
     int prevY;
 
     boolean isOnGround;
+    boolean wasOnGround;
     boolean isJumping;
     boolean wasJumping;
 
@@ -64,6 +65,7 @@ public class Entity extends GameObject2D{
         prevY = e.prevY;
 
         isOnGround = e.isOnGround;
+        wasOnGround = e.wasOnGround;
         isJumping = e.isJumping;
         wasJumping = e.wasJumping;
     }
@@ -163,6 +165,17 @@ public class Entity extends GameObject2D{
         }
     }
 
+    void checkGround(GameObject2D go){
+        if (wasOnGround && go.hasPhysicalCollisions){
+            if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
+                    getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+                return;
+            }
+
+            isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
+        }
+    }
+
     ArrayList<GameObject2D> getNear(){
 
         ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(this);
@@ -190,9 +203,10 @@ public class Entity extends GameObject2D{
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
+        wasOnGround = isOnGround;
         isOnGround = false;
         for (GameObject2D go: getNear()){
-            //checkGround(go);
+            checkGround(go);
             collision(go);
         }
     }

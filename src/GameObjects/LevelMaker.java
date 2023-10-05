@@ -304,29 +304,35 @@ public class LevelMaker extends GameObject2D{
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
 
-        if (!isLevelLaunched){
-            if (isInGridMode){
+        if (isLevelLaunched) return;
 
-                g2D.setColor(Color.darkGray);
+        //draw mouse coos
+        g2D.setColor(Color.white);
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
+        g2D.drawString("X : " + (GamePanel.camera.x + MouseHandler.getX()),15,25);
+        g2D.drawString("Y : " +  (GamePanel.camera.y + MouseHandler.getY()),15,50);
 
-                for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
+
+        if (isInGridMode){
+            g2D.setColor(Color.darkGray);
+
+            for (int x = - gridCellWidth - GamePanel.camera.getX()%gridCellWidth; x <= GamePanel.camera.getWidth(); x += gridCellWidth) {
 
                     g2D.drawLine(x, 0, x, GamePanel.camera.height);
                 }
-                for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
+            for (int y = - gridCellHeight - GamePanel.camera.getY()%gridCellHeight; y <= GamePanel.camera.getHeight(); y += gridCellHeight) {
 
-                    g2D.drawLine(0 , y, GamePanel.camera.width, y);
-                }
+                g2D.drawLine(0 , y, GamePanel.camera.width, y);
             }
-
-
-            for (Button b : buttons){
-                b.draw(g2D, IO);
-            }
-
-            rightClickMenu.draw(g2D, IO);
-            txtInputMenu.draw(g2D, IO);
         }
+
+
+        for (Button b : buttons){
+            b.draw(g2D, IO);
+        }
+
+        rightClickMenu.draw(g2D, IO);
+        txtInputMenu.draw(g2D, IO);
     }
 
     public void initButtons() throws IOException, FontFormatException {
@@ -424,7 +430,7 @@ public class LevelMaker extends GameObject2D{
         if (MouseHandler.getY() > maxButtonY || txtInputMenu.isOpen || rightClickMenu.isOpen) return;
 
         for (Button b : buttons){
-            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){ //suspicious unoptimisation
+            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
 
                 cameraCanMove = false;
                 canPlaceObj = false;
