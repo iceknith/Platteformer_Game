@@ -243,6 +243,7 @@ public class Player extends Entity{
         else{
             if (!getAnimation().equals(death)){
                 GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.screenWidth /2, spawnPoint[1] - GamePanel.camera.screenHeight /2);
+
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
 

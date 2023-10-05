@@ -82,17 +82,18 @@ public class GamePanel extends JPanel implements Runnable {
             throw new RuntimeException(e);
         }
 
+        double dt = 0;
         lastFrameTime = System.nanoTime();
         // game loop
         while (is_game_running) {
 
             currentFrameTime = System.nanoTime();
-            deltaTime += currentFrameTime - lastFrameTime;
+            dt += currentFrameTime - lastFrameTime;
             lastFrameTime = currentFrameTime;
 
-            if(deltaTime >= frameInterval && (camera.isOperational || !is_painting || !is_updating)){
+            if(dt >= frameInterval && camera.isOperational && !is_painting && !is_updating){
 
-                deltaTime = deltaTime / 100000000; //in tenth of seconds
+                deltaTime = dt / 100000000; //in tenth of seconds
                 try {
 
                     update();
@@ -116,7 +117,7 @@ public class GamePanel extends JPanel implements Runnable {
                     activeFps = 0;
                 }
 
-                deltaTime = 0;
+                dt = 0;
             }
         }
     }

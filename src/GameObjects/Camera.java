@@ -29,6 +29,7 @@ public class Camera extends GameGrid {
     int softBorderYoffset;
 
     boolean noUpdate = false;
+    boolean bufferUpdateGrid = false;
 
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
@@ -68,6 +69,11 @@ public class Camera extends GameGrid {
     void update(){
 
         if (noUpdate) return;
+
+        if (bufferUpdateGrid){
+            updateGrid();
+            bufferUpdateGrid = false;
+        }
 
         if (level.updateLevelMaker){
             levelMakerCameraUpdate();
@@ -198,6 +204,8 @@ public class Camera extends GameGrid {
     public void move(int posX, int posY){
         screenX = posX;
         screenY = posY;
+
+        bufferUpdateGrid = true;
     }
 
     void stopMovementX(){

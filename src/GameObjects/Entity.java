@@ -118,7 +118,7 @@ public class Entity extends GameObject2D{
 
     void fall(){
         if (! isOnGround){
-            velocityY = Math.max(-50, velocityY - (gravity * GamePanel.deltaTime * 6));
+            velocityY = Math.max(-150, velocityY - (gravity * GamePanel.deltaTime * 6));
         }
     }
 
@@ -178,7 +178,7 @@ public class Entity extends GameObject2D{
 
     ArrayList<GameObject2D> getNear(){
 
-        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(this);
+        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(this, 0, 0, 0, 2);
         ArrayList<GameObject2D> result = new ArrayList<>();
 
         for ( int[] pos: thisEntityGridCells) {
