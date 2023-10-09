@@ -40,7 +40,7 @@ public class Level {
         loadLevel();
     }
 
-    public Level(String name, LevelMaker levelMaker, boolean onlyMain){
+    public Level(String name, LevelMaker levelMaker, boolean onlyMain) throws Exception {
         levelName = name;
 
         hasLevelMaker = true;
@@ -59,13 +59,13 @@ public class Level {
         ArrayList<GameObject2D> displayedGUI = new ArrayList<>();
         for (SubLevel subLvl : subLevels) {
             if (subLvl.isDisplayed){
-                displayedGUI.addAll(subLvl.premaDisplayedObjects);
+                displayedGUI.addAll(subLvl.permaDisplayedObjects);
             }
         }
         return displayedGUI;
     }
 
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
 
         if(KeyHandler.isMenuKeyPressed && ! wasMenuKeyPressed){
             subLevelBackHandler();
@@ -105,7 +105,6 @@ public class Level {
 
         updatable.addAll(updatableBuffer);
         updatableBuffer = new ArrayList<>();
-
     }
 
     public void loadLevel() throws FileNotFoundException {
@@ -306,7 +305,6 @@ public class Level {
                         float zoomAmount = (float) (reader.read() * 256 + reader.read()) / 100;
                         float scrollSlowness = (float) (reader.read() * 256 + reader.read()) / 100;
                         int r = reader.read();
-                        System.out.println(r);
                         boolean isInfiniteX = r == 1;
                         boolean isInfiniteY = reader.read() == 1;
 
@@ -426,6 +424,7 @@ public class Level {
             reader.close();
 
         } catch (Exception e) {
+            System.out.println("Error while loading level: assets/level/" + level + ".lvl");
             throw new RuntimeException(e);
         }
 
@@ -540,17 +539,17 @@ public class Level {
         }
     }
 
-    public void addToMainSubLevel(GameObject2D go){
+    public void addToMainSubLevel(GameObject2D go) throws Exception {
         addToSubLevel(go, "main");
     }
-    public void addToSubLevel(GameObject2D go, String subLvlName){
+    public void addToSubLevel(GameObject2D go, String subLvlName) throws Exception {
         SubLevel subLvl = getSubLvl(subLvlName);
         subLvl.addObject(go);
         if (subLvl.isUpdated){
             updatableBuffer.add(go);
         }
         if (subLvl.isDisplayed){
-            GamePanel.camera.updateGrid();
+            GamePanel.camera.displayableBuffer.add(go);
         }
     }
 
@@ -568,7 +567,7 @@ public class Level {
     }
 
     public boolean hasNoPlayer(){
-        for (GameObject2D go: getPermaDisplayed()) {
+        for (GameObject2D go: getUpdatable()) {
             if (go.type.equals("Player")){
                 return false;
             }

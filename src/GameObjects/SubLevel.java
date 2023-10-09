@@ -18,7 +18,7 @@ public class SubLevel {
             if (go.type.contains("Button_")){
                 buttons.add(go.getButton());
             }
-            if (go.isGUI || go.type.equals("Player")) premaDisplayedObjects.add(go);
+            if (go.isGUI) permaDisplayedObjects.add(go);
             objectList.add(go);
         }
         if (!buttons.isEmpty()){
@@ -28,7 +28,7 @@ public class SubLevel {
     }
 
     ArrayList<GameObject2D> objectList = new ArrayList<>();
-    ArrayList<GameObject2D> premaDisplayedObjects = new ArrayList<>();
+    ArrayList<GameObject2D> permaDisplayedObjects = new ArrayList<>();
     String name;
     
     public boolean isDisplayed;
@@ -44,9 +44,13 @@ public class SubLevel {
 
     public ArrayList<GameObject2D> getObjectList(){return objectList;}
 
-    public void addObject(GameObject2D go){
+    public void addObject(GameObject2D go) throws Exception {
         objectList.add(go);
         go.setSubLevelName(name);
+
+        if (go.type.contains("Button_")) buttons.add(go.getButton());
+
+        if (go.isGUI) permaDisplayedObjects.add(go);
     }
 
     public void update(){

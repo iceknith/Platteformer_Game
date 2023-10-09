@@ -59,7 +59,7 @@ public class Button extends GameObject2D{
     public boolean isTriggered(){return triggered;}
 
     @Override
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
 
         if (key_focused){
 
@@ -116,7 +116,7 @@ public class Button extends GameObject2D{
         calibrateMsg = true;
     }
 
-    void releasedHandler() throws IOException, FontFormatException {
+    void releasedHandler() throws Exception {
         //is overwritten
         triggered = false;
     }

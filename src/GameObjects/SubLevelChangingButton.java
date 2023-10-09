@@ -18,7 +18,7 @@ public class SubLevelChangingButton extends Button{
     }
 
     @Override
-    void releasedHandler() throws IOException, FontFormatException {
+    void releasedHandler() throws Exception {
         super.releasedHandler();
 
         GamePanel.camera.level.openSubLevel(subLevel, false, false);

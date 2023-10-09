@@ -21,7 +21,7 @@ public class LevelChangingButton extends Button{
     }
 
     @Override
-    void releasedHandler() throws IOException, FontFormatException {
+    void releasedHandler() throws Exception {
         super.releasedHandler();
 
         if (buttonMessage.equals("Level testing")){

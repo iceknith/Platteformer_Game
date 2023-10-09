@@ -102,7 +102,7 @@ public class GamePanel extends JPanel implements Runnable {
                         camera.loadNextLevel();
                     }
 
-                } catch (IOException | FontFormatException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 
@@ -122,7 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
         if (is_painting) return;
 
         is_updating = true;

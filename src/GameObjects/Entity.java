@@ -198,10 +198,13 @@ public class Entity extends GameObject2D{
 
     void move() {
 
+        GamePanel.camera.deleteGOInGrid(this);
         prevX = getX();
         prevY = getY();
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
+        GamePanel.camera.addGOInGrid(this);
+
         wasOnGround = isOnGround;
         isOnGround = false;
         for (GameObject2D go: getNear()){

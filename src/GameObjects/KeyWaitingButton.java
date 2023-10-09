@@ -20,7 +20,7 @@ public class KeyWaitingButton extends Button{
     }
 
     @Override
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
         super.update();
 
         if (KeyHandler.getLastKeyPressed() != -1){

@@ -20,6 +20,7 @@ public class LevelMaker extends GameObject2D{
 
     public static boolean cameraCanMove = true;
     boolean canPlaceObj = true;
+    public static boolean objIsPlaced = true;
 
     ArrayList<GameObject2D> objects = new ArrayList<>();
     int id_counter = 6;
@@ -74,7 +75,7 @@ public class LevelMaker extends GameObject2D{
     }
 
     @Override
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
 
         rightClickMenu.update();
         txtInputMenu.update();
@@ -89,6 +90,10 @@ public class LevelMaker extends GameObject2D{
                 //unload all loaded GO in level, and replace them with the saved ones
                 Level lvl = GamePanel.camera.level;
                 lvl.getSubLvl("main").objectList = new ArrayList<>();
+                lvl.getSubLvl("main").permaDisplayedObjects = new ArrayList<>();
+                lvl.getSubLvl("main").buttons = new ArrayList<>();
+                GamePanel.camera.initialiseGrid(new ArrayList<>());
+
                 lvl.addToMainSubLevel(this);
                 for (GameObject2D go : objects){
                     lvl.addToMainSubLevel(go);
@@ -99,9 +104,7 @@ public class LevelMaker extends GameObject2D{
                         GamePanel.camera.screenX = player.getX() - GamePanel.camera.screenWidth /2;
                         GamePanel.camera.screenY = player.getY() - GamePanel.camera.screenHeight /2;
                     }
-
                 }
-
             }
             else return;
         }
@@ -126,161 +129,56 @@ public class LevelMaker extends GameObject2D{
             }
         }
         //place objects
-        if (MouseHandler.isLeftClickPressed && canPlaceObj){
-            MouseHandler.resetClicks();
-            id_counter += 1;
+        if (MouseHandler.isLeftClickPressed && canPlaceObj && objIsPlaced){
 
-            int x = GamePanel.camera.screenX + MouseHandler.getX();
-            int y = GamePanel.camera.screenY + MouseHandler.getY();
+            int mouseX = GamePanel.camera.screenX + MouseHandler.getX();
+            int mouseY = GamePanel.camera.screenY + MouseHandler.getY();
             if (isInGridMode){
-                if (x >= 0) x -= x%gridCellWidth;
-                else x -= gridCellWidth + x%gridCellWidth;
+                if (mouseX >= 0) mouseX -= mouseX%gridCellWidth;
+                else mouseX -= gridCellWidth + mouseX%gridCellWidth;
 
-                if (y > 0) y -= y%gridCellHeight;
-                else y -= gridCellHeight + y%gridCellHeight;
+                if (mouseY > 0) mouseY -= mouseY%gridCellHeight;
+                else mouseY -= gridCellHeight + mouseY%gridCellHeight;
             }
 
-            //player
-            if (hasNoPlayer()){
-                Player p = new Player(x, y,
-                        "#0", "");
-                GamePanel.camera.level.addToMainSubLevel(p);
-                objects.add(p);
-                player = p;
+            //Check if the mouse isn't on an existing GO
+            ArrayList<int[]> mouseGridPos = GamePanel.camera.findRectPosInGrid(mouseX, mouseY, 1, 1, 0, 0, 0, 0);
+
+            for (int[] pos : mouseGridPos){
+
+                for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
+                    if (go.pointIsIn(mouseX, mouseY)){
+                        System.out.println(go.getDebugInfos());
+                        return;
+                    }
+                }
             }
 
-            //platform
-            else if (nextObjType.equals("Platform")) {
-                Platform p = new Platform(defaultObjWidth, defaultObjHeight, x, y,
-                        nextObjTexture, "#"+id_counter, "");
-
-                GamePanel.camera.level.addToMainSubLevel(p);
-                objects.add(p);
-            }
-            //checkpoint
-            else if (nextObjType.equals("Checkpoint")) {
-                CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
-                GamePanel.camera.level.addToMainSubLevel(c);
-                objects.add(c);
-            }
-
+            //if not: place go
+            placeGo(mouseX, mouseY);
         }
 
         //edit placed objects
         if (MouseHandler.isRightClickPressed && !rightClickMenu.isOpen){
 
-            int mouseX = MouseHandler.getX();
-            int mouseY = MouseHandler.getY();
+            int mouseX = MouseHandler.getX() + GamePanel.camera.screenX;
+            int mouseY = MouseHandler.getY() + GamePanel.camera.screenY;
 
-            for (GameObject2D go : objects){
+            ArrayList<int[]> mouseGridPos = GamePanel.camera.findPointPosInGrid(mouseX, mouseY);
 
-                if (!go.type.contains("Background_") && go.pointIsIn(mouseX, mouseY)){
+            for (int[] pos : mouseGridPos){
 
-                    Function<Void, Void> delete =
-                            unused -> {
-                                objects.remove(go);
-                                GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
-                                GamePanel.camera.updateGrid();
+                for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
 
-                                rightClickMenu.activate();
-                                GamePanel.camera.noUpdate = false;
-
-                                MouseHandler.resetClicks();
-
-                                return unused;
-                            };
-
-                    Function<Void, Void> resize =
-                            unused -> {
-                                txtInputMenu.setAsInt(true);
-
-                                txtInputMenu.setCategoryNames(Arrays.asList("Width: ", "Height: "));
-                                txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getWidth()), String.valueOf(go.getHeight())));
-                                txtInputMenu.setCategorySetValues(Arrays.asList(
-                                        s -> {
-                                            int i = Integer.parseInt(s);
-                                            go.setWidth(i);
-                                            go.sprite.setWidth(i);
-                                            if (!isInGridMode) defaultObjWidth = i;
-                                            return null;
-                                            },
-                                        s -> {
-                                            int i = Integer.parseInt(s);
-                                            go.setHeight(i);
-                                            go.sprite.setHeight(i);
-                                            if (!isInGridMode) defaultObjHeight = i;
-                                            canPlaceObj = true;
-                                            return null;
-                                        }));
-
-                                txtInputMenu.isOpen = true;
-                                rightClickMenu.activate();
-
-                                canPlaceObj = false;
-                                MouseHandler.resetClicks();
-
-                                return unused;
-                            };
-
-                    Function<Void, Void> move =
-                            unused -> {
-                                txtInputMenu.setAsInt(true);
-
-                                txtInputMenu.setCategoryNames(Arrays.asList("Position X: ", "Position Y: "));
-                                txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getX()), String.valueOf(go.getY())));
-                                txtInputMenu.setCategorySetValues(Arrays.asList(
-                                        s -> {
-                                            int i = Integer.parseInt(s);
-                                            go.setX(i);
-                                            if (go.name.contains("Player")) player.spawnPointPos[0] = i;
-                                            return null;},
-
-                                        s -> {int i = Integer.parseInt(s);
-                                            go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i;
-                                            canPlaceObj = true;
-                                            return null;
-                                        }));
-
-                                txtInputMenu.isOpen = true;
-                                rightClickMenu.activate();
-
-                                canPlaceObj = false;
-                                MouseHandler.resetClicks();
-
-                                return unused;
-                            };
-
-                    rightClickMenu.setX(mouseX);
-                    rightClickMenu.setY(mouseY);
-                    rightClickMenu.setDisplayedWidth(150);
-                    rightClickMenu.setHasImages(false);
-
-                    if (go.type.contains("Player")){
-                        rightClickMenu.setButtonText(List.of("Move"));
-                        rightClickMenu.setButtonExec(List.of(move));
-
-                        rightClickMenu.setHeight(rightClickMenu.buttonHeight);
+                    if (go.pointIsIn(mouseX, mouseY)){
+                        editGoLogic(go, mouseX, mouseY);
+                        return;
                     }
-
-                    else if (go.type.contains("Checkpoint")){
-                        rightClickMenu.setButtonText(Arrays.asList("Delete", "Move"));
-                        rightClickMenu.setButtonExec(Arrays.asList(delete, move));
-
-                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*2 - 10);
-                    }
-                    else{
-                        rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move"));
-                        rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move));
-
-                        rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
-                    }
-
-                    rightClickMenu.activate();
-
-                    GamePanel.camera.update();
-                    GamePanel.camera.noUpdate = true;
-                    break;
                 }
+            }
+
+            if (player.pointIsIn(mouseX, mouseY)){
+                editGoLogic(player, mouseX, mouseY);
             }
         }
 
@@ -326,7 +224,6 @@ public class LevelMaker extends GameObject2D{
             }
         }
 
-
         for (Button b : buttons){
             b.draw(g2D, IO);
         }
@@ -335,7 +232,145 @@ public class LevelMaker extends GameObject2D{
         txtInputMenu.draw(g2D, IO);
     }
 
+    public void placeGo(int x, int y) throws Exception {
+        id_counter += 1;
+
+        objIsPlaced = false;
+        //player
+        if (hasNoPlayer()){
+            Player p = new Player(x, y,
+                    "#0", "");
+            GamePanel.camera.level.addToMainSubLevel(p);
+            objects.add(p);
+            player = p;
+        }
+
+        //platform
+        else if (nextObjType.equals("Platform")) {
+            Platform p = new Platform(defaultObjWidth, defaultObjHeight, x, y,
+                    nextObjTexture, "#"+id_counter, "");
+
+            GamePanel.camera.level.addToMainSubLevel(p);
+            objects.add(p);
+        }
+        //checkpoint
+        else if (nextObjType.equals("Checkpoint")) {
+            CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(c);
+            objects.add(c);
+        }
+    }
+
+    public void editGoLogic(GameObject2D go, int pointX, int pointY){
+
+        Function<Void, Void> delete =
+                unused -> {
+            objects.remove(go);
+            GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
+            GamePanel.camera.deleteGOInGrid(go);
+            GamePanel.camera.updateGrid();
+
+            rightClickMenu.activate();
+            GamePanel.camera.noUpdate = false;
+
+            MouseHandler.resetClicks();
+
+            return unused;
+        };
+
+        Function<Void, Void> resize =
+                unused -> {
+            txtInputMenu.setAsInt(true);
+
+            txtInputMenu.setCategoryNames(Arrays.asList("Width: ", "Height: "));
+            txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getWidth()), String.valueOf(go.getHeight())));
+            txtInputMenu.setCategorySetValues(Arrays.asList(
+                    s -> {
+                        int i = Integer.parseInt(s);
+                        go.setWidth(i);
+                        go.sprite.setWidth(i);
+                        if (!isInGridMode) defaultObjWidth = i;
+                        return null;
+                        },
+                    s -> {
+                        int i = Integer.parseInt(s);
+                        go.setHeight(i);
+                        go.sprite.setHeight(i);
+                        if (!isInGridMode) defaultObjHeight = i;
+                        canPlaceObj = true;
+                        return null;
+                    }));
+
+            txtInputMenu.isOpen = true;
+            rightClickMenu.activate();
+
+            canPlaceObj = false;
+            MouseHandler.resetClicks();
+
+            return unused;
+        };
+
+        Function<Void, Void> move =
+                unused -> {
+            txtInputMenu.setAsInt(true);
+
+            txtInputMenu.setCategoryNames(Arrays.asList("Position X: ", "Position Y: "));
+            txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(go.getX()), String.valueOf(go.getY())));
+            txtInputMenu.setCategorySetValues(Arrays.asList(
+                    s -> {
+                        int i = Integer.parseInt(s);
+                        go.setX(i);
+                        if (go.name.contains("Player")) player.spawnPointPos[0] = i;
+                        return null;},
+
+                    s -> {int i = Integer.parseInt(s);
+                        go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i;
+                        canPlaceObj = true;
+                        return null;
+                    }));
+
+            txtInputMenu.isOpen = true;
+            rightClickMenu.activate();
+
+            canPlaceObj = false;
+            MouseHandler.resetClicks();
+
+            return unused;
+        };
+
+        rightClickMenu.setX(pointX);
+        rightClickMenu.setY(pointY);
+        rightClickMenu.setDisplayedWidth(150);
+        rightClickMenu.setHasImages(false);
+
+        if (go.type.contains("Player")){
+            rightClickMenu.setButtonText(List.of("Move"));
+            rightClickMenu.setButtonExec(List.of(move));
+
+            rightClickMenu.setHeight(rightClickMenu.buttonHeight);
+        }
+
+        else if (go.type.contains("Checkpoint")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*2 - 10);
+        }
+        else{
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
+        }
+
+        rightClickMenu.activate();
+
+        GamePanel.camera.update();
+        GamePanel.camera.noUpdate = true;
+    }
+
     public void initButtons() throws IOException, FontFormatException {
+
 
         platformTextures = new HashMap<>();
         platformImages = new HashMap<>();
@@ -385,6 +420,7 @@ public class LevelMaker extends GameObject2D{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
         //read background button info
         try {
@@ -439,6 +475,7 @@ public class LevelMaker extends GameObject2D{
                 if (MouseHandler.isLeftClickPressed){
 
                     MouseHandler.resetClicks();
+
 
                     switch (b.buttonMessage) {
 
@@ -506,7 +543,7 @@ public class LevelMaker extends GameObject2D{
                                         objects.add(bg);
                                         background = bg;
 
-                                    } catch (IOException e) {
+                                    } catch (Exception e) {
                                         throw new RuntimeException(e);
                                     }
 

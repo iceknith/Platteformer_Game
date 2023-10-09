@@ -18,7 +18,7 @@ public class DropDownMenu extends GameObject2D{
     boolean isOpen;
     boolean isAnimating;
 
-    int openAnimSlowness;
+    int openAnimSpeed;
 
     int displayedWidth;
     int displayedHeight;
@@ -49,7 +49,7 @@ public class DropDownMenu extends GameObject2D{
 
         isOpen = false;
         isAnimating = false;
-        openAnimSlowness = 100000;
+        openAnimSpeed = 100;
 
         displayedWidth = w;
         displayedHeight = 0;
@@ -117,19 +117,20 @@ public class DropDownMenu extends GameObject2D{
         if (!isOpen && !isAnimating){
             return;
         }
+
         if (isAnimating){
-            if (displayedHeight > getHeight() - (double) 1 / openAnimSlowness * GamePanel.deltaTime && isOpen){
+            if ((displayedHeight > getHeight() - (double) openAnimSpeed * GamePanel.deltaTime) && isOpen){
                 isAnimating = false;
                 displayedHeight = getHeight();
             }
-            else if (isOpen) displayedHeight += (int) ((double) 1 / openAnimSlowness * GamePanel.deltaTime);
+            else if (isOpen) displayedHeight += (int) ((double) openAnimSpeed * GamePanel.deltaTime);
 
             //close
-            else if (displayedHeight < (double) 1 / openAnimSlowness * GamePanel.deltaTime){
+            else if (displayedHeight < (double) openAnimSpeed * GamePanel.deltaTime){
                 isAnimating = false;
                 displayedHeight = 0;
             }
-            else displayedHeight -= (int) ((double) 1 / openAnimSlowness * GamePanel.deltaTime);
+            else displayedHeight -= (int) ((double) openAnimSpeed * GamePanel.deltaTime);
         }
 
         g2D.setColor(new Color(0f, 0f, 0f, .5f));

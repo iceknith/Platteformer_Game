@@ -6,9 +6,12 @@ import main.GamePanel;
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class Camera extends GameGrid {
+
+    public ArrayList<GameObject2D> displayableBuffer = new ArrayList<>();
 
     double speedX;
     double speedY;
@@ -55,12 +58,22 @@ public class Camera extends GameGrid {
         visible = new Vector<>();
     }
 
-    public void updateAll() throws IOException, FontFormatException {
+    public void updateAll() throws Exception {
 
-        //if (GamePanel.is_painting) return;
 
         //update every game object
         level.update();
+
+        //buffered actions
+        if (!displayableBuffer.isEmpty()){
+            for (GameObject2D go : displayableBuffer){
+                GamePanel.camera.addGOInGrid(go);
+            }
+            displayableBuffer = new ArrayList<>();
+            updateGrid();
+
+            if (level.hasLevelMaker) LevelMaker.objIsPlaced = true;
+        }
 
         //update itself
         update();

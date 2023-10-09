@@ -196,7 +196,7 @@ public class GameObject2D{
         }
     }
 
-    public void update() throws IOException, FontFormatException {
+    public void update() throws Exception {
         //is overwritten after
     }
 
