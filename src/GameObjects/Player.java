@@ -45,15 +45,24 @@ public class Player extends Entity{
         type = "Player";
         name = type + id;
 
+        prevX = getX();
+        prevY = getY();
+
         velocityY = 0;
         velocityX = 0;
 
-        maxSpeed = 45;
-        acceleration = 3;
+        speedThreshold = 5;
+        earlySpeed = 45;
+        maxSpeed = 70;
+        earlyAcceleration = 2;
+        lateAcceleration = 0.005;
         friction = 5;
 
-        airMaxSpeed = 35;
-        airAcceleration = 2;
+        airSpeedThreshold = 15;
+        airEarlySpeed = 35;
+        airMaxSpeed = 45;
+        airEarlyAcceleration = 1;
+        airLateAcceleration = 0.01;
         airFriction = 2.5;
 
         jumpForce = 3;
@@ -90,11 +99,11 @@ public class Player extends Entity{
         velocityX = p.velocityX;
 
         maxSpeed = p.maxSpeed;
-        acceleration = p.acceleration;
+        earlyAcceleration = p.earlyAcceleration;
         friction = p.friction;
 
         airMaxSpeed = p.airMaxSpeed;
-        airAcceleration = p.airAcceleration;
+        airEarlyAcceleration = p.airEarlyAcceleration;
         airFriction = p.airFriction;
 
         jumpForce = p.jumpForce;
@@ -133,16 +142,22 @@ public class Player extends Entity{
     }
 
     void movementHandler(){
+        double sTh = speedThreshold;
+        double eS = earlySpeed;
         double s = maxSpeed;
-        double a = acceleration;
+        double eAcc = earlyAcceleration;
+        double lAcc = lateAcceleration;
         double f = friction;
 
         if(isOnGround){
             jumps = maxJumps;
 
         }else{
+            sTh = airSpeedThreshold;
+            eS = airEarlySpeed;
             s = airMaxSpeed;
-            a = airAcceleration;
+            eAcc = airEarlyAcceleration;
+            lAcc = airLateAcceleration;
             f = airFriction;
         }
 
@@ -155,7 +170,7 @@ public class Player extends Entity{
 
         //right movement
         if (KeyHandler.isRightPressed){
-            walk(1, s, a, speedConversionPercent);
+            walk(1, eS, s, sTh, eAcc, lAcc, speedConversionPercent);
             sprite.setDirection(1);
             if (getAnimation().equals(idle)){
                 setAnimation(run, runAnimationSpeed);
@@ -164,7 +179,7 @@ public class Player extends Entity{
 
         //left movement
         if (KeyHandler.isLeftPressed){
-            walk(-1, s, a, speedConversionPercent);
+            walk(-1, eS, s, sTh, eAcc, lAcc, speedConversionPercent);
             sprite.setDirection(-1);
             if (getAnimation().equals(idle)){
                 setAnimation(run, runAnimationSpeed);

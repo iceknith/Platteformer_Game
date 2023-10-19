@@ -131,8 +131,8 @@ public class LevelMaker extends GameObject2D{
         //place objects
         if (MouseHandler.isLeftClickPressed && canPlaceObj && objIsPlaced){
 
-            int mouseX = GamePanel.camera.screenX + MouseHandler.getX();
-            int mouseY = GamePanel.camera.screenY + MouseHandler.getY();
+            int mouseX = MouseHandler.getX() + GamePanel.camera.screenX;
+            int mouseY = MouseHandler.getY()  + GamePanel.camera.screenY;
             if (isInGridMode){
                 if (mouseX >= 0) mouseX -= mouseX%gridCellWidth;
                 else mouseX -= gridCellWidth + mouseX%gridCellWidth;
@@ -141,14 +141,20 @@ public class LevelMaker extends GameObject2D{
                 else mouseY -= gridCellHeight + mouseY%gridCellHeight;
             }
 
-            //Check if the mouse isn't on an existing GO
-            ArrayList<int[]> mouseGridPos = GamePanel.camera.findRectPosInGrid(mouseX, mouseY, 1, 1, 0, 0, 0, 0);
+            //Check if the GO to be placed doesn't overlap with an existing GO
+            Entity potentialGOSpace = new Entity(
+                    mouseX + 1, mouseY + 1,
+                    defaultObjWidth - 2, defaultObjHeight - 2,
+                    "None");
+            potentialGOSpace.type = "Placeholder";
+            potentialGOSpace.name = "Placeholder";
+
+            ArrayList<int[]> mouseGridPos = GamePanel.camera.findRectPosInGrid(potentialGOSpace);
 
             for (int[] pos : mouseGridPos){
 
                 for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
-                    if (go.pointIsIn(mouseX, mouseY)){
-                        System.out.println(go.getDebugInfos());
+                    if (potentialGOSpace.collision(go)){
                         return;
                     }
                 }
@@ -161,10 +167,10 @@ public class LevelMaker extends GameObject2D{
         //edit placed objects
         if (MouseHandler.isRightClickPressed && !rightClickMenu.isOpen){
 
-            int mouseX = MouseHandler.getX() + GamePanel.camera.screenX;
-            int mouseY = MouseHandler.getY() + GamePanel.camera.screenY;
+            int mouseX = MouseHandler.getX();
+            int mouseY = MouseHandler.getY();
 
-            ArrayList<int[]> mouseGridPos = GamePanel.camera.findPointPosInGrid(mouseX, mouseY);
+            ArrayList<int[]> mouseGridPos = GamePanel.camera.findPointPosInGrid(mouseX  + GamePanel.camera.screenX, mouseY + GamePanel.camera.screenY);
 
             for (int[] pos : mouseGridPos){
 

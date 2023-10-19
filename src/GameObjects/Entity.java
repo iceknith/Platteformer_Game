@@ -6,12 +6,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Entity extends GameObject2D{
+
+    double speedThreshold;
+    double earlySpeed;
     double maxSpeed;
-    double acceleration;
+    double earlyAcceleration;
+    double lateAcceleration;
     double friction;
 
+    double airSpeedThreshold;
+    double airEarlySpeed;
     double airMaxSpeed;
-    double airAcceleration;
+    double airEarlyAcceleration;
+    double airLateAcceleration;
     double airFriction;
 
     double speedConversionPercent;
@@ -42,11 +49,11 @@ public class Entity extends GameObject2D{
     Entity(Entity e){
         super(e);
         maxSpeed = e.maxSpeed;
-        acceleration = e.acceleration;
+        earlyAcceleration = e.earlyAcceleration;
         friction = e.friction;
 
         airMaxSpeed = e.airMaxSpeed;
-        airAcceleration = e.airAcceleration;
+        airEarlyAcceleration = e.airEarlyAcceleration;
         airFriction = e.airFriction;
 
         speedConversionPercent = e.speedConversionPercent;
@@ -85,16 +92,29 @@ public class Entity extends GameObject2D{
 
     public boolean getOnGround() {return isOnGround;}
 
-    void walk(int direction, double maxSpeed, double acceleration, double speedConversion){
+    void walk(int direction,
+              double earlySpeed, double maxSpeed,
+              double maxSpeedThreshold,
+              double earlyAcceleration, double lateAcceleration,
+              double speedConversion){
+
+        //if you changed direction
         if (direction == - Math.signum(velocityX)){
             velocityX = -velocityX * speedConversion / 100;
             return;
         }
-        if (velocityX * direction < maxSpeed){
-            velocityX += direction * acceleration;
+        //earlyAcceleration
+        if (velocityX * direction < earlySpeed){
+            velocityX += direction * earlyAcceleration;
         }
-        else{
-            velocityX = maxSpeed * direction;
+        //lateAcceleration
+        else if (velocityX * direction < maxSpeed) {
+            velocityX += direction * lateAcceleration;
+        }
+        //lateDeceleration (if your speed is greater than the maxSpeed + speedThreshold)
+        else if (velocityX * direction > maxSpeed + maxSpeedThreshold){
+            velocityX -= direction * lateAcceleration;
+
         }
     }
 
@@ -122,11 +142,11 @@ public class Entity extends GameObject2D{
         }
     }
 
-    void collision(GameObject2D go) {
+    boolean collision(GameObject2D go) {
 
         if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
             getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
-            return;
+            return false;
         }
         if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
             if (go.hasPhysicalCollisions){
@@ -134,7 +154,7 @@ public class Entity extends GameObject2D{
                 velocityX = go.getVelocityX();
             }
             go.collision(this);
-            return;
+            return true;
         }
 
         if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
@@ -143,7 +163,7 @@ public class Entity extends GameObject2D{
                 velocityX = go.getVelocityX();
             }
             go.collision(this);
-            return;
+            return true;
         }
 
         if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
@@ -153,7 +173,7 @@ public class Entity extends GameObject2D{
                 velocityY = go.getVelocityY();
             }
             go.collision(this);
-            return;
+            return true;
         }
 
         if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
@@ -162,7 +182,9 @@ public class Entity extends GameObject2D{
                 velocityY = go.getVelocityY();
             }
             go.collision(this);
+            return true;
         }
+        return false;
     }
 
     void checkGround(GameObject2D go){
