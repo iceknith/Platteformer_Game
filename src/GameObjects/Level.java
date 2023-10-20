@@ -484,6 +484,7 @@ public class Level {
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);
             }
+            GamePanel.camera.updateGrid();
         }
 
         forceUpdate = true;

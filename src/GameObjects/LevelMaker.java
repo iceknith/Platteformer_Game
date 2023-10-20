@@ -83,6 +83,7 @@ public class LevelMaker extends GameObject2D{
         //if level is already launched
         if (isLevelLaunched){
             if (KeyHandler.isLaunchKeyPressed){
+
                 KeyHandler.isLaunchKeyPressed = false;
                 isLevelLaunched = false;
                 GamePanel.camera.level.updateLevelMaker = true;
@@ -128,6 +129,7 @@ public class LevelMaker extends GameObject2D{
                 GamePanel.camera.noUpdate = false;
             }
         }
+
         //place objects
         if (MouseHandler.isLeftClickPressed && canPlaceObj && objIsPlaced){
 
@@ -264,6 +266,9 @@ public class LevelMaker extends GameObject2D{
             CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
+        }
+        else{
+            objIsPlaced = true;
         }
     }
 
@@ -574,6 +579,7 @@ public class LevelMaker extends GameObject2D{
                             if (GameObject2D.player != null){
                                 GamePanel.camera.setScreenX(GameObject2D.player.getX() - GamePanel.camera.getScreenWidth()/2);
                                 GamePanel.camera.setScreenY(GameObject2D.player.getY() - GamePanel.camera.getScreenHeight()/2);
+                                GamePanel.camera.updateGrid();
                             }
                         }
 
@@ -699,15 +705,19 @@ public class LevelMaker extends GameObject2D{
 
             Camera c = GamePanel.camera;
 
+            c.isOperational = false;
             objects = new ArrayList<>();
             setX(0);
             setY(0);
 
             c.nextLevel = lvlName;
-            c.level = new Level(lvlName, this, false);
+            c.level = new Level(lvlName, this, true);
+            c.level.loadLevel("level maker settings", new ArrayList<>(), false);
             c.deleteNextLevel();
 
+            c.initialiseGrid(c.level.getSubLvl("main").objectList);
             c.loadVisible();
+            c.isOperational = true;
 
             for (GameObject2D go: c.level.getSubLvl("main").getObjectList()){
                 if (!Objects.equals(go.type, "LevelMaker_")){

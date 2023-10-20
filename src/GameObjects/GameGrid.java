@@ -1,6 +1,8 @@
 package GameObjects;
 
 
+import main.GamePanel;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +123,8 @@ public class GameGrid {
                 //adjusting the grid size to include the new Game Object
                 int oldMaxY = y;
                 int maxY = cellHeight * ((rPosY + rHeight)/cellHeight);
-                if (rPosY < 0) maxY -= cellHeight;
+                if (rPosY + rHeight < 0) maxY -= cellHeight;
+                else if ((rPosY + rHeight)/cellHeight == 0 && rPosX + rHeight > 0) maxY += cellHeight;
 
                 //adding the empty lineY to grid
                 for (ArrayList<ArrayList<GameObject2D>> lineX : grid){
@@ -154,6 +157,7 @@ public class GameGrid {
                 int oldMaxX = x;
                 int maxX = cellWidth * ((rPosX + rWidth)/cellWidth);
                 if (rPosX < 0) maxX -= cellWidth;
+                else if ((rPosX + rWidth)/cellWidth == 0 && rPosX + rWidth > 0) maxX += cellWidth;
 
                 //adding the empty lineX to grid
                 for (int indexX = 0; indexX < Math.abs(oldMaxX - maxX)/cellWidth; indexX++){
@@ -266,28 +270,41 @@ public class GameGrid {
 
                         for (GameObject2D go : grid.get(indexX).get(indexY)){
                             if (!visible.contains(go)){
+
                                 level.addUpdatable(go);
-                                visible.add(go);
+                                if (go.type.equals("Player")){
+                                    visible.insertElementAt(go, 0);
+                                }
+                                else{
+                                    visible.add(go);
+                                }
+
                             }
                         }
                     }
                 }
             }
+            //make the player render before everything else
+            GameObject2D go = visible.get(0);
+            if (go.type.equals("Player")) {
+                visible.remove(0);
+                visible.add(go);
+            }
         }
 
         //handle gui and background
-        GameObject2D background = null;
+        GameObject2D backgroundBuffer = null;
         for (GameObject2D go : level.getPermaDisplayed()){
             level.addUpdatable(go);
             if (go.type.contains("Background_")) {
-                background = go;
+                backgroundBuffer = go;
             }
             else{
                 visible.add(go);
             }
         }
-        if (background != null){
-            visible.insertElementAt(background, 0);
+        if (backgroundBuffer != null){
+            visible.insertElementAt(backgroundBuffer, 0);
         }
     }
 

@@ -1,6 +1,8 @@
 package GameObjects;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +41,11 @@ public class Player extends Entity{
 
     int[] spawnPointPos;
 
+    final int jumpBubblesDistance = 100;
+    final int jumpBubblesRadius = 15;
+    final Color jumpBublesOutlineColor = new Color(.07f, .09f, .11f, .75f);
+    final Color jumpBublesColor = new Color(0.64f, .88f, 1f, .5f);
+
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
         super(posX,posY,42,81, subLvlName);
 
@@ -53,15 +60,15 @@ public class Player extends Entity{
 
         speedThreshold = 5;
         earlySpeed = 45;
-        maxSpeed = 70;
-        earlyAcceleration = 2;
+        maxSpeed = 55;
+        earlyAcceleration = 3;
         lateAcceleration = 0.005;
         friction = 5;
 
         airSpeedThreshold = 15;
         airEarlySpeed = 35;
         airMaxSpeed = 45;
-        airEarlyAcceleration = 1;
+        airEarlyAcceleration = 1.5;
         airLateAcceleration = 0.01;
         airFriction = 2.5;
 
@@ -98,11 +105,17 @@ public class Player extends Entity{
         velocityY = p.velocityY;
         velocityX = p.velocityX;
 
+        speedThreshold = p.speedThreshold;
+        earlySpeed = p.earlySpeed;
         maxSpeed = p.maxSpeed;
+        lateAcceleration = p.lateAcceleration;
         earlyAcceleration = p.earlyAcceleration;
         friction = p.friction;
 
+        airSpeedThreshold = p.airSpeedThreshold;
+        airEarlySpeed = p.airEarlySpeed;
         airMaxSpeed = p.airMaxSpeed;
+        airLateAcceleration = p.airLateAcceleration;
         airEarlyAcceleration = p.airEarlyAcceleration;
         airFriction = p.airFriction;
 
@@ -280,6 +293,27 @@ public class Player extends Entity{
 
         //System.out.println("X:" + getX() + " V: " + velocityX);
         //System.out.println("Y:" + getY() + " V: " + velocityY);
+    }
+
+    @Override
+    public void draw(Graphics2D g2D, ImageObserver IO){
+        super.draw(g2D, IO);
+
+        //drawing jump bubbles
+        for (int i = 0; i < maxJumps; i++){
+
+            double angle = Math.PI * 2 * i / maxJumps - Math.PI/2;
+            int posX = (int) (Math.cos(angle) * jumpBubblesDistance + getX() + getWidth()/2 - GamePanel.camera.getScreenX());
+            int posY = (int) (Math.sin(angle) * jumpBubblesDistance + getY() + getHeight()/2 - GamePanel.camera.getScreenY());
+
+            if (i < jumps){
+                g2D.setColor(jumpBublesColor);
+                g2D.fillOval(posX, posY, jumpBubblesRadius, jumpBubblesRadius);
+            }
+
+            g2D.setColor(jumpBublesOutlineColor);
+            g2D.drawOval(posX, posY, jumpBubblesRadius, jumpBubblesRadius);
+        }
     }
 
     @Override

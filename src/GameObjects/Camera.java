@@ -114,7 +114,7 @@ public class Camera extends GameGrid {
         }
 
         //x tests
-        if (Math.abs(variationX) > softBorderX){//soft borders
+        if (Math.abs(variationX) > softBorderX) {//soft borders
             movementX(variationX); //set velocity to relative pos of player to soft border
 
             if (Math.abs(variationX) > hardBorderX){ //hard borders
@@ -124,7 +124,10 @@ public class Camera extends GameGrid {
                     velocityX = Math.max(velocityX,p.getVelocityX());
                 }
             }
-        }else{stopMovementX();}
+        }
+        else {
+            stopMovementX();
+        }
 
 
         //y tests
@@ -197,26 +200,32 @@ public class Camera extends GameGrid {
         int movX = (int) Math.round(velocityX * GamePanel.deltaTime);
         int movY = (int) Math.round(velocityY * GamePanel.deltaTime);
 
-        //little logic to make sure that the camera moves, even when it moves slowly
+        //logic to make sure that the camera moves, even when it moves slowly
         if (movX == 0 && velocityX != 0){
             screenX -= (int) Math.signum(velocityX);
-        }else{
-            screenX -= movX;}
+        }
+        else {
+            screenX -= movX;
+        }
 
-        if (movY == 0 && velocityY != 0){
+        if (movY == 0 && velocityY != 0) {
             screenY -= (int) Math.signum(velocityY);
-        }else{
-            screenY -= movY;}
+        }
+        else {
+            screenY -= movY;
+        }
 
 
         if (velocityX != 0 || velocityY != 0){
+            screenX = Math.min(32767, Math.max(-32767, screenX));
+            screenY = Math.min(32767, Math.max(-32767, screenY));
             updateGrid();
         }
     }
 
     public void move(int posX, int posY){
-        screenX = posX;
-        screenY = posY;
+        screenX = Math.min(32767, Math.max(-32767, posX));
+        screenY = Math.min(32767, Math.max(-32767, posY));
 
         bufferUpdateGrid = true;
     }
