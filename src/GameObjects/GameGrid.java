@@ -285,10 +285,12 @@ public class GameGrid {
                 }
             }
             //make the player render before everything else
-            GameObject2D go = visible.get(0);
-            if (go.type.equals("Player")) {
-                visible.remove(0);
-                visible.add(go);
+            if (!visible.isEmpty()){
+                GameObject2D go = visible.get(0);
+                if (go.type.equals("Player")) {
+                    visible.remove(0);
+                    visible.add(go);
+                }
             }
         }
 

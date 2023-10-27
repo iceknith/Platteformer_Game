@@ -191,6 +191,9 @@ public class GamePanel extends JPanel implements Runnable {
             //camera info
             g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,155);
             g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),15,170);
+            g2D.drawString("Camera soft border X : " + camera.getSoftBorderX(),15,185);
+            g2D.drawString("CCamera soft border Y : " + camera.getSoftBorderY(),15,200);
+
 
         }
 
