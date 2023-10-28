@@ -13,8 +13,16 @@ public class Camera extends GameGrid {
 
     public ArrayList<GameObject2D> displayableBuffer = new ArrayList<>();
 
+    double smoothnessX;
+    double smoothnessY;
+    double centeringSmoothnessY;
+
     double speedX;
     double speedY;
+    double directionX;
+
+    double cameraDirectionLag;
+    double cameraDirectionLagCounter = 0;
 
     double stoppingSpeedX;
     double stoppingSpeedY;
@@ -22,16 +30,12 @@ public class Camera extends GameGrid {
     double velocityX;
     double velocityY;
 
-    int hardBorderX;
-    int hardBorderY;
-
     Rectangle softBorder;
-    int minSoftBorderX;
-    int centerSoftBorderX;
-    int maxSoftBorderX;
-    int minSoftBorderY;
-    int centerSoftBorderY;
-    int maxSoftBorderY;
+    Rectangle hardBorder;
+
+    int softBorderXPosLeft;
+    int softBorderXPosRight;
+    int centeredPosY;
 
     boolean noUpdate = false;
     boolean bufferUpdateGrid = false;
@@ -39,8 +43,12 @@ public class Camera extends GameGrid {
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
-        speedX = (double) 1/6;
-        speedY = (double) 1/4;
+        smoothnessX = 0.05;
+        smoothnessY = 0.04;
+        centeringSmoothnessY = 0.07;
+
+        speedX = 0.5;
+        speedY = 0.25;
 
         stoppingSpeedX = (double) 1 /30;
         stoppingSpeedY = (double) 1 /30;
@@ -48,22 +56,22 @@ public class Camera extends GameGrid {
         velocityX = 0;
         velocityY = 0;
 
-        hardBorderX = (int) (0.25 * screenW);
-        hardBorderY = (int) (0.15 * screenH);
+        centeredPosY = screenHeight * 4/7;
 
-        int softBorderW = screenWidth/4;
-        int softBorderH = screenHeight/4;
+        int softBorderW = screenWidth/8;
+        int softBorderH = screenHeight/3;
 
-        minSoftBorderX = screenWidth/10;
-        centerSoftBorderX = screenWidth/2 - softBorderW/2;
-        maxSoftBorderX = screenWidth - minSoftBorderX - softBorderW;
+        directionX = 0;
+        cameraDirectionLag = 2.5; //0.25s
 
-        minSoftBorderY = screenHeight/10;
-        centerSoftBorderY = screenHeight/2 - softBorderH/2;
-        maxSoftBorderY = screenHeight - minSoftBorderY - softBorderH;
+        softBorderXPosLeft = screenWidth/3 - softBorderW/2;
+        softBorderXPosRight = screenWidth * 2/3 - softBorderW/2;
 
-        softBorder = new Rectangle(centerSoftBorderX, centerSoftBorderY, softBorderW, softBorderH);
+        softBorder = new Rectangle(screenWidth/2 - softBorderW/2, screenHeight/2 - softBorderH/2, softBorderW, softBorderH);
 
+        int hardBorderW = (int) (screenWidth * 0.7);
+        int hardBorderH = (int) (screenHeight * 0.6);
+        hardBorder = new Rectangle(screenWidth/2 - hardBorderW/2, screenHeight/2 - hardBorderH/2, hardBorderW, hardBorderH);
 
         visible = new Vector<>();
     }
@@ -107,31 +115,40 @@ public class Camera extends GameGrid {
         if (level.hasNoPlayer()) return;
 
         Player p = GameObject2D.player;
-        boolean hardBorderActive = false;
 
-        //x tests
+        //-----x camera-----//
+
+        if (p.sprite.getDirection() != directionX){
+
+            if (cameraDirectionLagCounter < cameraDirectionLag && p.isOnGround){
+                cameraDirectionLagCounter += GamePanel.deltaTime;
+            }
+
+            else if (p.isOnGround) {
+                directionX = p.sprite.getDirection();
+                if (directionX == 1){
+                    softBorder.x = softBorderXPosLeft;
+                }
+                else {
+                    softBorder.x = softBorderXPosRight;
+                }
+            }
+        }
+        else if(cameraDirectionLagCounter != 0) cameraDirectionLagCounter = 0;
 
         if (p.getX() - screenX < softBorder.x) { //player is to the left of the soft border
 
-            if (p.isOnGround) {
-                velocityX = (double) (softBorder.x - p.getX() + screenX) * speedX;
-            }
-            //softBorder.x = (int) Math.min(softBorder.x + velocityX * 0.1, maxSoftBorderX);
+            velocityX = lerp(velocityX, (softBorder.x - p.getX() + screenX) * speedX, smoothnessX);
 
-            if (p.getX() - screenX < hardBorderX){ //hard border left
-                hardBorderActive = true;
+            if (p.getX() - screenX < hardBorder.x){ //hard border left
                 velocityX = Math.max(velocityX, - p.getVelocityX());
             }
         }
         else if (p.getX() + p.getWidth() - screenX > softBorder.x + softBorder.width) { //player is to the right of the soft border
 
-            if (p.isOnGround){
-                velocityX = - (double) (p.getX() + p.getWidth() - screenX - softBorder.x - softBorder.width) * speedX;
-            }
-            //softBorder.x = (int) Math.max(softBorder.x + velocityX * 0.1, minSoftBorderX);
+            velocityX = lerp(velocityX, (softBorder.x + softBorder.width - p.getX() - p.getWidth() + screenX) * speedX, smoothnessX);
 
-            if (p.getX() + p.getWidth() - screenX > screenWidth - hardBorderX){ //hard borders right
-                hardBorderActive = true;
+            if (p.getX() + p.getWidth() - screenX > hardBorder.x + hardBorder.width){ //hard borders right
                 velocityX = Math.min(velocityX, - p.getVelocityX());
             }
         }
@@ -139,54 +156,41 @@ public class Camera extends GameGrid {
             stopMovementX();
         }
 
-        if (!hardBorderActive && !p.isOnGround) {
-            stopMovementX();
-        }
+        //-----y camera-----//
 
-        hardBorderActive = false;
-
-        /*if (Math.signum(p.velocityX) != Math.signum(centerSoftBorderX - softBorder.x)){ //recenter the soft border
-            int screenVelocity = 10; //(int) Math.abs(p.getX() + (double) p.getWidth() /2 - softBorderCenter);
-            softBorder.x = Math.max(Math.min(softBorder.x + screenVelocity, centerSoftBorderX), softBorder.x - screenVelocity); //replacing the soft border in the center of the screen
-        }*/
-
-        //y tests
         if (p.getY() - screenY < softBorder.y){ //player is over the soft border
 
-            if (p.isOnGround) {
-                velocityY = (double) (softBorder.y - p.getY() + screenY) * speedY;
+            if (p.velocityY > 0){ //if player is going up
+                velocityY = lerp(velocityY, p.velocityY, smoothnessY);
             }
-            //softBorder.y = (int) Math.min(softBorder.y + velocityY * 0.1, maxSoftBorderY);
+            else{ //if player and camera are going down
+                velocityY = lerp(velocityY, (softBorder.y - p.getY() + screenY) * speedY, smoothnessY);
+            }
 
-            if (p.getY() - screenY < hardBorderY){ //hard border up
-                hardBorderActive = true;
+            if (p.getY() - screenY < hardBorder.y){ //hard border up
                 velocityY = Math.max(velocityY, p.getVelocityY());
             }
         }
         else if(p.getY() + p.getHeight() - screenY > softBorder.y + softBorder.height){ //player is under the soft border
 
-            if (p.isOnGround) {
-                velocityY = -(double) (p.getY() + p.getHeight() - screenY - softBorder.y - softBorder.height) * speedY;
+            if (p.velocityY < 0){ //if player is going down
+                velocityY = lerp(velocityY, p.velocityY, smoothnessY);
             }
-            //softBorder.y = (int) Math.max(softBorder.y + velocityY * 0.1, minSoftBorderY);
+            else{ //if player and camera are going up
+                velocityY = lerp(velocityY, (softBorder.y + softBorder.height - p.getY() - p.getHeight() + screenY) * speedY, smoothnessY);
+            }
 
-            if (p.getY() + p.getHeight() - screenY > screenHeight - hardBorderY){ //hard border down
-                hardBorderActive = true;
+            if (p.getY() + p.getHeight() - screenY > hardBorder.y + hardBorder.height){ //hard border down
                 velocityY = Math.min(velocityY, p.getVelocityY());
             }
+        }
+        else if (p.isOnGround && Math.abs(velocityY - (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY)) >= 1) {
+            velocityY = lerp(velocityY, (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY) * speedY, centeringSmoothnessY);
         }
         else {
             stopMovementY();
         }
 
-        if (!hardBorderActive && !p.isOnGround) {
-            stopMovementY();
-        }
-
-        /*if (Math.signum(p.velocityY) != Math.signum(softBorder.y - centerSoftBorderY)){ //recenter the soft border
-            int screenVelocity = 10;
-            softBorder.y = Math.max(Math.min(softBorder.y + screenVelocity, centerSoftBorderY), softBorder.y - screenVelocity); //replacing the soft border in the center of the screen
-        }*/
 
         move();
     }
@@ -224,9 +228,6 @@ public class Camera extends GameGrid {
         if (doMove) move();
     }
 
-    public int getHardBorderX(){return hardBorderX;}
-
-    public int getHardBorderY(){return hardBorderY;}
 
     public Rectangle getSoftBorder() {
         return softBorder;
@@ -235,6 +236,14 @@ public class Camera extends GameGrid {
     public int getSoftBorderX(){return softBorder.x;}
 
     public int getSoftBorderY(){return softBorder.y;}
+
+    public Rectangle getHardBorder(){
+        return hardBorder;
+    }
+
+    public int getHardBorderX(){return hardBorder.x;}
+
+    public int getHardBorderY(){return hardBorder.y;}
 
     void move(){
         int movX = (int) Math.round(velocityX * GamePanel.deltaTime);
@@ -261,6 +270,10 @@ public class Camera extends GameGrid {
             screenY = Math.min(32767, Math.max(-32767, screenY));
             updateGrid();
         }
+    }
+
+    double lerp(double val1, double val2, double speed){
+        return (1 - speed) * val1 + speed * val2;
     }
 
     public void move(int posX, int posY){
