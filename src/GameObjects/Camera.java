@@ -55,13 +55,13 @@ public class Camera extends GameGrid {
 
         centeredPosY = screenHeight * 5/8;
 
-        int softBorderW = screenWidth/6;
-        int softBorderH = screenHeight * 2/5;
+        int softBorderW = (int) (screenWidth * 0.13);
+        int softBorderH = (int) (screenHeight * 0.4);
 
         directionX = 0;
 
-        softBorderXPosLeft = screenWidth/4 - softBorderW/2;
-        softBorderXPosRight = screenWidth * 3/4 - softBorderW/2;
+        softBorderXPosLeft = (int) (screenWidth * 0.3 - softBorderW/2);
+        softBorderXPosRight = (int) (screenWidth * 0.7 - softBorderW/2);
 
         softBorder = new Rectangle(screenWidth/2 - softBorderW/2, screenHeight/2 - softBorderH/2, softBorderW, softBorderH);
 

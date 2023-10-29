@@ -39,8 +39,8 @@ public class KeyChangingButton extends Button{
         int h = GamePanel.camera.getScreenHeight()/2;
 
         SubLevel s = new SubLevel("key waiter");
-        KeyWaitingButton waiter = new KeyWaitingButton(400,200, w-225, h-100, "keyWaiter", "Press any key", "None", buttonKey, s, "key waiter");
-        s.objectList.add(waiter);
+        KeyWaitingButton waiter = new KeyWaitingButton(400,200, w, h, "keyWaiter", "Press any key", "None", buttonKey, s, "key waiter");
+        s.permaDisplayedObjects.add(waiter);
         GamePanel.camera.level.addSubLvl(s);
         GamePanel.camera.level.openSubLevel("key waiter", false, true);
 

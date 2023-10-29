@@ -100,6 +100,8 @@ public class GamePanel extends JPanel implements Runnable {
 
                     if (camera.hasNextLevel()){
                         camera.loadNextLevel();
+
+                        lastFrameTime = System.nanoTime();
                     }
 
                 } catch (Exception e) {

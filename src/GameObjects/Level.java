@@ -92,7 +92,9 @@ public class Level {
             go.update();
         }
         for (SubLevel sl: subLevels){
-            sl.update();
+            if (sl.isUpdated){
+                sl.update();
+            }
         }
 
         noUpdatableModification = false;
@@ -484,9 +486,7 @@ public class Level {
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);
             }
-            GamePanel.camera.updateGrid();
         }
-
         forceUpdate = true;
     }
 
