@@ -256,7 +256,7 @@ public class LevelMaker extends GameObject2D{
         //platform
         else if (nextObjType.equals("Platform")) {
             Platform p = new Platform(defaultObjWidth, defaultObjHeight, x, y,
-                    nextObjTexture, "#"+id_counter, "");
+                    'b', nextObjTexture, "#"+id_counter, "");
 
             GamePanel.camera.level.addToMainSubLevel(p);
             objects.add(p);
@@ -762,7 +762,8 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
-                    fw.write((go.getType().substring(9) + "\n").getBytes());
+                    fw.write(go.getType().charAt(9));
+                    fw.write((go.getType().substring(10) + "\n").getBytes());
                 }
                 else if (go.getType().contains("Checkpoint")){
                     fw.write("C".getBytes());

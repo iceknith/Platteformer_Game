@@ -18,7 +18,8 @@ public class KeyHandler implements KeyListener {
     static  int launchKey = KeyEvent.VK_F5;
     static int[] instantQuitKeys = {KeyEvent.VK_ESCAPE, KeyEvent.VK_BACK_SPACE};
 
-    static int lastKeyPressed;
+    static int lastKeyPressed = -1;
+    static String lastStrTyped = "";
 
     public static boolean isRightPressed;
     public static boolean isLeftPressed;
@@ -37,11 +38,16 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
+        if (!String.valueOf(keyEvent.getKeyChar()).isEmpty()){
+            lastStrTyped = String.valueOf(keyEvent.getKeyChar());
+        }
     }
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
+
+        lastKeyPressed = k;
 
         if (k == rightKey){
             isRightPressed = true;
@@ -87,8 +93,6 @@ public class KeyHandler implements KeyListener {
             isInstantQuitKeysPressed[1] = true;
             if (isInstantQuitKeysPressed[0]) System.exit(0);
         }
-
-        lastKeyPressed = k;
     }
 
     @Override
@@ -174,4 +178,11 @@ public class KeyHandler implements KeyListener {
     public static int getLastKeyPressed(){
         return lastKeyPressed;
     }
+
+    public static void resetLastStrTyped(){lastStrTyped = "";}
+
+    public static String getLastStrTyped(){
+        return lastStrTyped;
+    }
+
 }

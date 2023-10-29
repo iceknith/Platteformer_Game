@@ -164,13 +164,14 @@ public class Level {
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
 
+                        char uType = (char) reader.read();
                         StringBuilder texture = new StringBuilder();
                         int cha;
                         while ((cha = reader.read()) != 10) {
                             texture.append((char) cha);
                         }
 
-                        Platform p = new Platform(w, h, posX, posY, texture.toString(),"#" + i, "");
+                        Platform p = new Platform(w, h, posX, posY, uType, texture.toString(),"#" + i, "");
                         //System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getsHeight());
                         objectsBuffer.add(p);
                     }

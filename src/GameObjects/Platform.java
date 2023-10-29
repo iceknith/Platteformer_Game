@@ -9,30 +9,33 @@ import java.util.Objects;
 
 public class Platform extends GameObject2D{
 
-    public Platform(int w, int h, int x, int y, String textureName, String id, String subLvlName) throws IOException {
+    public char utilType;
+
+    public Platform(int w, int h, int x, int y, char uType, String textureName, String id, String subLvlName) throws IOException {
         super(x,y,w,h,subLvlName);
 
-        type = "Platform_" + textureName;
+        utilType = uType;
+        type = "Platform_" + utilType + textureName;
+
         name = type+id;
         sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+textureName+"/0.png")), hitbox);
     }
 
     public Platform(Platform p){
         super(p);
+        utilType = p.utilType;
     }
 
     @Override
     public void update(){
-        //System.out.println("Updated");
+
     }
 
     public void collision(Entity e){
-        if (Objects.equals(type, "Platform_win")){
-            GamePanel.camera.level.openSubLevel("win", false, true);
-        }
 
-        if (Objects.equals(type, "Platform_killer")){
-            GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+        switch (utilType){
+            case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
+            case 'k' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
         }
     }
 

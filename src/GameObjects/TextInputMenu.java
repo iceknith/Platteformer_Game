@@ -136,10 +136,11 @@ public class TextInputMenu extends GameObject2D {
         }
 
         //editing logic
-        if (editingFillSpace != -1 && KeyHandler.getLastKeyPressed() != -1) {
+        if (editingFillSpace != -1 && !KeyHandler.getLastStrTyped().isEmpty()) {
 
-            int key = KeyHandler.getLastKeyPressed();
-            KeyHandler.resetLastKeyPressed();
+            String key = KeyHandler.getLastStrTyped();
+            System.out.println(key);
+            KeyHandler.resetLastStrTyped();
 
             if (isInt) {
                 intEditing(key);
@@ -149,9 +150,9 @@ public class TextInputMenu extends GameObject2D {
         }
     }
 
-    void stringEditing(int key){
+    void stringEditing(String key){
 
-        if (key == KeyEvent.VK_BACK_SPACE){
+        if (key.equals("\b")){
             if (!categoryValues.get(editingFillSpace).isEmpty()){
                 String s = categoryValues.get(editingFillSpace).substring(0,categoryValues.get(editingFillSpace).length() - 1);
                 categoryValues.remove(editingFillSpace);
@@ -160,8 +161,7 @@ public class TextInputMenu extends GameObject2D {
         }
         else if (categoryValues.get(editingFillSpace).length() <= 25) {
 
-            if (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9) key -= 0x30;
-            String s = categoryValues.get(editingFillSpace) + (char) key;
+            String s = categoryValues.get(editingFillSpace) + key;
             categoryValues.remove(editingFillSpace);
             categoryValues.add(editingFillSpace, s);
 
@@ -169,9 +169,9 @@ public class TextInputMenu extends GameObject2D {
 
     }
 
-    void intEditing(int key){
+    void intEditing(String key){
 
-        if (key == KeyEvent.VK_BACK_SPACE){
+        if (key.equals("\b")){
             if (!categoryValues.get(editingFillSpace).isEmpty()){
                 String s = categoryValues.get(editingFillSpace).substring(0,categoryValues.get(editingFillSpace).length() - 1);
                 categoryValues.remove(editingFillSpace);
@@ -179,21 +179,12 @@ public class TextInputMenu extends GameObject2D {
             }
         }
 
-        else if(((KeyEvent.VK_0 <= key && key <= KeyEvent.VK_9) ||
-                (KeyEvent.VK_NUMPAD0 <= key && key <= KeyEvent.VK_NUMPAD9)||
-                key == KeyEvent.VK_MINUS || key == KeyEvent.VK_SUBTRACT ||
-                key == KeyEvent.VK_PERIOD) &&
+        else if((key.contains("1234567890-.")) &&
                 categoryValues.get(editingFillSpace).length() <= 5){
 
-            if (key == KeyEvent.VK_SUBTRACT) key = KeyEvent.VK_MINUS;
-            else if (KeyEvent.VK_NUMPAD0 <= key) key -= 0x30;
-
-            if (!(key == KeyEvent.VK_MINUS && !categoryValues.get(editingFillSpace).isEmpty())){
-
-                String s = categoryValues.get(editingFillSpace) + (char) key;
-                categoryValues.remove(editingFillSpace);
-                categoryValues.add(editingFillSpace, s);
-            }
+            String s = categoryValues.get(editingFillSpace) + key;
+            categoryValues.remove(editingFillSpace);
+            categoryValues.add(editingFillSpace, s);
 
         }
     }
