@@ -1,22 +1,22 @@
 -Base set
-win
-killer
-neon_red
-neon_yellow
-neon_green
+win;win
+killer;killer
+neon_red;base
+neon_yellow;base
+neon_green;base
 -Beautiful set base
-test/icy
-test/small_right
-test/small_middle
-test/small_left
-test/simple
+test/icy;base
+test/small_right;base
+test/small_middle;base
+test/small_left;base
+test/simple;base
 -Beautiful set block
-test/right_down_ext
-test/middle_down_ext
-test/left_down_ext
-test/middle_right_ext
-test/middle_left_ext
-test/center_ext
-test/right_up_ext
-test/middle_up_ext
-test/left_up_ext
+test/right_down_ext;base
+test/middle_down_ext;base
+test/left_down_ext;base
+test/middle_right_ext;base
+test/middle_left_ext;base
+test/center_ext;base
+test/right_up_ext;base
+test/middle_up_ext;base
+test/left_up_ext;base

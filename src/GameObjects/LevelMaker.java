@@ -33,6 +33,7 @@ public class LevelMaker extends GameObject2D{
     HashMap<String,ArrayList<String>> platformTextures = new HashMap<>();
     HashMap<String,ArrayList<String>> platformTextureNames = new HashMap<>();
     HashMap<String, ArrayList<Image>> platformImages = new HashMap<>();
+    HashMap<String, ArrayList<Character>> platformUtilTypes = new HashMap<>();
     ArrayList<String> backgroundTextureNames = new ArrayList<>();
     ArrayList<int[]> backgroundDimensions = new ArrayList<>();
     Background background = null;
@@ -44,6 +45,7 @@ public class LevelMaker extends GameObject2D{
 
     String nextObjType = "";
     String nextObjTexture = "";
+    char nextObjUtilType = 'b';
     int[] nextBackgroundDims;
     
 
@@ -193,6 +195,11 @@ public class LevelMaker extends GameObject2D{
         //Launch Level
         if (KeyHandler.isLaunchKeyPressed && !hasNoPlayer()){
 
+            //move the camera to the player
+            GamePanel.camera.setScreenX(GameObject2D.player.getX() - GamePanel.camera.getScreenWidth()/2);
+            GamePanel.camera.setScreenY(GameObject2D.player.getY() - GamePanel.camera.getScreenHeight()/2);
+            GamePanel.camera.updateGrid();
+
             //save every object in its actual state
             ArrayList<GameObject2D> saveObj = new ArrayList<>();
             for (GameObject2D go : objects){
@@ -256,13 +263,17 @@ public class LevelMaker extends GameObject2D{
         //platform
         else if (nextObjType.equals("Platform")) {
             Platform p = new Platform(defaultObjWidth, defaultObjHeight, x, y,
-                    'b', nextObjTexture, "#"+id_counter, "");
+                    nextObjUtilType, nextObjTexture, "#"+id_counter, "");
 
             GamePanel.camera.level.addToMainSubLevel(p);
             objects.add(p);
         }
         //checkpoint
         else if (nextObjType.equals("Checkpoint")) {
+            if (isInGridMode) {
+                x += gridCellWidth/2 - 28/2;
+                y -= 85%gridCellHeight;
+            }
             CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
@@ -382,10 +393,10 @@ public class LevelMaker extends GameObject2D{
 
     public void initButtons() throws IOException, FontFormatException {
 
-
         platformTextures = new HashMap<>();
         platformImages = new HashMap<>();
         platformTextureNames = new HashMap<>();
+        platformUtilTypes = new HashMap<>();
         String lastButtonMsg = "";
 
         int x = 400;
@@ -415,13 +426,23 @@ public class LevelMaker extends GameObject2D{
                     platformTextures.put(lastButtonMsg, new ArrayList<>());
                     platformTextureNames.put(lastButtonMsg, new ArrayList<>());
                     platformImages.put(lastButtonMsg, new ArrayList<>());
+                    platformUtilTypes.put(lastButtonMsg, new ArrayList<>());
                 }
                 else{
+
+                    char utilType;
+                    switch (line.split(";")[1]){
+                        case "killer" -> utilType = 'k';
+                        case "win" -> utilType = 'w';
+                        default -> utilType = 'b';
+                    }
+                    line = line.split(";")[0];
 
                     String[] textureName = line.split("/");
                     platformTextures.get(lastButtonMsg).add(line);
                     platformTextureNames.get(lastButtonMsg).add(textureName[textureName.length - 1]);
                     platformImages.get(lastButtonMsg).add(ImageIO.read(new File("assets/Platform/" + line + "/0.png")));
+                    platformUtilTypes.get(lastButtonMsg).add(utilType);
 
                 }
                 line = reader.readLine();
@@ -669,10 +690,12 @@ public class LevelMaker extends GameObject2D{
                             //assigning function to every textures
                             ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
 
-                            for (String texture : platformTextures.get(b.buttonMessage)){
+                            for (int i = 0; i < platformTextures.get(b.buttonMessage).size(); i++){
+                                int finalI = i;
                                 buttonExec.add(unused -> {
                                     nextObjType = "Platform";
-                                    nextObjTexture = texture;
+                                    nextObjTexture = platformTextures.get(b.buttonMessage).get(finalI);
+                                    nextObjUtilType = platformUtilTypes.get(b.buttonMessage).get(finalI);
                                     rightClickMenu.activate();
                                     MouseHandler.resetClicks();
                                     GamePanel.camera.noUpdate = false;

@@ -179,7 +179,7 @@ public class TextInputMenu extends GameObject2D {
             }
         }
 
-        else if((key.contains("1234567890-.")) &&
+        else if("1234567890-.".contains(key) &&
                 categoryValues.get(editingFillSpace).length() <= 5){
 
             String s = categoryValues.get(editingFillSpace) + key;
