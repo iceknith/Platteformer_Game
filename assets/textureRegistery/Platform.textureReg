@@ -1,22 +1,42 @@
--Base set
-win;win
-killer;killer
-neon_red;base
-neon_yellow;base
-neon_green;base
--Beautiful set base
-test/icy;base
-test/small_right;base
-test/small_middle;base
-test/small_left;base
-test/simple;base
--Beautiful set block
-test/right_down_ext;base
-test/middle_down_ext;base
-test/left_down_ext;base
-test/middle_right_ext;base
-test/middle_left_ext;base
-test/center_ext;base
-test/right_up_ext;base
-test/middle_up_ext;base
-test/left_up_ext;base
+-Base blocks
+base/win;win;0
+base/killer;killer;0
+base/neon_red;base;0
+base/neon_yellow;base;0
+base/neon_green;base;0
+base/rainbow;base;5
+-Swamp blocks
+swamp/icy;base;0
+swamp/small_right;base;0
+swamp/small_middle;base;0
+swamp/small_left;base;0
+swamp/simple;base;0
+-Swamp tiles
+swamp/right_down_ext;base;0
+swamp/middle_down_ext;base;0
+swamp/left_down_ext;base;0
+swamp/middle_right_ext;base;0
+swamp/middle_left_ext;base;0
+swamp/center_ext;base;0
+swamp/right_up_ext;base;0
+swamp/middle_up_ext;base;0
+swamp/left_up_ext;base;0
+-Industrial blocks
+industrial/vertical_down;base;0
+industrial/vertical_middle;base;0
+industrial/vertical_up;base;0
+industrial/horizontal_right;base;0
+industrial/horizontal_middle;base;0
+industrial/horizontal_left;base;0
+industrial/simple;base;0
+-Industrial tiles
+industrial/down_right;base;0
+industrial/down_middle;base;0
+industrial/down_left;base;0
+industrial/middle_right;base;0
+industrial/middle_middle_2;base;0
+industrial/middle_middle_1;base;0
+industrial/middle_left;base;0
+industrial/up_right;base;0
+industrial/up_middle;base;0
+industrial/up_left;base;0

@@ -60,8 +60,8 @@ public class Sprite {
     void setImage(BufferedImage newSprite){
         image = newSprite;
 
-        width = (int) (image.getWidth()* resizeFactor);
-        height = (int) (image.getHeight()* resizeFactor);
+        width = (int) (image.getWidth() * resizeFactor);
+        height = (int) (image.getHeight() * resizeFactor);
     }
 
     void setImage(BufferedImage newSprite, Rectangle hitbox){

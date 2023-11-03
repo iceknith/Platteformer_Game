@@ -5,30 +5,32 @@ import main.GamePanel;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 public class Platform extends GameObject2D{
 
     public char utilType;
+    final double animSpeed = 5;
 
-    public Platform(int w, int h, int x, int y, char uType, String textureName, String id, String subLvlName) throws IOException {
+    public Platform(int w, int h, int x, int y, char uType, String animName, int framesCount, String id, String subLvlName) throws IOException {
         super(x,y,w,h,subLvlName);
 
         utilType = uType;
-        type = "Platform_" + utilType + textureName;
-
+        type = "Platform_" + utilType + animName;
         name = type+id;
-        sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+textureName+"/0.png")), hitbox);
+
+        sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+animName+"/0.png")), hitbox);
+        setAnimation(getAnimationList("Platform",animName, framesCount), animSpeed);
     }
 
     public Platform(Platform p){
         super(p);
         utilType = p.utilType;
+        setAnimation(p.currentAnimation, animSpeed);
     }
 
     @Override
     public void update(){
-
+        animate();
     }
 
     public void collision(Entity e){

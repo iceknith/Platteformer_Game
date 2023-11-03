@@ -130,17 +130,13 @@ public class GameObject2D{
             animationSpeed = animSpeed;
             animationIndex = 0;
             animationPriority = animPrio;
-            sprite.setImage(getAnimation().get(animationIndex));
+            if (sprite.resizeFactor == 0) sprite.setImage(currentAnimation.get(animationIndex), hitbox);
+            else sprite.setImage(currentAnimation.get(animationIndex));
         }
     }
 
     void setAnimation(ArrayList<BufferedImage> animation, double animSpeed){
-        if (animationPriority <= 0) {
-            currentAnimation = animation;
-            animationSpeed = animSpeed;
-            animationIndex = 0;
-            sprite.setImage(getAnimation().get(animationIndex));
-        }
+        setAnimation(animation, animSpeed, 0);
     }
 
     void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed){
@@ -167,7 +163,8 @@ public class GameObject2D{
                 animationIndex = 0;
             }
 
-            sprite.setImage(getAnimation().get(animationIndex));
+            if (sprite.resizeFactor == 0) sprite.setImage(currentAnimation.get(animationIndex), hitbox);
+            else sprite.setImage(currentAnimation.get(animationIndex));
         }
 
     }

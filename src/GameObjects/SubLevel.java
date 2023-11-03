@@ -38,12 +38,9 @@ public class SubLevel {
             objectList.add(go);
         }
         if (!buttons.isEmpty()){
-            buttons.get(0).get(0).setKey_focused(true);
-            focusedButtonIndexX = 0;
-            focusedButtonIndexY = 0;
-
-            System.out.println("\n----Sub Level: " + subLevelName);
-            displayButtonList();
+            buttons.get(buttons.size() - 1).get(buttons.get(buttons.size() - 1).size() - 1).setKey_focused(true);
+            focusedButtonIndexX = buttons.size() - 1;
+            focusedButtonIndexY = buttons.get(buttons.size() - 1).size() - 1;
         }
     }
 

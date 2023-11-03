@@ -165,16 +165,36 @@ public class Level {
                         int posY = reader.read()*256 + reader.read() - 32767;
 
                         char uType = (char) reader.read();
+                        int frameCount = reader.read();
+
                         StringBuilder texture = new StringBuilder();
                         int cha;
                         while ((cha = reader.read()) != 10) {
                             texture.append((char) cha);
                         }
 
-                        Platform p = new Platform(w, h, posX, posY, uType, texture.toString(),"#" + i, "");
-                        //System.out.println("x: " + p.getX() + ", y: " + p.getY() + ", w: " + p.getWidth() + ", h: " + p.getsHeight());
+                        Platform p = new Platform(w, h, posX, posY, uType, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(p);
                     }
+
+                    case 'O' -> { //ImageObject
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        int frameCount = reader.read();
+
+                        StringBuilder texture = new StringBuilder();
+                        int cha;
+                        while ((cha = reader.read()) != 10) {
+                            texture.append((char) cha);
+                        }
+
+                        ImageObject img = new ImageObject(w, h, posX, posY, texture.toString(), frameCount,"#" + i, "");
+                        objectsBuffer.add(img);
+                    }
+
                     case 'C' ->{ //Checkpoint
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
@@ -482,7 +502,7 @@ public class Level {
 
                 setSubLvlUpdate("main", true);
                 setSubLvlDisplay("main", true);
-                if (hasLevelMaker) updateLevelMaker = true;
+                if (hasLevelMaker && !lvlMaker.isLevelLaunched) updateLevelMaker = true;
             }else{
                 setSubLvlUpdate(subLvlQueue.get(subLvlQueue.size()-1), true);
                 setSubLvlDisplay(subLvlQueue.get(subLvlQueue.size()-1), true);
