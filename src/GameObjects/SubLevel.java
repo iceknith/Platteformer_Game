@@ -38,9 +38,9 @@ public class SubLevel {
             objectList.add(go);
         }
         if (!buttons.isEmpty()){
-            buttons.get(buttons.size() - 1).get(buttons.get(buttons.size() - 1).size() - 1).setKey_focused(true);
+            buttons.get(buttons.size() - 1).get(0).setKey_focused(true);
             focusedButtonIndexX = buttons.size() - 1;
-            focusedButtonIndexY = buttons.get(buttons.size() - 1).size() - 1;
+            focusedButtonIndexY = 0;
         }
     }
 
@@ -83,7 +83,7 @@ public class SubLevel {
 
         // find Y pos in list
         int y = 0;
-        while (y < buttons.get(x).size() && b.getY() < buttons.get(x).get(y).getY()) {
+        while (y < buttons.get(x).size() && b.getY() > buttons.get(x).get(y).getY()) {
             y++;
         }
 
@@ -106,16 +106,16 @@ public class SubLevel {
         //button handling
         if (!buttons.isEmpty()){
 
-            if(KeyHandler.isUpPressed && System.nanoTime() - lastUpTime >= 200000000){
-                lastUpTime = System.nanoTime();
+            if(KeyHandler.isDownPressed && System.nanoTime() - lastDownTime >= 200000000){
+                lastDownTime = System.nanoTime();
 
                 buttons.get(focusedButtonIndexX).get(focusedButtonIndexY).setKey_focused(false);
                 focusedButtonIndexY = (focusedButtonIndexY +1)%buttons.get(focusedButtonIndexX).size();
                 buttons.get(focusedButtonIndexX).get(focusedButtonIndexY).setKey_focused(true);
             }
 
-            if(KeyHandler.isDownPressed && System.nanoTime() - lastDownTime >= 200000000){
-                lastDownTime = System.nanoTime();
+            if(KeyHandler.isUpPressed && System.nanoTime() - lastUpTime >= 200000000){
+                lastUpTime = System.nanoTime();
 
                 buttons.get(focusedButtonIndexX).get(focusedButtonIndexY).setKey_focused(false);
                 focusedButtonIndexY = (focusedButtonIndexY + buttons.get(focusedButtonIndexX).size() - 1)%buttons.get(focusedButtonIndexX).size();
