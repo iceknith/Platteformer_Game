@@ -281,8 +281,6 @@ public class Player extends Entity{
 
     public void setSpawnPointPos(int posX, int posY){
         spawnPointPos = new int[] {posX, posY};
-        //temporary mechanic
-        maxJumps += 1;
     }
 
     @Override
@@ -302,7 +300,7 @@ public class Player extends Entity{
         //drawing jump bubbles
         for (int i = 0; i < maxJumps; i++){
 
-            double angle = Math.PI * 2 * i / maxJumps - Math.PI/2;
+            double angle = Math.PI * 2 - Math.PI/2 - (Math.PI/12) * (maxJumps - 1)/2 + Math.PI * i/12;
             int posX = (int) (Math.cos(angle) * jumpBubblesDistance + getX() + getWidth()/2 - GamePanel.camera.getScreenX());
             int posY = (int) (Math.sin(angle) * jumpBubblesDistance + getY() + getHeight()/2 - GamePanel.camera.getScreenY());
 

@@ -60,6 +60,8 @@ public class CheckPoint extends GameObject2D{
             isActivated = true;
 
             GameObject2D.getPlayer().setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
+            GameObject2D.getPlayer().maxJumps += 1;
+            GameObject2D.getPlayer().jumps += 1;
 
             setAnimation(flag_appears, flag_appearsAnimationSpeed);
             setNextAnimation(flag, flagAnimationSpeed);
