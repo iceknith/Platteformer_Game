@@ -178,8 +178,6 @@ public class Level {
                     }
 
                     case 'O' -> { //ImageObject
-                        int w = reader.read()*256 + reader.read();
-                        int h = reader.read()*256 + reader.read();
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
 
@@ -191,7 +189,7 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        ImageObject img = new ImageObject(w, h, posX, posY, texture.toString(), frameCount,"#" + i, "");
+                        ImageObject img = new ImageObject(posX, posY, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(img);
                     }
 

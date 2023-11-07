@@ -276,8 +276,13 @@ public class LevelMaker extends GameObject2D{
         }
         //image
         else if (nextObjType.equals("Image")){
-            ImageObject i = new ImageObject(defaultObjWidth, defaultObjHeight,
-                    x, y, nextObjTexture, nextObjFrameCount, "#"+ id_counter, "");
+            ImageObject i = new ImageObject(x, y, nextObjTexture, nextObjFrameCount, "#"+ id_counter, "");
+
+            if (isInGridMode){
+                i.setX(x + gridCellWidth/2 -  i.getWidth()/2);
+                i.setY(y + gridCellHeight - i.getHeight());
+            }
+
 
             GamePanel.camera.level.addToMainSubLevel(i);
             objects.add(i);
@@ -323,15 +328,19 @@ public class LevelMaker extends GameObject2D{
             txtInputMenu.setCategorySetValues(Arrays.asList(
                     s -> {
                         int i = Integer.parseInt(s);
+                        GamePanel.camera.deleteGOInGrid(go);
                         go.setWidth(i);
                         go.sprite.setWidth(i);
+                        GamePanel.camera.addGOInGrid(go);
                         if (!isInGridMode) defaultObjWidth = i;
                         return null;
                         },
                     s -> {
                         int i = Integer.parseInt(s);
+                        GamePanel.camera.deleteGOInGrid(go);
                         go.setHeight(i);
                         go.sprite.setHeight(i);
+                        GamePanel.camera.addGOInGrid(go);
                         if (!isInGridMode) defaultObjHeight = i;
                         canPlaceObj = true;
                         return null;
@@ -355,12 +364,17 @@ public class LevelMaker extends GameObject2D{
             txtInputMenu.setCategorySetValues(Arrays.asList(
                     s -> {
                         int i = Integer.parseInt(s);
+                        GamePanel.camera.deleteGOInGrid(go);
                         go.setX(i);
                         if (go.name.contains("Player")) player.spawnPointPos[0] = i;
+                        GamePanel.camera.addGOInGrid(go);
                         return null;},
 
                     s -> {int i = Integer.parseInt(s);
-                        go.setY(i); if (go.name.contains("Player")) player.spawnPointPos[1] = i;
+                        GamePanel.camera.deleteGOInGrid(go);
+                        go.setY(i);
+                        if (go.name.contains("Player")) player.spawnPointPos[1] = i;
+                        GamePanel.camera.addGOInGrid(go);
                         canPlaceObj = true;
                         return null;
                     }));
@@ -893,10 +907,6 @@ public class LevelMaker extends GameObject2D{
                 }
                 else if (go.getType().contains("ImageObject_")){
                     fw.write("O".getBytes());
-                    fw.write(go.getWidth()/256);
-                    fw.write(go.getWidth()%256);
-                    fw.write(go.getHeight()/256);
-                    fw.write(go.getHeight()%256);
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);
