@@ -14,6 +14,37 @@ import javax.imageio.ImageIO;
 
 public class Player extends Entity{
 
+    double speedThreshold;
+    double earlySpeed;
+    double maxSpeed;
+    double earlyAcceleration;
+    double lateAcceleration;
+    double friction;
+
+    double airSpeedThreshold;
+    double airEarlySpeed;
+    double airMaxSpeed;
+    double airEarlyAcceleration;
+    double airLateAcceleration;
+    double airFriction;
+
+    double speedConversionPercent;
+
+    double jumpForce;
+    double jumpingTime;
+    double gravity;
+
+    public double groundVelocityX;
+    public double groundVelocityY;
+
+    int jumps;
+    int maxJumps;
+    double maxJumpingTime;
+    boolean isOnGround;
+    boolean wasOnGround;
+    boolean isJumping;
+    boolean wasJumping;
+
     ArrayList<BufferedImage> idle;
     double idleAnimationSpeed = 3;
 
@@ -63,14 +94,14 @@ public class Player extends Entity{
         maxSpeed = 55;
         earlyAcceleration = 3;
         lateAcceleration = 0.005;
-        friction = 5;
+        friction = 2.5;
 
         airSpeedThreshold = 15;
         airEarlySpeed = 35;
         airMaxSpeed = 45;
         airEarlyAcceleration = 1.5;
         airLateAcceleration = 0.01;
-        airFriction = 2.5;
+        airFriction = 1;
 
         jumpForce = 3;
         gravity = 2.25;
@@ -120,12 +151,18 @@ public class Player extends Entity{
         airFriction = p.airFriction;
 
         jumpForce = p.jumpForce;
+        jumpingTime = p.jumpingTime;
         gravity = p.gravity;
 
+        jumps = p.jumps;
         maxJumps = p.maxJumps;
         maxJumpingTime = p.maxJumpingTime;
 
         spawnPointPos = p.spawnPointPos;
+        isOnGround = p.isOnGround;
+        wasOnGround = p.wasOnGround;
+        isJumping = p.isJumping;
+        wasJumping = p.wasJumping;
 
         speedConversionPercent = p.speedConversionPercent;
 
@@ -152,6 +189,7 @@ public class Player extends Entity{
         isDying = p.isDying;
 
         wasJumpPressed = p.wasJumpPressed;
+
     }
 
     void movementHandler(){
@@ -311,6 +349,143 @@ public class Player extends Entity{
 
             g2D.setColor(jumpBublesOutlineColor);
             g2D.drawOval(posX, posY, jumpBubblesRadius, jumpBubblesRadius);
+        }
+    }
+
+    public boolean getOnGround() {return isOnGround;}
+
+    void walk(int direction,
+              double earlySpeed, double maxSpeed,
+              double maxSpeedThreshold,
+              double earlyAcceleration, double lateAcceleration,
+              double speedConversion){
+
+        //if you changed direction
+        if (direction == - Math.signum(velocityX)){
+            velocityX = -velocityX * speedConversion / 100;
+            return;
+        }
+        //earlyAcceleration
+        if (velocityX * direction < earlySpeed){
+            velocityX += direction * earlyAcceleration;
+        }
+        //lateAcceleration
+        else if (velocityX * direction < maxSpeed) {
+            velocityX += direction * lateAcceleration;
+        }
+        //lateDeceleration (if your speed is greater than the maxSpeed + speedThreshold)
+        else if (velocityX * direction > maxSpeed + maxSpeedThreshold){
+            velocityX -= direction * lateAcceleration;
+
+        }
+    }
+
+    void stop(int direction, double friction){
+        velocityX -= direction * friction;
+        if (velocityX * direction <= 0){ //if forceX has crossed 0 since we stopped moving
+            velocityX = 0;
+        }
+    }
+
+    void jump(double jumpForce){
+
+        jumpingTime += GamePanel.deltaTime;
+
+        if (jumpingTime > maxJumpingTime){
+            isJumping = false;
+        }
+
+        velocityY = jumpForce*20 - jumpingTime;
+    }
+
+    void fall(){
+        if (! isOnGround){
+            velocityY = Math.max(-150, velocityY - (gravity * GamePanel.deltaTime * 6));
+        }
+    }
+
+    boolean collision(GameObject2D go) {
+
+        if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
+                getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+            return false;
+        }
+        if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
+            if (go.hasPhysicalCollisions){
+                setX(go.getX() - getWidth() - 1);
+                velocityX = go.getVelocityX();
+            }
+            go.collision(this);
+            return true;
+        }
+
+        if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
+            if (go.hasPhysicalCollisions){
+                setX(go.getX() + go.getWidth() + 1);
+                velocityX = go.getVelocityX();
+            }
+            go.collision(this);
+            return true;
+        }
+
+        if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
+            if (go.hasPhysicalCollisions){
+                isOnGround = true;
+                setY(go.getY() - getHeight() - 1);
+                velocityY = go.getVelocityY();
+            }
+            go.collision(this);
+            return true;
+        }
+
+        if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
+            if (go.hasPhysicalCollisions){
+                setY(go.getY() + go.getHeight() + 1);
+                velocityY = go.getVelocityY();
+            }
+            go.collision(this);
+            return true;
+        }
+        return false;
+    }
+
+    void checkGround(GameObject2D go){
+        if (wasOnGround && go.hasPhysicalCollisions){
+            if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
+                    getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+                groundVelocityX = go.getVelocityX();
+                groundVelocityY = go.getVelocityY();
+                return;
+            }
+
+            isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
+            if (isOnGround){
+                groundVelocityX = go.getVelocityX(); //the -2 is to have a margin error
+                groundVelocityY = go.getVelocityY();
+            }
+        }
+    }
+
+    @Override
+    public void move(){
+        GamePanel.camera.deleteGOInGrid(this);
+        prevX = getX();
+        prevY = getY();
+        setX((int) (getX() + Math.round((velocityX + groundVelocityX) * GamePanel.deltaTime)));
+        setY((int) (getY() - Math.round((velocityY + groundVelocityY) * GamePanel.deltaTime)));
+        GamePanel.camera.addGOInGrid(this);
+
+        wasOnGround = isOnGround;
+        isOnGround = false;
+        for (GameObject2D go: getNear()){
+            checkGround(go);
+            collision(go);
+        }
+        if (!isOnGround){
+            velocityX += groundVelocityX;
+            velocityY += groundVelocityY;
+            groundVelocityX = 0;
+            groundVelocityY = 0;
         }
     }
 

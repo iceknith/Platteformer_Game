@@ -22,6 +22,8 @@ public class LevelMaker extends GameObject2D{
     boolean canPlaceObj = true;
     public static boolean objIsPlaced = true;
 
+    long lastButtonUpdateTime;
+
     ArrayList<GameObject2D> objects = new ArrayList<>();
     int id_counter = 6;
 
@@ -119,7 +121,10 @@ public class LevelMaker extends GameObject2D{
             else return;
         }
 
-        buttonLogic();
+        if (System.nanoTime() - lastButtonUpdateTime > 50000000){ //have some sort of tick System, that updates the buttons every 0.5s since it is very laggy
+            lastButtonUpdateTime = System.nanoTime();
+            buttonLogic();
+        }
 
         //close opened tabs logic
         if (MouseHandler.isRightClickPressed || MouseHandler.isLeftClickPressed){
@@ -165,7 +170,7 @@ public class LevelMaker extends GameObject2D{
             for (int[] pos : mouseGridPos){
 
                 for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
-                    if (potentialGOSpace.collision(go)){
+                    if (potentialGOSpace.intersects(go)){
                         return;
                     }
                 }
@@ -227,10 +232,10 @@ public class LevelMaker extends GameObject2D{
         if (isLevelLaunched) return;
 
         //draw mouse coos
-        g2D.setColor(Color.white);
-        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
-        g2D.drawString("X : " + (GamePanel.camera.screenX + MouseHandler.getX()),15,25);
-        g2D.drawString("Y : " +  (GamePanel.camera.screenY + MouseHandler.getY()),15,50);
+        //g2D.setColor(Color.white);
+        //g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
+        //g2D.drawString("X : " + (GamePanel.camera.screenX + MouseHandler.getX()),15,25);
+        //g2D.drawString("Y : " +  (GamePanel.camera.screenY + MouseHandler.getY()),15,50);
 
 
         if (isInGridMode){
@@ -283,7 +288,6 @@ public class LevelMaker extends GameObject2D{
                 i.setY(y + gridCellHeight - i.getHeight());
             }
 
-
             GamePanel.camera.level.addToMainSubLevel(i);
             objects.add(i);
         }
@@ -293,9 +297,18 @@ public class LevelMaker extends GameObject2D{
                 x += gridCellWidth/2 - 28/2;
                 y -= 85%gridCellHeight;
             }
+
             CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
+        }
+        else if (nextObjType.equals("Moving Platform")){
+            MovingPlatform m = new MovingPlatform(x, y, x+200, y+200, defaultObjWidth, defaultObjHeight,
+                    nextObjTexture, nextObjFrameCount, "#" + id_counter, "");
+
+            GamePanel.camera.level.addToMainSubLevel(m);
+            objects.add(m);
+            System.out.println("new moving platform");
         }
         else{
             objIsPlaced = true;
@@ -551,7 +564,7 @@ public class LevelMaker extends GameObject2D{
         }
 
         //define other buttons
-        for (String msg : Arrays.asList("Checkpoint", "Background", "To Player", "Grid", "Load", "Save")){
+        for (String msg : Arrays.asList("Moving Platform","Checkpoint", "Background", "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
@@ -577,7 +590,7 @@ public class LevelMaker extends GameObject2D{
         if (MouseHandler.getY() > maxButtonY || txtInputMenu.isOpen || rightClickMenu.isOpen) return;
 
         for (Button b : buttons){
-            if (b.pointIsIn(MouseHandler.getX(), MouseHandler.getY())){
+            if (mouseOverButton(b)){
 
                 cameraCanMove = false;
                 canPlaceObj = false;
@@ -591,6 +604,12 @@ public class LevelMaker extends GameObject2D{
                     switch (b.buttonMessage) {
 
                         case "Checkpoint" -> nextObjType = "Checkpoint";
+
+                        case "Moving Platform" -> {
+                            nextObjType = "Moving Platform";
+                            nextObjTexture = "base/rainbow";
+                            nextObjFrameCount = 5;
+                        }
 
                         case "Background" -> {
                             rightClickMenu.setX(MouseHandler.getX());
@@ -837,6 +856,15 @@ public class LevelMaker extends GameObject2D{
         }
     }
 
+    boolean mouseOverButton(Button b){
+        //Optimised version of the pointIsIn method of GameObject2D
+        if (b.getX() > MouseHandler.getX()) return false;
+        if (MouseHandler.getX() > b.getX() + b.getWidth()) return false;
+        if (b.getY() > MouseHandler.getY()) return false;
+        if (MouseHandler.getY() > b.getY() + b.getHeight()) return false;
+        return true;
+    }
+
     public void loadLevel(String lvlName) throws Exception {
         File level = new File("assets/level/"+lvlName+".lvl");
 
@@ -907,6 +935,10 @@ public class LevelMaker extends GameObject2D{
                 }
                 else if (go.getType().contains("ImageObject_")){
                     fw.write("O".getBytes());
+                    fw.write(go.getWidth()/256);
+                    fw.write(go.getWidth()%256);
+                    fw.write(go.getHeight()/256);
+                    fw.write(go.getHeight()%256);
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);

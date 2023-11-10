@@ -182,11 +182,12 @@ public class GamePanel extends JPanel implements Runnable {
             g2D.setFont(new Font("Sans Serif", Font.PLAIN, 12));
             if (!GameObject2D.hasNoPlayer()){
                 //player info
-                g2D.drawString("X : " + GameObject2D.getPlayer().getX(),15,60);
-                g2D.drawString("Y : " + GameObject2D.getPlayer().getY(),15,75);
-                g2D.drawString("Velocity X : " + GameObject2D.getPlayer().getVelocityX(),15,100);
-                g2D.drawString("Velocity Y : " + GameObject2D.getPlayer().getVelocityY(),15,115);
-                g2D.drawString("Is On Ground : " + GameObject2D.getPlayer().getOnGround(),15,130);
+                Player p = GameObject2D.getPlayer();
+                g2D.drawString("X : " + p.getX(),15,60);
+                g2D.drawString("Y : " + p.getY(),15,75);
+                g2D.drawString("Velocity X : " + (p.getVelocityX() + p.groundVelocityX),15,100);
+                g2D.drawString("Velocity Y : " + (p.getVelocityY() + p.groundVelocityY),15,115);
+                g2D.drawString("Is On Ground : " + p.getOnGround(),15,130);
             }
 
             //camera info

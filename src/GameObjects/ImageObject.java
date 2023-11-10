@@ -20,6 +20,18 @@ public class ImageObject extends GameObject2D{
 
         setAnimation(getAnimationList("ImageObject",animName, framesCount), animSpeed);
     }
+
+    public ImageObject(int w, int h, int x, int y, String animName, int framesCount, String id, String subLvlName) throws IOException {
+        super(x,y,w,h,subLvlName);
+
+        type = "ImageObject_" + animName;
+        name = type+id;
+        hasPhysicalCollisions = false;
+
+        sprite = new Sprite(ImageIO.read(new File("assets/ImageObject/"+animName+"/0.png")), hitbox);
+
+        setAnimation(getAnimationList("ImageObject",animName, framesCount), animSpeed);
+    }
     public ImageObject(ImageObject i){
         super(i);
     }
