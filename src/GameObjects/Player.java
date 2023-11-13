@@ -453,14 +453,18 @@ public class Player extends Entity{
         if (wasOnGround && go.hasPhysicalCollisions){
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
                     getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
-                groundVelocityX = go.getVelocityX();
+                if (velocityX + go.getVelocityX() < earlySpeed){
+                    groundVelocityX = go.getVelocityX();
+                }
                 groundVelocityY = go.getVelocityY();
                 return;
             }
 
             isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
             if (isOnGround){
-                groundVelocityX = go.getVelocityX(); //the -2 is to have a margin error
+                if (velocityX + go.getVelocityX() < earlySpeed){
+                    groundVelocityX = go.getVelocityX();
+                }
                 groundVelocityY = go.getVelocityY();
             }
         }
@@ -483,7 +487,7 @@ public class Player extends Entity{
         }
         if (!isOnGround){
             velocityX += groundVelocityX;
-            velocityY += groundVelocityY;
+            //velocityY += groundVelocityY;
             groundVelocityX = 0;
             groundVelocityY = 0;
         }
