@@ -67,18 +67,37 @@ public class GameGrid {
     public void setScreenY(int posY) {
         screenY = posY;}
 
-    public void deleteGOInGrid(GameObject2D r){
+    public void deleteGOInGrid(GameObject2D r){deleteGOInGrid(r, true);}
+
+    public void deleteGOInGrid(GameObject2D r, boolean permaRemove){
         ArrayList<int[]> cellPos = findRectPosInGrid(r);
+
+        //remove from permanent updated
+        if (permaRemove &&
+                (r.type.equals("Player") ||
+                r.type.contains("MovingPlatform_"))){
+            level.permanentUpdatableRemoveBuffer.add(r);
+        }
 
         for (int[] pos: cellPos) {
             grid.get(pos[0]).get(pos[1]).remove(r);
         }
     }
 
-    public void addGOInGrid(GameObject2D r){
+    public void addGOInGrid(GameObject2D r){addGOInGrid(r, true);}
+
+    public void addGOInGrid(GameObject2D r, boolean firstAdd){
 
         //do not add gui in grid
         if (r.isGUI) return;
+
+        //add to permanent updated
+        if (firstAdd &&
+                (r.type.equals("Player") ||
+                r.type.contains("MovingPlatform_"))){
+            level.permanentUpdatableAddBuffer.add(r);
+        }
+
 
         int rPosX = r.getSprite().getOffsetX(r.getHitbox());
         int rPosY = r.getSprite().getOffsetY(r.getHitbox());
@@ -271,14 +290,16 @@ public class GameGrid {
                         for (GameObject2D go : grid.get(indexX).get(indexY)){
                             if (!visible.contains(go)){
 
-                                level.addUpdatable(go);
+                                if (!go.type.equals("Player") &&
+                                    !go.type.contains("MovingPlatform_")){
+                                    level.addUpdatable(go);
+                                }
                                 if (go.type.equals("Player")){
                                     visible.insertElementAt(go, 0);
                                 }
                                 else{
                                     visible.add(go);
                                 }
-
                             }
                         }
                     }

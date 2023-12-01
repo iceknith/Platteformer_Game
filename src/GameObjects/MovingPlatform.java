@@ -48,29 +48,19 @@ public class MovingPlatform extends Entity{
         super.update();
         animate();
 
-        velocityX = speed;
-        /*int distX = posX2 - getX();
-        int distY = posY2 - getY();
-        if (Math.pow(distX, 2) + Math.pow(distY, 2) >= Math.pow(earlySpeed, 2)){ //if distance > speed
+        //velocityX = speed;
+        int distX = posX2 - posX1;
+        int distY = posY2 - posY1;
+        int maxDist = Math.max(Math.abs(distX), Math.abs(distY));
 
-            if (distX > distY){
-                velocityY = earlySpeed * ((double) distY/distX);
-                velocityX = earlySpeed * (1 - ((double) distY/distX));
-            }
-            else{
-                velocityX = earlySpeed * ((double) distX/distY);
-                velocityY = earlySpeed * (1 - ((double) distX/distY));
-            }
-
-        }
-        else { //if not turn around
-            int tempX1, tempY1;
-            tempX1 = posX1; tempY1 = posY1;
+        velocityX = speed * distX/maxDist;
+        velocityY = speed * distY/maxDist;
+        if (Math.signum(distX) * getX() > Math.signum(distX) * posX2 &&
+            Math.signum(distY) * getY() > Math.signum(distY) * posY2){
+            int tempPosX1 = posX1, tempPosY1 = posY1;
             posX1 = posX2; posY1 = posY2;
-            posX2 = tempX1; posY2 = tempY1;
-
-            velocityX = 0; velocityY = 0;
-        }*/
+            posX2 = tempPosX1; posY2 = tempPosY1;
+        }
 
         move();
     }

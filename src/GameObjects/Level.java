@@ -4,11 +4,9 @@ import handlers.KeyHandler;
 import main.GamePanel;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -19,6 +17,9 @@ public class Level {
     ArrayList<String> subLvlQueue = new ArrayList<>();
     ArrayList<GameObject2D> updatable = new ArrayList<>();
     ArrayList<GameObject2D> updatableBuffer = new ArrayList<>();
+    ArrayList<GameObject2D> permanentUpdatable = new ArrayList<>();
+    ArrayList<GameObject2D> permanentUpdatableAddBuffer = new ArrayList<>();
+    ArrayList<GameObject2D> permanentUpdatableRemoveBuffer = new ArrayList<>();
     ArrayList<Button> buttons = new ArrayList<>();
 
     boolean noUpdatableModification;
@@ -91,6 +92,9 @@ public class Level {
         for (GameObject2D go: updatable) {
             go.update();
         }
+        for (GameObject2D go: permanentUpdatable){
+            if (getSubLvl(go.subLevelName).isUpdated) go.update();
+        }
         for (SubLevel sl: subLevels){
             if (sl.isUpdated){
                 sl.update();
@@ -106,7 +110,16 @@ public class Level {
         }
 
         updatable.addAll(updatableBuffer);
-        updatableBuffer = new ArrayList<>();
+        updatableBuffer.clear();
+
+        permanentUpdatable.removeAll(permanentUpdatableRemoveBuffer);
+        permanentUpdatableRemoveBuffer.clear();
+        for (GameObject2D go: permanentUpdatableAddBuffer){
+            if (!permanentUpdatable.contains(go)){
+                permanentUpdatable.add(go);
+            }
+        }
+        permanentUpdatableAddBuffer.clear();
     }
 
     public void loadLevel() throws FileNotFoundException {
@@ -589,7 +602,7 @@ public class Level {
     }
 
     public boolean hasNoPlayer(){
-        for (GameObject2D go: getUpdatable()) {
+        for (GameObject2D go: permanentUpdatable) {
             if (go.type.equals("Player")){
                 return false;
             }

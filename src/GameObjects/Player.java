@@ -376,7 +376,6 @@ public class Player extends Entity{
         //lateDeceleration (if your speed is greater than the maxSpeed + speedThreshold)
         else if (velocityX * direction > maxSpeed + maxSpeedThreshold){
             velocityX -= direction * lateAcceleration;
-
         }
     }
 
@@ -453,18 +452,14 @@ public class Player extends Entity{
         if (wasOnGround && go.hasPhysicalCollisions){
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
                     getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
-                if (velocityX + go.getVelocityX() < earlySpeed){
-                    groundVelocityX = go.getVelocityX();
-                }
+                if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
                 groundVelocityY = go.getVelocityY();
                 return;
             }
 
             isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
             if (isOnGround){
-                if (velocityX + go.getVelocityX() < earlySpeed){
-                    groundVelocityX = go.getVelocityX();
-                }
+                if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
                 groundVelocityY = go.getVelocityY();
             }
         }
@@ -472,12 +467,12 @@ public class Player extends Entity{
 
     @Override
     public void move(){
-        GamePanel.camera.deleteGOInGrid(this);
+        GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();
         setX((int) (getX() + Math.round((velocityX + groundVelocityX) * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round((velocityY + groundVelocityY) * GamePanel.deltaTime)));
-        GamePanel.camera.addGOInGrid(this);
+        GamePanel.camera.addGOInGrid(this, false);
 
         wasOnGround = isOnGround;
         isOnGround = false;
@@ -487,7 +482,7 @@ public class Player extends Entity{
         }
         if (!isOnGround){
             velocityX += groundVelocityX;
-            //velocityY += groundVelocityY;
+            velocityY += groundVelocityY;
             groundVelocityX = 0;
             groundVelocityY = 0;
         }

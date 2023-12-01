@@ -101,6 +101,7 @@ public class LevelMaker extends GameObject2D{
 
                 //unload all loaded GO in level, and replace them with the saved ones
                 Level lvl = GamePanel.camera.level;
+                lvl.permanentUpdatable = new ArrayList<>();
                 lvl.getSubLvl("main").objectList = new ArrayList<>();
                 lvl.getSubLvl("main").permaDisplayedObjects = new ArrayList<>();
                 lvl.getSubLvl("main").buttons = new ArrayList<>();
@@ -232,10 +233,10 @@ public class LevelMaker extends GameObject2D{
         if (isLevelLaunched) return;
 
         //draw mouse coos
-        //g2D.setColor(Color.white);
-        //g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
-        //g2D.drawString("X : " + (GamePanel.camera.screenX + MouseHandler.getX()),15,25);
-        //g2D.drawString("Y : " +  (GamePanel.camera.screenY + MouseHandler.getY()),15,50);
+        g2D.setColor(Color.white);
+        g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
+        g2D.drawString("X : " + (GamePanel.camera.screenX + MouseHandler.getX()),15,25);
+        g2D.drawString("Y : " +  (GamePanel.camera.screenY + MouseHandler.getY()),15,50);
 
 
         if (isInGridMode){
@@ -303,12 +304,11 @@ public class LevelMaker extends GameObject2D{
             objects.add(c);
         }
         else if (nextObjType.equals("Moving Platform")){
-            MovingPlatform m = new MovingPlatform(x, y, x+200, y+200, defaultObjWidth, defaultObjHeight,
+            MovingPlatform m = new MovingPlatform(x, y, x+20, y+20, defaultObjWidth, defaultObjHeight,
                     nextObjTexture, nextObjFrameCount, "#" + id_counter, "");
 
             GamePanel.camera.level.addToMainSubLevel(m);
             objects.add(m);
-            System.out.println("new moving platform");
         }
         else{
             objIsPlaced = true;
