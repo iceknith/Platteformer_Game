@@ -4,11 +4,17 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class MovingPlatform extends Entity{
 
     int posX1, posY1, posX2, posY2;
     final double animSpeed = 5;
-    double speed;
+    int travelTime;
+    double friction;
+
+    double initTime;
 
     MovingPlatform(int x, int y, int x2, int y2, int w, int h, String animName, int framesCount, String id, String subLvl) throws IOException {
         this(x, y, x2, y2, w, h, 20, animName, framesCount, id, subLvl);
@@ -22,10 +28,13 @@ public class MovingPlatform extends Entity{
         posX2 = x2;
         posY2 = y2;
 
-        speed = s;
+        travelTime = s;
+        friction = 2.5;
+        initTime = (double) System.nanoTime() / 1000000000;
 
         type = "MovingPlatform_" + animName;
         name = type+id;
+
 
         sprite = new Sprite(ImageIO.read(new File("assets/MovingPlatform/"+animName+"/0.png")), hitbox);
         setAnimation(getAnimationList("MovingPlatform",animName, framesCount), animSpeed);
@@ -34,7 +43,7 @@ public class MovingPlatform extends Entity{
     MovingPlatform(MovingPlatform m){
         super(m);
 
-        speed = m.speed;
+        travelTime = m.travelTime;
 
         posX1 = m.posX1;
         posY1 = m.posY1;
@@ -49,24 +58,29 @@ public class MovingPlatform extends Entity{
         animate();
 
         //velocityX = speed;
-        int distX = posX2 - posX1;
-        int distY = posY2 - posY1;
-        int maxDist = Math.max(Math.abs(distX), Math.abs(distY));
+        double time = ((double) System.nanoTime() / 1000000000) - initTime;
+        double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/travelTime);
+        double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/travelTime);
 
-        velocityX = speed * distX/maxDist;
-        velocityY = speed * distY/maxDist;
-        if (Math.signum(distX) * getX() > Math.signum(distX) * posX2 &&
-            Math.signum(distY) * getY() > Math.signum(distY) * posY2){
-            int tempPosX1 = posX1, tempPosY1 = posY1;
-            posX1 = posX2; posY1 = posY2;
-            posX2 = tempPosX1; posY2 = tempPosY1;
-        }
+        //System.out.println(posX1 + " < " + getX() + " < " + posX2);
+        velocityX = newX - getX();
+        velocityY = getY() - newY;
 
         move();
     }
 
     @Override
+    public double getFriction(){
+        return friction;
+    }
+
+    @Override
     public GameObject2D copy() throws IOException {
         return new MovingPlatform(this);
+    }
+
+    @Override
+    public MovingPlatform getThisMovingPlatform(){
+        return this;
     }
 }

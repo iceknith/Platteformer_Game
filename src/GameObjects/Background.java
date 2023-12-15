@@ -65,7 +65,7 @@ public class Background extends GameObject2D{
     }
 
     @Override
-    public Background getBackground(){
+    public Background getThisBackground(){
         return this;
     }
 

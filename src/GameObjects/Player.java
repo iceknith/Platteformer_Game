@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.security.Key;
 import java.util.ArrayList;
 
 import handlers.KeyHandler;
@@ -44,6 +45,8 @@ public class Player extends Entity{
     boolean wasOnGround;
     boolean isJumping;
     boolean wasJumping;
+
+    double deathYLine;
 
     ArrayList<BufferedImage> idle;
     double idleAnimationSpeed = 3;
@@ -113,6 +116,8 @@ public class Player extends Entity{
 
         speedConversionPercent = 35;
 
+        deathYLine = 2000;
+
         sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
         sprite.offsetY -= 1; //make it so that the player is visually in the ground
 
@@ -141,7 +146,6 @@ public class Player extends Entity{
         maxSpeed = p.maxSpeed;
         lateAcceleration = p.lateAcceleration;
         earlyAcceleration = p.earlyAcceleration;
-        friction = p.friction;
 
         airSpeedThreshold = p.airSpeedThreshold;
         airEarlySpeed = p.airEarlySpeed;
@@ -166,6 +170,8 @@ public class Player extends Entity{
 
         speedConversionPercent = p.speedConversionPercent;
 
+        deathYLine = p.deathYLine;
+
         sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
 
         idle = p.idle;
@@ -186,8 +192,6 @@ public class Player extends Entity{
 
         setAnimation(idle, idleAnimationSpeed);
 
-        isDying = p.isDying;
-
         wasJumpPressed = p.wasJumpPressed;
 
     }
@@ -198,7 +202,6 @@ public class Player extends Entity{
         double s = maxSpeed;
         double eAcc = earlyAcceleration;
         double lAcc = lateAcceleration;
-        double f = friction;
 
         if(isOnGround){
             jumps = maxJumps;
@@ -209,7 +212,6 @@ public class Player extends Entity{
             s = airMaxSpeed;
             eAcc = airEarlyAcceleration;
             lAcc = airLateAcceleration;
-            f = airFriction;
         }
 
 
@@ -241,7 +243,7 @@ public class Player extends Entity{
         if (!KeyHandler.isRightPressed && !KeyHandler.isLeftPressed){
             if (velocityX != 0){
                 int direction = (int) Math.signum(velocityX);
-                stop(direction, f);
+                stop(direction, friction);
             }
             if (isOnGround && getAnimation().equals(run)){
                 setAnimation(idle, idleAnimationSpeed);
@@ -291,7 +293,7 @@ public class Player extends Entity{
         }
 
 
-        if (getY() + GamePanel.camera.getScreenY() > 2000 || KeyHandler.isSuicideKeyPressed || isDying){
+        if (getY() > deathYLine || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);
         }
 
@@ -327,8 +329,7 @@ public class Player extends Entity{
         movementHandler();
         move();
 
-        //System.out.println("X:" + getX() + " V: " + velocityX);
-        //System.out.println("Y:" + getY() + " V: " + velocityY);
+        //System.out.println(this.getDebugInfos());
     }
 
     @Override
@@ -452,15 +453,21 @@ public class Player extends Entity{
         if (wasOnGround && go.hasPhysicalCollisions){
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
                     getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+                //If player is just on top of the ground
                 if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
                 groundVelocityY = go.getVelocityY();
+                velocityY = 0;
+                friction = go.getFriction();
                 return;
             }
 
             isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
             if (isOnGround){
+                //If player is in/on the ground
                 if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
                 groundVelocityY = go.getVelocityY();
+                velocityY = 0;
+                friction = go.getFriction();
             }
         }
     }
@@ -485,6 +492,7 @@ public class Player extends Entity{
             velocityY += groundVelocityY;
             groundVelocityX = 0;
             groundVelocityY = 0;
+            friction = airFriction;
         }
     }
 

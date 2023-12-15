@@ -10,6 +10,7 @@ public class Platform extends GameObject2D{
 
     public char utilType;
     final double animSpeed = 5;
+    double friction;
 
     public Platform(int w, int h, int x, int y, char uType, String animName, int framesCount, String id, String subLvlName) throws IOException {
         super(x,y,w,h,subLvlName);
@@ -17,6 +18,11 @@ public class Platform extends GameObject2D{
         utilType = uType;
         type = "Platform_" + utilType + animName;
         name = type+id;
+
+        switch (utilType){
+            case 'i' -> friction = 0.5;
+            default -> friction = 2.5;
+        }
 
         sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+animName+"/0.png")), hitbox);
         setAnimation(getAnimationList("Platform",animName, framesCount), animSpeed);
@@ -26,6 +32,11 @@ public class Platform extends GameObject2D{
         super(p);
         utilType = p.utilType;
         setAnimation(p.currentAnimation, animSpeed);
+    }
+
+    @Override
+    public double getFriction(){
+        return friction;
     }
 
     @Override

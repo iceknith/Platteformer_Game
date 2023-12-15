@@ -148,7 +148,7 @@ public class Button extends GameObject2D{
     }
 
     @Override
-    public Button getButton(){
+    public Button getThisButton(){
         return this;
     }
 }

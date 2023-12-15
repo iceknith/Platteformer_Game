@@ -6,7 +6,7 @@ base/neon_yellow;base;0
 base/neon_green;base;0
 base/rainbow;base;5
 -Swamp blocks
-swamp/icy;base;0
+swamp/icy;icy;0
 swamp/small_right;base;0
 swamp/small_middle;base;0
 swamp/small_left;base;0

@@ -32,7 +32,7 @@ public class SubLevel {
         for (GameObject2D go: goList) {
             go.setSubLevelName(name);
             if (go.type.contains("Button_")){
-                addButton(go.getButton());
+                addButton(go.getThisButton());
             }
             if (go.isGUI) permaDisplayedObjects.add(go);
             objectList.add(go);
@@ -52,7 +52,7 @@ public class SubLevel {
         objectList.add(go);
         go.setSubLevelName(name);
 
-        if (go.type.contains("Button_")) addButton(go.getButton());
+        if (go.type.contains("Button_")) addButton(go.getThisButton());
 
         if (go.isGUI) permaDisplayedObjects.add(go);
     }

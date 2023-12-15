@@ -189,6 +189,26 @@ public class Level {
                         Platform p = new Platform(w, h, posX, posY, uType, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(p);
                     }
+                    case 'm' -> { //Moving Platform
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+                        int posX1 = reader.read()*256 + reader.read() - 32767;
+                        int posY1 = reader.read()*256 + reader.read() - 32767;
+                        int posX2 = reader.read()*256 + reader.read() - 32767;
+                        int posY2 = reader.read()*256 + reader.read() - 32767;
+                        int speed = reader.read();
+
+                        int frameCount = reader.read();
+
+                        StringBuilder texture = new StringBuilder();
+                        int cha;
+                        while ((cha = reader.read()) != 10) {
+                            texture.append((char) cha);
+                        }
+
+                        MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, texture.toString(), frameCount,"#" + i, "");
+                        objectsBuffer.add(m);
+                    }
 
                     case 'O' -> { //ImageObject
                         int w = reader.read()*256 + reader.read();

@@ -8,6 +8,8 @@ import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameObject2D{
 
@@ -97,11 +99,15 @@ public class GameObject2D{
         int i = -1;
         ArrayList<BufferedImage> result = new ArrayList<>();
 
+        if (animationBuffer.get(objName+animName+framesCount) != null){
+            return animationBuffer.get(objName+animName+framesCount);
+        }
         while(i < framesCount){
             i++;
             File f = new File("assets/"+objName+"/"+animName+"/"+i+".png");
             result.add(ImageIO.read(f));
         }
+        animationBuffer.put(objName+animName+framesCount, result);
         return result;
     }
 
@@ -212,20 +218,28 @@ public class GameObject2D{
     }
 
     //type specific methods
-    public Button getButton() throws Exception {
+    public Button getThisButton() throws Exception {
         throw new Exception("Method used on a non-button GameObject");
     }
 
-    public Background getBackground() throws Exception {
+    public Background getThisBackground() throws Exception {
         throw new Exception("Method used on a non-Background GameObject");
     }
+    public MovingPlatform getThisMovingPlatform() throws Exception{
+        throw new Exception("Method used on a non-MovingPlatform GameObject");
+    }
 
-    public Player getThisPlayer(){
-        return null;
+    public Player getThisPlayer() throws Exception{
+        throw new Exception("Method used on a non-Player GameObject");
+    }
+
+    public double getFriction(){
+        return 0;
     }
 
     //static methods and variables
     static Player player;
+    static Map<String,ArrayList<BufferedImage>> animationBuffer = new HashMap<>();
 
     public static boolean hasNoPlayer(){
         return player == null;

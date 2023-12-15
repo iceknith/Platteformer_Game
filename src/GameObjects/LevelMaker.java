@@ -304,7 +304,7 @@ public class LevelMaker extends GameObject2D{
             objects.add(c);
         }
         else if (nextObjType.equals("Moving Platform")){
-            MovingPlatform m = new MovingPlatform(x, y, x+20, y+20, defaultObjWidth, defaultObjHeight,
+            MovingPlatform m = new MovingPlatform(x, y, x+200, y+200, defaultObjWidth, defaultObjHeight,
                     nextObjTexture, nextObjFrameCount, "#" + id_counter, "");
 
             GamePanel.camera.level.addToMainSubLevel(m);
@@ -476,6 +476,7 @@ public class LevelMaker extends GameObject2D{
                     switch (line.split(";")[1]){
                         case "killer" -> utilType = 'k';
                         case "win" -> utilType = 'w';
+                        case "icy" -> utilType = 'i';
                         default -> utilType = 'b';
                     }
 
@@ -891,7 +892,7 @@ public class LevelMaker extends GameObject2D{
                     objects.add(go);
 
                     if (go.name.contains("Background_")){
-                        background = go.getBackground();
+                        background = go.getThisBackground();
                     }
                 }
             }
@@ -918,6 +919,25 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write("\n".getBytes());
+                }
+                else if (go.getType().contains("MovingPlatform_")){
+                    MovingPlatform mpGO = go.getThisMovingPlatform();
+                    fw.write("m".getBytes());
+                    fw.write(mpGO.getWidth()/256);
+                    fw.write(mpGO.getWidth()%256);
+                    fw.write(mpGO.getHeight()/256);
+                    fw.write(mpGO.getHeight()%256);
+                    fw.write((mpGO.posX1 + 32767)/256);
+                    fw.write((mpGO.posX1 + 32767)%256);
+                    fw.write((mpGO.posY1 + 32767)/256);
+                    fw.write((mpGO.posY1 + 32767)%256);
+                    fw.write((mpGO.posX2 + 32767)/256);
+                    fw.write((mpGO.posX2 + 32767)%256);
+                    fw.write((mpGO.posY2 + 32767)/256);
+                    fw.write((mpGO.posY2 + 32767)%256);
+                    fw.write(mpGO.travelTime);
+                    fw.write(mpGO.currentAnimation.size() - 1);
+                    fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
                 else if (go.getType().contains("Platform_")){
                     fw.write("P".getBytes());
