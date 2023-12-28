@@ -198,6 +198,8 @@ public class Level {
                         int posY2 = reader.read()*256 + reader.read() - 32767;
                         int speed = reader.read();
 
+                        char uType = (char) reader.read();
+
                         int frameCount = reader.read();
 
                         StringBuilder texture = new StringBuilder();
@@ -206,7 +208,7 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, texture.toString(), frameCount,"#" + i, "");
+                        MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, uType, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(m);
                     }
 
@@ -231,8 +233,9 @@ public class Level {
                     case 'C' ->{ //Checkpoint
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
+                        char uType = (char) reader.read();
 
-                        CheckPoint c = new CheckPoint(posX, posY, "#" + i, "");
+                        CheckPoint c = new CheckPoint(posX, posY, uType, "#" + i, "");
                         objectsBuffer.add(c);
                     }
                     case 'B' ->{ //Button

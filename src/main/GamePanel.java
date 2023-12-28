@@ -185,16 +185,17 @@ public class GamePanel extends JPanel implements Runnable {
                 Player p = GameObject2D.getPlayer();
                 g2D.drawString("X : " + p.getX(),15,60);
                 g2D.drawString("Y : " + p.getY(),15,75);
-                g2D.drawString("Velocity X : " + (p.getVelocityX() + p.groundVelocityX),15,100);
-                g2D.drawString("Velocity Y : " + (p.getVelocityY() + p.groundVelocityY),15,115);
-                g2D.drawString("Is On Ground : " + p.getOnGround(),15,130);
+                g2D.drawString("Velocity X : " + (p.getVelocityX() + p.getGroundVelocityX()),15,100);
+                g2D.drawString("Velocity Y : " + (p.getVelocityY() + p.getGroundVelocityY()),15,115);
+                g2D.drawString("Ground Friction : " + p.getFriction(),15,130);
+                g2D.drawString("Is On Ground : " + p.getOnGround(),15,145);
             }
 
             //camera info
-            g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,155);
-            g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),15,170);
-            g2D.drawString("Camera soft border X : " + camera.getSoftBorderX(),15,185);
-            g2D.drawString("CCamera soft border Y : " + camera.getSoftBorderY(),15,200);
+            g2D.drawString("Camera Velocity X : " + camera.getVelocityX(),15,170);
+            g2D.drawString("Camera Velocity Y : " + camera.getVelocityY(),15,185);
+            g2D.drawString("Camera soft border X : " + camera.getSoftBorderX(),15,200);
+            g2D.drawString("CCamera soft border Y : " + camera.getSoftBorderY(),15,215);
 
 
         }

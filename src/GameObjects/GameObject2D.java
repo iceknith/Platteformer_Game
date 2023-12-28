@@ -13,6 +13,29 @@ import java.util.Map;
 
 public class GameObject2D{
 
+    String name;
+    String type;
+
+    String subLevelName;
+
+    Rectangle hitbox;
+
+    public boolean hasPhysicalCollisions = true;
+    public boolean isGUI = false;
+
+    Sprite sprite;
+
+    ArrayList<BufferedImage> currentAnimation;
+    ArrayList<BufferedImage> nextAnimation;
+
+    int animationIndex;
+    double animationSpeed;
+    double nextAnimationSpeed;
+    double animateTime = 0;
+    int animationPriority;
+
+    public char utilType;
+
     GameObject2D(int x, int y, int w, int h, String subLvl){
         hitbox = new Rectangle(x,y,w,h);
         subLevelName = subLvl;
@@ -39,28 +62,9 @@ public class GameObject2D{
         nextAnimationSpeed = go.nextAnimationSpeed;
         animateTime = go.animateTime;
         animationPriority = go.animationPriority;
+
+        utilType = go.utilType;
     }
-
-    String name;
-    String type;
-
-    String subLevelName;
-
-    Rectangle hitbox;
-
-    public boolean hasPhysicalCollisions = true;
-    public boolean isGUI = false;
-
-    Sprite sprite;
-
-    ArrayList<BufferedImage> currentAnimation;
-    ArrayList<BufferedImage> nextAnimation;
-
-    int animationIndex;
-    double animationSpeed;
-    double nextAnimationSpeed;
-    double animateTime = 0;
-    int animationPriority;
 
     public int getX() {
         return hitbox.x;
@@ -99,15 +103,10 @@ public class GameObject2D{
         int i = -1;
         ArrayList<BufferedImage> result = new ArrayList<>();
 
-        if (animationBuffer.get(objName+animName+framesCount) != null){
-            return animationBuffer.get(objName+animName+framesCount);
-        }
         while(i < framesCount){
             i++;
-            File f = new File("assets/"+objName+"/"+animName+"/"+i+".png");
-            result.add(ImageIO.read(f));
+            result.add(readImageBuffered("assets/"+objName+"/"+animName+"/"+i+".png"));
         }
-        animationBuffer.put(objName+animName+framesCount, result);
         return result;
     }
 
@@ -239,7 +238,7 @@ public class GameObject2D{
 
     //static methods and variables
     static Player player;
-    static Map<String,ArrayList<BufferedImage>> animationBuffer = new HashMap<>();
+    static Map<String,BufferedImage> imageBuffer = new HashMap<>();
 
     public static boolean hasNoPlayer(){
         return player == null;
@@ -251,5 +250,15 @@ public class GameObject2D{
 
     public static void setPlayer(Player p){
         player = p;
+    }
+
+    public static BufferedImage readImageBuffered(String path) throws IOException {
+
+        if (imageBuffer.containsKey(path)){
+            return imageBuffer.get(path);
+        }
+        BufferedImage image = ImageIO.read(new File(path));
+        imageBuffer.put(path, image);
+        return image;
     }
 }

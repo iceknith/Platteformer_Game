@@ -20,7 +20,6 @@ public class Sprite {
         direction = 1;
 
         setImage(img, hitbox);
-
     }
 
     public Sprite(BufferedImage img, double resizeFact){
@@ -30,7 +29,6 @@ public class Sprite {
         direction = 1;
 
         setImage(img);
-
     }
 
     public Sprite(Sprite s){

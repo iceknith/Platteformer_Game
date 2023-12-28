@@ -125,7 +125,7 @@ public class Camera extends GameGrid {
             }
 
             if (p.getX() - screenX < hardBorder.x){ //hard border left
-                velocityX = Math.max(velocityX, - p.getVelocityX());
+                velocityX = Math.max(velocityX, - p.getVelocityX() - p.getGroundVelocityX());
             }
         }
         else if (p.getX() + p.getWidth() - screenX > softBorder.x + softBorder.width) { //player is to the right of the soft border
@@ -139,7 +139,7 @@ public class Camera extends GameGrid {
             }
 
             if (p.getX() + p.getWidth() - screenX > hardBorder.x + hardBorder.width){ //hard borders right
-                velocityX = Math.min(velocityX, - p.getVelocityX());
+                velocityX = Math.min(velocityX, - p.getVelocityX() - p.getGroundVelocityX());
             }
         }
         else {
@@ -158,7 +158,7 @@ public class Camera extends GameGrid {
             }
 
             if (p.getY() - screenY < hardBorder.y){ //hard border up
-                velocityY = Math.max(velocityY, p.getVelocityY());
+                velocityY = Math.max(velocityY, p.getVelocityY() + p.getGroundVelocityY());
             }
         }
         else if(p.getY() + p.getHeight() - screenY > softBorder.y + softBorder.height){ //player is under the soft border
@@ -171,7 +171,7 @@ public class Camera extends GameGrid {
             }
 
             if (p.getY() + p.getHeight() - screenY > hardBorder.y + hardBorder.height){ //hard border down
-                velocityY = Math.min(velocityY, p.getVelocityY());
+                velocityY = Math.min(velocityY, p.getVelocityY() + p.getGroundVelocityY());
             }
         }
         else if (p.isOnGround && Math.abs(velocityY - (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY)) >= 1) {
@@ -191,25 +191,25 @@ public class Camera extends GameGrid {
         boolean doMove = false;
 
         //movement X
-        if (MouseHandler.getX() <= screenWidth /8){
-            velocityX = Math.max((double) screenWidth /8 - MouseHandler.getX(), -50);
+        if (MouseHandler.getX() <= screenWidth /10){
+            velocityX = Math.max((double) screenWidth /10 - MouseHandler.getX(), -50);
             doMove = true;
         }
-        else if (MouseHandler.getX() >= screenWidth *7/8){
-            velocityX = Math.min((double) screenWidth *7/8 - MouseHandler.getX(), 50);
+        else if (MouseHandler.getX() >= screenWidth *9/10){
+            velocityX = Math.min((double) screenWidth *9/10 - MouseHandler.getX(), 50);
             doMove = true;
 
         }
         else velocityX = 0;
 
         //movement Y
-        if (MouseHandler.getY() <= screenHeight /8){
-            velocityY = Math.max((double) screenHeight /8 - MouseHandler.getY(), -50);
+        if (MouseHandler.getY() <= screenHeight /10){
+            velocityY = Math.max((double) screenHeight /10 - MouseHandler.getY(), -50);
             doMove = true;
 
         }
-        else if (MouseHandler.getY() >= screenHeight *7/8){
-            velocityY = Math.min((double) screenHeight *7/8 - MouseHandler.getY(), 50);
+        else if (MouseHandler.getY() >= screenHeight *9/10){
+            velocityY = Math.min((double) screenHeight *9/10 - MouseHandler.getY(), 50);
             doMove = true;
 
         }

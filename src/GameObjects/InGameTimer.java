@@ -2,10 +2,8 @@ package GameObjects;
 
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
 
 public class InGameTimer extends GameObject2D{
@@ -19,7 +17,7 @@ public class InGameTimer extends GameObject2D{
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/placeholder.png"), hitbox);
 
         GamePanel.inGameTimer = 0;
     }

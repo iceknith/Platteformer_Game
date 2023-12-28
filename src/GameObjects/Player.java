@@ -3,15 +3,11 @@ package GameObjects;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
-import java.security.Key;
 import java.util.ArrayList;
 
 import handlers.KeyHandler;
 import main.GamePanel;
-
-import javax.imageio.ImageIO;
 
 public class Player extends Entity{
 
@@ -35,8 +31,8 @@ public class Player extends Entity{
     double jumpingTime;
     double gravity;
 
-    public double groundVelocityX;
-    public double groundVelocityY;
+    public GameObject2D ground;
+    public boolean doGroundVelocityXCount;
 
     int jumps;
     int maxJumps;
@@ -118,7 +114,7 @@ public class Player extends Entity{
 
         deathYLine = 2000;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
+        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 2.5);
         sprite.offsetY -= 1; //make it so that the player is visually in the ground
 
         idle = getAnimationList("Player", "idle", 3);
@@ -172,7 +168,7 @@ public class Player extends Entity{
 
         deathYLine = p.deathYLine;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Player/idle/0.png")), 2.5);
+        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 2.5);
 
         idle = p.idle;
         run = p.run;
@@ -355,6 +351,20 @@ public class Player extends Entity{
 
     public boolean getOnGround() {return isOnGround;}
 
+    public double getGroundVelocityX() {
+        if (ground == null){
+            return 0;
+        }
+        return ground.getVelocityX();
+    }
+
+    public double getGroundVelocityY() {
+        if (ground == null){
+            return 0;
+        }
+        return ground.getVelocityY();
+    }
+
     void walk(int direction,
               double earlySpeed, double maxSpeed,
               double maxSpeedThreshold,
@@ -454,8 +464,8 @@ public class Player extends Entity{
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
                     getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
                 //If player is just on top of the ground
-                if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
-                groundVelocityY = go.getVelocityY();
+                doGroundVelocityXCount = (Math.abs(velocityX) < earlySpeed * 1.1);
+                ground = go;
                 velocityY = 0;
                 friction = go.getFriction();
                 return;
@@ -464,8 +474,8 @@ public class Player extends Entity{
             isOnGround = getY() + getHeight() >= go.getY() - 2 && getPreviousY() + getHeight() <= go.getPreviousY();
             if (isOnGround){
                 //If player is in/on the ground
-                if (Math.abs(velocityX + groundVelocityX) < earlySpeed) groundVelocityX = go.getVelocityX();
-                groundVelocityY = go.getVelocityY();
+                doGroundVelocityXCount = (Math.abs(velocityX) < earlySpeed * 1.1);
+                ground = go;
                 velocityY = 0;
                 friction = go.getFriction();
             }
@@ -477,8 +487,8 @@ public class Player extends Entity{
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();
-        setX((int) (getX() + Math.round((velocityX + groundVelocityX) * GamePanel.deltaTime)));
-        setY((int) (getY() - Math.round((velocityY + groundVelocityY) * GamePanel.deltaTime)));
+        setX((int) (getX() + Math.round((velocityX + getGroundVelocityX()) * GamePanel.deltaTime)));
+        setY((int) (getY() - Math.round((velocityY + getGroundVelocityY()) * GamePanel.deltaTime)));
         GamePanel.camera.addGOInGrid(this, false);
 
         wasOnGround = isOnGround;
@@ -488,10 +498,9 @@ public class Player extends Entity{
             collision(go);
         }
         if (!isOnGround){
-            velocityX += groundVelocityX;
-            velocityY += groundVelocityY;
-            groundVelocityX = 0;
-            groundVelocityY = 0;
+            velocityX += getGroundVelocityX();
+            velocityY += getGroundVelocityY();
+            ground = null;
             friction = airFriction;
         }
     }

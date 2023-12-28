@@ -3,10 +3,8 @@ package GameObjects;
 import handlers.KeyHandler;
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
 
 public class Button extends GameObject2D{
@@ -38,7 +36,7 @@ public class Button extends GameObject2D{
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Button/"+textureName+"/unfocused/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Button/"+textureName+"/unfocused/0.png"), hitbox);
 
         buttonFontName = "Eight Bit Dragon";
         buttonFontSize = 100;
@@ -93,7 +91,7 @@ public class Button extends GameObject2D{
     }
 
     void unfocusedHandler() throws  IOException{
-        sprite = new Sprite(ImageIO.read(new File("assets/Button/"+type.substring(7)+"/unfocused/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Button/"+type.substring(7)+"/unfocused/0.png"), hitbox);
         focused = false;
         triggered = false;
 
@@ -101,7 +99,7 @@ public class Button extends GameObject2D{
     }
 
     void focusHandler() throws IOException {
-        sprite = new Sprite(ImageIO.read(new File("assets/Button/"+type.substring(7)+"/focused/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Button/"+type.substring(7)+"/focused/0.png"), hitbox);
         focused = true;
 
         calibrateMsgDiff = 30;
@@ -109,7 +107,7 @@ public class Button extends GameObject2D{
     }
 
     void triggerHandler() throws IOException, FontFormatException {
-        sprite = new Sprite(ImageIO.read(new File("assets/Button/"+type.substring(7)+"/clicked/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Button/"+type.substring(7)+"/clicked/0.png"), hitbox);
         triggered = true;
 
         calibrateMsgDiff = 50;

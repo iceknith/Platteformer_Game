@@ -1,7 +1,5 @@
 package GameObjects;
 
-import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
 
 public class ImageObject extends GameObject2D{
@@ -15,7 +13,7 @@ public class ImageObject extends GameObject2D{
         name = type+id;
         hasPhysicalCollisions = false;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/ImageObject/"+animName+"/0.png")), 3);
+        sprite = new Sprite(readImageBuffered("assets/ImageObject/"+animName+"/0.png"), 3);
         hitbox.setSize(sprite.width, sprite.height);
 
         setAnimation(getAnimationList("ImageObject",animName, framesCount), animSpeed);
@@ -28,7 +26,7 @@ public class ImageObject extends GameObject2D{
         name = type+id;
         hasPhysicalCollisions = false;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/ImageObject/"+animName+"/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/ImageObject/"+animName+"/0.png"), hitbox);
 
         setAnimation(getAnimationList("ImageObject",animName, framesCount), animSpeed);
     }

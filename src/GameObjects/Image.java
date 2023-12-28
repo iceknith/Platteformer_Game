@@ -1,8 +1,5 @@
 package GameObjects;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 public class Image extends GameObject2D{
@@ -16,6 +13,6 @@ public class Image extends GameObject2D{
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Image/"+textureName+"/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Image/"+textureName+"/0.png"), hitbox);
     }
 }

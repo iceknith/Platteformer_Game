@@ -3,7 +3,6 @@ package GameObjects;
 import handlers.KeyHandler;
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.*;
@@ -23,7 +22,7 @@ public class ScoreRegister extends GameObject2D{
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/placeholder.png"), hitbox);
 
         lineSize = 7;
         keyWidth = 100;

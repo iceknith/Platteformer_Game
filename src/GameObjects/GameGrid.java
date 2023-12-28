@@ -1,8 +1,6 @@
 package GameObjects;
 
 
-import main.GamePanel;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -329,6 +327,23 @@ public class GameGrid {
         if (backgroundBuffer != null){
             visible.insertElementAt(backgroundBuffer, 0);
         }
+    }
+
+    public boolean isInVisibleRange(GameObject2D go){
+        int startIndexX = Math.max((screenX - x)/cellWidth - 1, 0);
+        int endIndexX = Math.min((screenX + screenWidth - x)/cellWidth + 1, grid.size());
+        int startIndexY = Math.max((screenY - y)/cellHeight - 1, 0);
+        int endIndexY = Math.min((screenY + screenHeight - y)/cellHeight + 1, grid.get(0).size());
+
+        ArrayList<int[]> positions = findRectPosInGrid(go);
+
+        for (int[] pos : positions){
+            if (startIndexX < pos[0] && pos[0] < endIndexX &&
+                startIndexY < pos[1] && pos[1] < endIndexY)
+                return true;
+        }
+
+        return false;
     }
 
     public void setNextLevel(String lvl){

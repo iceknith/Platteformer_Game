@@ -2,10 +2,8 @@ package GameObjects;
 
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
 
 public class Background extends GameObject2D{
@@ -27,7 +25,7 @@ public class Background extends GameObject2D{
 
         type = "Background_" + textureName;
         name = type+id;
-        sprite = new Sprite(ImageIO.read(new File("assets/Background/"+textureName+"/0.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/Background/"+textureName+"/0.png"), hitbox);
 
         zoom = zoomAmount;
         scrollingSlowness = scrollSlowness;

@@ -4,7 +4,6 @@ import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
@@ -43,6 +42,12 @@ public class LevelMaker extends GameObject2D{
     HashMap<String, ArrayList<Image>> imageImages = new HashMap<>();
     HashMap<String, ArrayList<Integer>> imageFrameCount = new HashMap<>();
 
+    ArrayList<String> movingPlatformTextures = new ArrayList<>();
+    ArrayList<String> movingPlatformTextureNames = new ArrayList<>();
+    ArrayList<Image> movingPlatformImages = new ArrayList<>();
+    ArrayList<Character> movingPlatformUtilTypes = new ArrayList<>();
+    ArrayList<Integer> movingPlatformFrameCount = new ArrayList<>();
+
     ArrayList<String> backgroundTextureNames = new ArrayList<>();
     ArrayList<int[]> backgroundDimensions = new ArrayList<>();
     Background background = null;
@@ -54,7 +59,7 @@ public class LevelMaker extends GameObject2D{
 
     String nextObjType = "";
     String nextObjTexture = "";
-    char nextObjUtilType = 'b';
+    char nextObjUtilType;
     int nextObjFrameCount = 0;
     
 
@@ -72,7 +77,7 @@ public class LevelMaker extends GameObject2D{
         hasPhysicalCollisions = false;
         isGUI = true;
 
-        sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/placeholder.png"), hitbox);
 
         int buttonHeight = 75;
         rightClickMenu = new DropDownMenu(0,0, 150, 3*buttonHeight, "# " + id_counter, "",
@@ -150,7 +155,7 @@ public class LevelMaker extends GameObject2D{
 
             int mouseX = MouseHandler.getX() + GamePanel.camera.screenX;
             int mouseY = MouseHandler.getY()  + GamePanel.camera.screenY;
-            if (isInGridMode){
+            if (isInGridMode && !nextObjType.equals("Delete")){
                 if (mouseX >= 0) mouseX -= mouseX%gridCellWidth;
                 else mouseX -= gridCellWidth + mouseX%gridCellWidth;
 
@@ -159,9 +164,26 @@ public class LevelMaker extends GameObject2D{
             }
 
             //Check if the GO to be placed doesn't overlap with an existing GO
+
+            int w, h;
+
+            if (nextObjType.equals("Checkpoint")){
+                w = 20;
+                h = 75;
+                mouseY -= Math.max(0, h-gridCellHeight);
+            }
+            else if (nextObjType.equals("Delete")){
+                w = 3;
+                h = 3;
+            }
+            else{
+                w = defaultObjWidth;
+                h = defaultObjHeight;
+            }
+
             Entity potentialGOSpace = new Entity(
                     mouseX + 1, mouseY + 1,
-                    defaultObjWidth - 2, defaultObjHeight - 2,
+                    w - 2, h - 2,
                     "None");
             potentialGOSpace.type = "Placeholder";
             potentialGOSpace.name = "Placeholder";
@@ -172,6 +194,15 @@ public class LevelMaker extends GameObject2D{
 
                 for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
                     if (potentialGOSpace.intersects(go)){
+
+                        // Remove GO if on delete list
+                        if (nextObjType.equals("Delete") && !go.type.equals("Player")) {
+                            objects.remove(go);
+                            GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
+                            GamePanel.camera.deleteGOInGrid(go);
+                            GamePanel.camera.updateGrid();
+                        }
+
                         return;
                     }
                 }
@@ -296,15 +327,16 @@ public class LevelMaker extends GameObject2D{
         else if (nextObjType.equals("Checkpoint")) {
             if (isInGridMode) {
                 x += gridCellWidth/2 - 28/2;
-                y -= 85%gridCellHeight;
+                y -= (85%gridCellHeight) - Math.max(0, 75-gridCellHeight);
             }
 
-            CheckPoint c = new CheckPoint(x, y, "#"+id_counter, "");
+            CheckPoint c = new CheckPoint(x, y, 'j', "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
         }
         else if (nextObjType.equals("Moving Platform")){
-            MovingPlatform m = new MovingPlatform(x, y, x+200, y+200, defaultObjWidth, defaultObjHeight,
+            MovingPlatform m = new MovingPlatform(
+                    x, y, x+200, y+200, defaultObjWidth, defaultObjHeight, nextObjUtilType,
                     nextObjTexture, nextObjFrameCount, "#" + id_counter, "");
 
             GamePanel.camera.level.addToMainSubLevel(m);
@@ -401,6 +433,66 @@ public class LevelMaker extends GameObject2D{
             return unused;
         };
 
+        Function<Void, Void> movingPlatformSettings =
+                unused -> {
+                    txtInputMenu.setAsInt(true);
+
+                    try {
+                        MovingPlatform mp = go.getThisMovingPlatform();
+
+                        txtInputMenu.setCategoryNames(Arrays.asList("X Movement: ", "Y Movement: ", "Travel time (s): "));
+                        txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(mp.posX2 - mp.getX()), String.valueOf(mp.posY2 - mp.getY()), String.valueOf(mp.travelTime)));
+                        txtInputMenu.setCategorySetValues(Arrays.asList(
+                                s -> {
+                                    mp.posX2 = Integer.parseInt(s) + mp.getX();
+                                    return null;
+                                    },
+                                s -> {
+                                    mp.posY2 = Integer.parseInt(s) + mp.getY();
+                                    return null;
+                                },
+                                s -> {
+                                    mp.travelTime = Integer.parseInt(s);
+                                    return null;
+                                }
+                                ));
+
+                        txtInputMenu.isOpen = true;
+                        rightClickMenu.activate();
+
+                        canPlaceObj = false;
+                        MouseHandler.resetClicks();
+
+                        return unused;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+
+        Function<Void, Void> changeCheckpointUtilType =
+                unused -> {
+                    txtInputMenu.setAsInt(false);
+
+                    txtInputMenu.setCategoryNames(List.of("Util Type"));
+                    txtInputMenu.setDefaultValues(List.of(String.valueOf(go.utilType)));
+                    txtInputMenu.setCategorySetValues(Arrays.asList(
+                            s -> {
+                                switch (s){
+                                    case "d", "default", "base" -> go.utilType = 'd';
+                                    case "j", "jump", "add jump" -> go.utilType = 'j';
+                                }
+                                return null;
+                            }));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+
+                    canPlaceObj = false;
+                    MouseHandler.resetClicks();
+
+                    return unused;
+                };
+
         rightClickMenu.setX(pointX);
         rightClickMenu.setY(pointY);
         rightClickMenu.setDisplayedWidth(150);
@@ -414,11 +506,19 @@ public class LevelMaker extends GameObject2D{
         }
 
         else if (go.type.contains("Checkpoint")){
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, move));
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move","Change uType"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeCheckpointUtilType));
 
-            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*2 - 10);
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
         }
+
+        else if (go.type.contains("MovingPlatform")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Movement", "Resize", "Move"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, movingPlatformSettings, resize, move));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
+        }
+
         else{
             rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move"));
             rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move));
@@ -477,6 +577,7 @@ public class LevelMaker extends GameObject2D{
                         case "killer" -> utilType = 'k';
                         case "win" -> utilType = 'w';
                         case "icy" -> utilType = 'i';
+                        case "small killer" -> utilType = 's';
                         default -> utilType = 'b';
                     }
 
@@ -487,7 +588,7 @@ public class LevelMaker extends GameObject2D{
                     String[] textureName = line.split("/");
                     platformTextures.get(lastButtonMsg).add(line);
                     platformTextureNames.get(lastButtonMsg).add(textureName[textureName.length - 1]);
-                    platformImages.get(lastButtonMsg).add(ImageIO.read(new File("assets/Platform/" + line + "/0.png")));
+                    platformImages.get(lastButtonMsg).add(readImageBuffered("assets/Platform/" + line + "/0.png"));
                     platformUtilTypes.get(lastButtonMsg).add(utilType);
                     platformFrameCount.get(lastButtonMsg).add(frameCnt);
 
@@ -535,13 +636,47 @@ public class LevelMaker extends GameObject2D{
                     String[] textureName = line.split("/");
                     imageTextures.get(lastButtonMsg).add(line);
                     imageTextureNames.get(lastButtonMsg).add(textureName[textureName.length - 1]);
-                    imageImages.get(lastButtonMsg).add(ImageIO.read(new File("assets/ImageObject/" + line + "/0.png")));
+                    imageImages.get(lastButtonMsg).add(readImageBuffered("assets/ImageObject/" + line + "/0.png"));
                     imageFrameCount.get(lastButtonMsg).add(frameCnt);
 
                 }
                 line = reader.readLine();
             }
 
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //read moving platforms button info
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("assets/textureRegistery/MovingPlatform.textureReg"));
+            String line = reader.readLine();
+
+            while (line != null) {
+
+                System.out.println(line);
+                int frameCnt = Integer.parseInt(line.split(";")[2]);
+                char utilType;
+
+                switch (line.split(";")[1]){
+                    case "killer" -> utilType = 'k';
+                    case "win" -> utilType = 'w';
+                    case "icy" -> utilType = 'i';
+                    case "small killer" -> utilType = 's';
+                    default -> utilType = 'b';
+                }
+
+                line = line.split(";")[0];
+                String[] textureName = line.split("/");
+                movingPlatformTextures.add(line);
+                movingPlatformTextureNames.add(textureName[textureName.length - 1]);
+                movingPlatformImages.add(readImageBuffered("assets/MovingPlatform/" + line + "/0.png"));
+                movingPlatformUtilTypes.add(utilType);
+                movingPlatformFrameCount.add(frameCnt);
+
+                line = reader.readLine();
+            }
             reader.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -565,11 +700,12 @@ public class LevelMaker extends GameObject2D{
         }
 
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform","Checkpoint", "Background", "To Player", "Grid", "Load", "Save")){
+        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Delete", "Background", "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Checkpoint", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform","Checkpoint", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
             buttons.add(b);
@@ -604,13 +740,45 @@ public class LevelMaker extends GameObject2D{
 
                     switch (b.buttonMessage) {
 
-                        case "Checkpoint" -> nextObjType = "Checkpoint";
+                        case "Checkpoint" -> {
+                            nextObjType = "Checkpoint";
+                            nextObjUtilType = 'b';
+                        }
 
                         case "Moving Platform" -> {
-                            nextObjType = "Moving Platform";
-                            nextObjTexture = "base/rainbow";
-                            nextObjFrameCount = 5;
+                            rightClickMenu.setX(MouseHandler.getX());
+                            rightClickMenu.setY(MouseHandler.getY());
+                            rightClickMenu.setButtonText(movingPlatformTextureNames);
+                            rightClickMenu.setButtonImages(movingPlatformImages);
+
+                            //assigning function to every textures
+                            ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
+
+                            for (int i = 0; i < movingPlatformTextures.size(); i++){
+                                int finalI = i;
+                                buttonExec.add(unused -> {
+                                    nextObjType = "Moving Platform";
+                                    nextObjTexture = movingPlatformTextures.get(finalI);
+                                    nextObjUtilType = movingPlatformUtilTypes.get(finalI);
+                                    nextObjFrameCount = movingPlatformFrameCount.get(finalI);
+                                    rightClickMenu.activate();
+                                    MouseHandler.resetClicks();
+                                    GamePanel.camera.noUpdate = false;
+                                    return unused;
+                                });
+                            }
+
+                            rightClickMenu.setButtonExec(buttonExec);
+                            rightClickMenu.setDisplayedWidth(500);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * movingPlatformTextures.size() - 10);
+                            if (!rightClickMenu.isOpen) {
+                                rightClickMenu.activate();
+                            }
+                            GamePanel.camera.update();
+                            GamePanel.camera.noUpdate = true;
                         }
+
+                        case "Delete" -> nextObjType = "Delete";
 
                         case "Background" -> {
                             rightClickMenu.setX(MouseHandler.getX());
@@ -923,10 +1091,10 @@ public class LevelMaker extends GameObject2D{
                 else if (go.getType().contains("MovingPlatform_")){
                     MovingPlatform mpGO = go.getThisMovingPlatform();
                     fw.write("m".getBytes());
-                    fw.write(mpGO.getWidth()/256);
-                    fw.write(mpGO.getWidth()%256);
-                    fw.write(mpGO.getHeight()/256);
-                    fw.write(mpGO.getHeight()%256);
+                    fw.write(mpGO.sprite.getWidth()/256);
+                    fw.write(mpGO.sprite.getWidth()%256);
+                    fw.write(mpGO.sprite.getHeight()/256);
+                    fw.write(mpGO.sprite.getHeight()%256);
                     fw.write((mpGO.posX1 + 32767)/256);
                     fw.write((mpGO.posX1 + 32767)%256);
                     fw.write((mpGO.posY1 + 32767)/256);
@@ -936,20 +1104,21 @@ public class LevelMaker extends GameObject2D{
                     fw.write((mpGO.posY2 + 32767)/256);
                     fw.write((mpGO.posY2 + 32767)%256);
                     fw.write(mpGO.travelTime);
+                    fw.write(mpGO.utilType);
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
                 else if (go.getType().contains("Platform_")){
                     fw.write("P".getBytes());
-                    fw.write(go.getWidth()/256);
-                    fw.write(go.getWidth()%256);
-                    fw.write(go.getHeight()/256);
-                    fw.write(go.getHeight()%256);
-                    fw.write((go.getX() + 32767)/256);
-                    fw.write((go.getX() + 32767)%256);
-                    fw.write((go.getY() + 32767)/256);
-                    fw.write((go.getY() + 32767)%256);
-                    fw.write(go.getType().charAt(9));
+                    fw.write(go.sprite.getWidth()/256);
+                    fw.write(go.sprite.getWidth()%256);
+                    fw.write(go.sprite.getHeight()/256);
+                    fw.write(go.sprite.getHeight()%256);
+                    fw.write((go.getX() - (go.sprite.getWidth() - go.getWidth())/2 + 32767)/256);
+                    fw.write((go.getX() - (go.sprite.getWidth() - go.getWidth())/2 + 32767)%256);
+                    fw.write((go.getY() - (go.sprite.getHeight() - go.getHeight())/2 + 32767)/256);
+                    fw.write((go.getY() - (go.sprite.getHeight() - go.getHeight())/2 + 32767)%256);
+                    fw.write(go.utilType);
                     fw.write(go.currentAnimation.size() - 1);
                     fw.write((go.getType().substring(10) + "\n").getBytes());
                 }
@@ -972,6 +1141,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
+                    fw.write(go.utilType);
                     fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("Background_")){

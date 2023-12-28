@@ -1,27 +1,27 @@
 package GameObjects;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
+import main.GamePanel;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 
 public class MovingPlatform extends Entity{
 
     int posX1, posY1, posX2, posY2;
-    final double animSpeed = 5;
+    double animSpeed;
     int travelTime;
     double friction;
+    double time = 0;
 
-    double initTime;
-
-    MovingPlatform(int x, int y, int x2, int y2, int w, int h, String animName, int framesCount, String id, String subLvl) throws IOException {
-        this(x, y, x2, y2, w, h, 20, animName, framesCount, id, subLvl);
+    MovingPlatform(int x, int y, int x2, int y2, int w, int h, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
+        this(x, y, x2, y2, w, h, 5, uType, animName, framesCount, id, subLvl);
     }
 
-    MovingPlatform(int x, int y, int x2, int y2, int w, int h, int s, String animName, int framesCount, String id, String subLvl) throws IOException {
+    MovingPlatform(int x, int y, int x2, int y2, int w, int h, int s, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
         super(x, y, w, h, subLvl);
+
+        utilType = uType;
 
         posX1 = x;
         posY1 = y;
@@ -29,21 +29,44 @@ public class MovingPlatform extends Entity{
         posY2 = y2;
 
         travelTime = s;
-        friction = 2.5;
-        initTime = (double) System.nanoTime() / 1000000000;
 
         type = "MovingPlatform_" + animName;
         name = type+id;
 
+        switch (utilType){
+            case 'i' -> friction = 0.5;
+            default -> friction = 2.5;
+        }
 
-        sprite = new Sprite(ImageIO.read(new File("assets/MovingPlatform/"+animName+"/0.png")), hitbox);
-        setAnimation(getAnimationList("MovingPlatform",animName, framesCount), animSpeed);
+        switch (animName){
+            case "killers/saw" -> animSpeed = 1;
+            default ->  animSpeed = 5;
+        }
+
+        BufferedImage img = readImageBuffered("assets/MovingPlatform/"+animName+"/0.png");
+        sprite = new Sprite(img, hitbox);
+
+        if (utilType == 's'){
+            // Set the sprite to a fixed size
+            Sprite sprite2 = new Sprite(img, 1);
+            sprite = new Sprite(img, (double) sprite.getWidth() /sprite2.getWidth());
+
+            // Change the size of the hitbox (half of the original)
+            hitbox.setBounds(
+                    (int) (getX()+getWidth()*0.25),
+                    (int) (getY()+getHeight()*0.25),
+                    (int) (getWidth()*0.5),
+                    (int) (getHeight()*0.5));
+        }
+        setAnimation(getAnimationList("MovingPlatform", animName, framesCount), animSpeed);
     }
 
     MovingPlatform(MovingPlatform m){
         super(m);
+        friction = m.friction;
 
         travelTime = m.travelTime;
+        time = m.time;
 
         posX1 = m.posX1;
         posY1 = m.posY1;
@@ -57,8 +80,9 @@ public class MovingPlatform extends Entity{
         super.update();
         animate();
 
-        //velocityX = speed;
-        double time = ((double) System.nanoTime() / 1000000000) - initTime;
+        time += GamePanel.deltaTime/10;
+
+        //Find new pos
         double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/travelTime);
         double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/travelTime);
 
@@ -77,6 +101,14 @@ public class MovingPlatform extends Entity{
     @Override
     public GameObject2D copy() throws IOException {
         return new MovingPlatform(this);
+    }
+
+    @Override
+    public void collision(Entity e){
+        switch (utilType){
+            case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
+            case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+        }
     }
 
     @Override

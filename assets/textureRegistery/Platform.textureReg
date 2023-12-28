@@ -28,6 +28,8 @@ industrial/vertical_up;base;0
 industrial/horizontal_right;base;0
 industrial/horizontal_middle;base;0
 industrial/horizontal_left;base;0
+industrial/saw;small killer;3
+industrial/spike_ball;small killer;0
 industrial/simple;base;0
 -Industrial tiles
 industrial/down_right;base;0

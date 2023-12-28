@@ -2,11 +2,9 @@ package GameObjects;
 
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class HighScoresDisplay extends GameObject2D {
         isGUI = true;
 
 
-        sprite = new Sprite(ImageIO.read(new File("assets/placeholder.png")), hitbox);
+        sprite = new Sprite(readImageBuffered("assets/placeholder.png"), hitbox);
 
         x = posX;
         y = posY;

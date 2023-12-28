@@ -1,13 +1,12 @@
 package GameObjects;
 
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class CheckPoint extends GameObject2D{
+
 
     ArrayList<BufferedImage> no_flag;
     double no_flagAnimationSpeed = 1;
@@ -20,20 +19,27 @@ public class CheckPoint extends GameObject2D{
 
     boolean isActivated;
 
-    public CheckPoint(int x, int y, String id, String subLvlName) throws IOException {
+    public CheckPoint(int x, int y, char uType, String id, String subLvlName) throws IOException {
         super(x,y,20,75, subLvlName);
 
-        type = "Checkpoint";
+        utilType = uType;
+        type = "Checkpoint " + utilType;
         name = type + id;
 
         hasPhysicalCollisions = false;
         isActivated = false;
 
-        no_flag = getAnimationList("Checkpoint", "no_flag", 0);
-        flag_appears = getAnimationList("Checkpoint", "flag_appears", 7);
-        flag = getAnimationList("Checkpoint", "flag", 8);
+        String textureName;
+        switch (utilType){
+            case 'j' -> textureName = "addJump/";
+            default -> textureName = "default/";
+        }
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Checkpoint/no_flag/0.png")), 2.5);
+        no_flag = getAnimationList("Checkpoint", textureName+"no_flag", 0);
+        flag_appears = getAnimationList("Checkpoint", textureName+"flag_appears", 7);
+        flag = getAnimationList("Checkpoint", textureName+"flag", 8);
+
+        sprite = new Sprite(readImageBuffered("assets/Checkpoint/"+textureName+"no_flag/0.png"), 2.5);
         setAnimation(no_flag, no_flagAnimationSpeed);
     }
 
@@ -60,8 +66,10 @@ public class CheckPoint extends GameObject2D{
             isActivated = true;
 
             GameObject2D.getPlayer().setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
-            GameObject2D.getPlayer().maxJumps += 1;
-            GameObject2D.getPlayer().jumps += 1;
+            if (utilType == 'j') {
+                GameObject2D.getPlayer().maxJumps += 1;
+                GameObject2D.getPlayer().jumps += 1;
+            }
 
             setAnimation(flag_appears, flag_appearsAnimationSpeed);
             setNextAnimation(flag, flagAnimationSpeed);

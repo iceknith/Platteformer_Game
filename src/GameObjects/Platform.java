@@ -2,14 +2,11 @@ package GameObjects;
 
 import main.GamePanel;
 
-import javax.imageio.ImageIO;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Platform extends GameObject2D{
-
-    public char utilType;
-    final double animSpeed = 5;
+    double animSpeed;
     double friction;
 
     public Platform(int w, int h, int x, int y, char uType, String animName, int framesCount, String id, String subLvlName) throws IOException {
@@ -24,13 +21,33 @@ public class Platform extends GameObject2D{
             default -> friction = 2.5;
         }
 
-        sprite = new Sprite(ImageIO.read(new File("assets/Platform/"+animName+"/0.png")), hitbox);
+        switch (animName){
+            case "industrial/saw" -> animSpeed = 1;
+            default ->  animSpeed = 5;
+        }
+
+        BufferedImage img = readImageBuffered("assets/Platform/"+animName+"/0.png");
+        sprite = new Sprite(img, hitbox);
+
+        if (utilType == 's'){
+            // Set the sprite to a fixed size
+            Sprite sprite2 = new Sprite(img, 1);
+            sprite = new Sprite(img, (double) sprite.getWidth() /sprite2.getWidth());
+
+            // Change the size of the hitbox (half of the original)
+            hitbox.setBounds(
+                    (int) (getX()+getWidth()*0.25),
+                    (int) (getY()+getHeight()*0.25),
+                    (int) (getWidth()*0.5),
+                    (int) (getHeight()*0.5));
+        }
         setAnimation(getAnimationList("Platform",animName, framesCount), animSpeed);
     }
 
     public Platform(Platform p){
         super(p);
-        utilType = p.utilType;
+        friction = p.friction;
+        animSpeed = p.animSpeed;
         setAnimation(p.currentAnimation, animSpeed);
     }
 
@@ -45,10 +62,9 @@ public class Platform extends GameObject2D{
     }
 
     public void collision(Entity e){
-
         switch (utilType){
             case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
-            case 'k' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+            case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
         }
     }
 
