@@ -18,9 +18,9 @@ public class Main {
 
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
+        gamePanel.startGameThread();
 
         window.setVisible(true);
-
-        gamePanel.startGameThread();
+        window.pack();
     }
 }

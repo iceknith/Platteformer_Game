@@ -15,9 +15,9 @@ public class GamePanel extends JPanel implements Runnable {
     static GamePanel self;
 
     // Screen Settings
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    final int width = dim.width;
-    final int height = dim.height;
+    Dimension dim;
+    final int width;
+    final int height;
 
 
     // game loop variables
@@ -45,6 +45,10 @@ public class GamePanel extends JPanel implements Runnable {
     public GamePanel() {
 
         // setDefaults
+        dim = Toolkit.getDefaultToolkit().getScreenSize();
+        width = dim.width;
+        height = dim.height;
+
         this.setPreferredSize(new Dimension(width, height));
         this.setBackground(new Color(0, 27, 122));
         this.setDoubleBuffered(false); // optimises rendering by using a buffer
