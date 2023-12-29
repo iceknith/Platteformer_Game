@@ -196,7 +196,7 @@ public class Level {
                         int posY1 = reader.read()*256 + reader.read() - 32767;
                         int posX2 = reader.read()*256 + reader.read() - 32767;
                         int posY2 = reader.read()*256 + reader.read() - 32767;
-                        int speed = reader.read();
+                        int speed = reader.read()*256 + reader.read();
 
                         char uType = (char) reader.read();
 

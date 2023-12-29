@@ -412,6 +412,13 @@ public class LevelMaker extends GameObject2D{
                         GamePanel.camera.deleteGOInGrid(go);
                         go.setX(i);
                         if (go.name.contains("Player")) player.spawnPointPos[0] = i;
+                        if (go.name.contains("MovingPlatform_")) {
+                            try {
+                                go.getThisMovingPlatform().posX1 = i;
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
                         GamePanel.camera.addGOInGrid(go);
                         return null;},
 
@@ -419,6 +426,13 @@ public class LevelMaker extends GameObject2D{
                         GamePanel.camera.deleteGOInGrid(go);
                         go.setY(i);
                         if (go.name.contains("Player")) player.spawnPointPos[1] = i;
+                        if (go.name.contains("MovingPlatform_")) {
+                            try {
+                                go.getThisMovingPlatform().posY1 = i;
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
                         GamePanel.camera.addGOInGrid(go);
                         canPlaceObj = true;
                         return null;
@@ -440,7 +454,7 @@ public class LevelMaker extends GameObject2D{
                     try {
                         MovingPlatform mp = go.getThisMovingPlatform();
 
-                        txtInputMenu.setCategoryNames(Arrays.asList("X Movement: ", "Y Movement: ", "Travel time (s): "));
+                        txtInputMenu.setCategoryNames(Arrays.asList("X Movement: ", "Y Movement: ", "Travel time (ms): "));
                         txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(mp.posX2 - mp.getX()), String.valueOf(mp.posY2 - mp.getY()), String.valueOf(mp.travelTime)));
                         txtInputMenu.setCategorySetValues(Arrays.asList(
                                 s -> {
@@ -1103,7 +1117,8 @@ public class LevelMaker extends GameObject2D{
                     fw.write((mpGO.posX2 + 32767)%256);
                     fw.write((mpGO.posY2 + 32767)/256);
                     fw.write((mpGO.posY2 + 32767)%256);
-                    fw.write(mpGO.travelTime);
+                    fw.write(mpGO.travelTime/256);
+                    fw.write(mpGO.travelTime%256);
                     fw.write(mpGO.utilType);
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());

@@ -15,7 +15,7 @@ public class MovingPlatform extends Entity{
     double time = 0;
 
     MovingPlatform(int x, int y, int x2, int y2, int w, int h, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
-        this(x, y, x2, y2, w, h, 5, uType, animName, framesCount, id, subLvl);
+        this(x, y, x2, y2, w, h, 2000, uType, animName, framesCount, id, subLvl);
     }
 
     MovingPlatform(int x, int y, int x2, int y2, int w, int h, int s, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
@@ -83,8 +83,8 @@ public class MovingPlatform extends Entity{
         time += GamePanel.deltaTime/10;
 
         //Find new pos
-        double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/travelTime);
-        double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/travelTime);
+        double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
 
         //System.out.println(posX1 + " < " + getX() + " < " + posX2);
         velocityX = newX - getX();
