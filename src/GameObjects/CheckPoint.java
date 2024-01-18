@@ -63,12 +63,15 @@ public class CheckPoint extends GameObject2D{
     @Override
     public void collision(Entity e){
         if (e.getType().equals("Player") && !isActivated){
-            isActivated = true;
+            Player p = GameObject2D.getPlayer();
 
-            GameObject2D.getPlayer().setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
+            isActivated = true;
+            if (!p.hasTakenCheckpoint) p.hasTakenCheckpoint = true;
+
+            p.setSpawnPointPos(getX() - getWidth()/2, getY() - getHeight()/2);
             if (utilType == 'j') {
-                GameObject2D.getPlayer().maxJumps += 1;
-                GameObject2D.getPlayer().jumps += 1;
+                p.maxJumps += 1;
+                p.jumps += 1;
             }
 
             setAnimation(flag_appears, flag_appearsAnimationSpeed);

@@ -31,6 +31,8 @@ public class GameObject2D{
     int animationIndex;
     double animationSpeed;
     double nextAnimationSpeed;
+    int nextAnimationOffsetX;
+    int nextAnimationOffsetY;
     double animateTime = 0;
     int animationPriority;
 
@@ -114,7 +116,6 @@ public class GameObject2D{
 
     public String getType(){return type;}
 
-
     void setX(int x){
         hitbox.x = x;
     }
@@ -129,7 +130,7 @@ public class GameObject2D{
 
     public void setSubLevelName(String name){subLevelName = name;}
 
-    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio){
+    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio,  int offsetX, int offsetY){
         if (animationPriority <= animPrio) {
             currentAnimation = animation;
             animationSpeed = animSpeed;
@@ -137,16 +138,29 @@ public class GameObject2D{
             animationPriority = animPrio;
             if (sprite.resizeFactor == 0) sprite.setImage(currentAnimation.get(animationIndex), hitbox);
             else sprite.setImage(currentAnimation.get(animationIndex));
+
+            sprite.offsetX = offsetX;
+            sprite.offsetY = offsetY;
         }
     }
 
+    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
+        setAnimation(animation, animSpeed, 0, offsetX, offsetY);
+    }
+
     void setAnimation(ArrayList<BufferedImage> animation, double animSpeed){
-        setAnimation(animation, animSpeed, 0);
+        setAnimation(animation, animSpeed, sprite.offsetX, sprite.offsetY);
+    }
+
+    void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
+        nextAnimation = animation;
+        nextAnimationSpeed = animSpeed;
+        nextAnimationOffsetX = offsetX;
+        nextAnimationOffsetY = offsetY;
     }
 
     void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed){
-        nextAnimation = animation;
-        nextAnimationSpeed = animSpeed;
+        setNextAnimation(animation, animSpeed, sprite.offsetX, sprite.offsetY);
     }
 
     void animate(){
@@ -161,9 +175,14 @@ public class GameObject2D{
                 if (nextAnimation != null){
                     currentAnimation = new ArrayList<>(nextAnimation);
                     animationSpeed = nextAnimationSpeed;
+                    sprite.offsetX = nextAnimationOffsetX;
+                    sprite.offsetY = nextAnimationOffsetY;
+
                     animationPriority = 0;
                     nextAnimation = null;
                     nextAnimationSpeed = 0;
+                    nextAnimationOffsetX = 0;
+                    nextAnimationOffsetY = 0;
                 }
                 animationIndex = 0;
             }
@@ -202,7 +221,7 @@ public class GameObject2D{
         //is overwritten after
     }
 
-    public void collision(Entity e) {
+    public void collision(Entity e) throws Exception {
         //is overwritten after in more specific context
     }
 

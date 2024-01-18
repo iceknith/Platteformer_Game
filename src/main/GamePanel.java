@@ -70,7 +70,6 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
 
-
     @Override
     public void run() {
         try {
@@ -82,12 +81,16 @@ public class GamePanel extends JPanel implements Runnable {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("assets/font/EightBitDragon-anqx.ttf")));
 
+            //initialise keys
+            KeyHandler.initialise();
+
         } catch (IOException | FontFormatException e) {
             throw new RuntimeException(e);
         }
 
         double dt = 0;
         lastFrameTime = System.nanoTime();
+
         // game loop
         while (is_game_running) {
 

@@ -2,16 +2,17 @@ package handlers;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.*;
 
 public class KeyHandler implements KeyListener {
 
     static int rightKey = KeyEvent.VK_D;
-    static int leftKey = KeyEvent.VK_Q;
-
-    static int upKey = KeyEvent.VK_Z;
+    static int leftKey = KeyEvent.VK_A;
+    static int upKey = KeyEvent.VK_W;
     static int downKey = KeyEvent.VK_S;
     static int selectKey = KeyEvent.VK_ENTER;
     static int suicideKey = KeyEvent.VK_E;
+    static int resetKey = KeyEvent.VK_R;
     static int jumpKey = KeyEvent.VK_SPACE;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
@@ -29,12 +30,81 @@ public class KeyHandler implements KeyListener {
     public static boolean isJumpPressed;
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
+    public static boolean isResetKeyPressed;
     public static boolean isMenuKeyPressed;
     public static boolean isLaunchKeyPressed;
     boolean[] isInstantQuitKeysPressed = {false, false};
 
     public static long rightPressedTime = 0;
     public static long leftPressedTime = 0;
+
+    public static void initialise() throws IOException {
+        FileInputStream keyFile = new FileInputStream("settings/keys.settings");
+        BufferedInputStream reader = new BufferedInputStream(keyFile);
+
+        int ch;
+        while ((ch = reader.read()) != -1){
+            char keyName = (char) (ch);
+
+            switch (keyName){
+                case 'r' -> rightKey = reader.read()*256 + reader.read();
+                case 'l' -> leftKey = reader.read()*256 + reader.read();
+                case 'u' -> upKey = reader.read()*256 + reader.read();
+                case 'd' -> downKey = reader.read()*256 + reader.read();
+                case 's' -> selectKey = reader.read()*256 + reader.read();
+                case 'e' -> suicideKey = reader.read()*256 + reader.read();
+                case 'h' -> resetKey = reader.read()*256 + reader.read();
+                case 'j' -> jumpKey = reader.read()*256 + reader.read();
+            }
+        }
+    }
+
+    public static void saveKeys() throws IOException {
+        File keyFile = new File("settings/keys.settings");
+        keyFile.createNewFile();
+
+        FileOutputStream fw = new FileOutputStream(keyFile, false);
+
+        //right key
+        fw.write('r');
+        fw.write(rightKey/256);
+        fw.write(rightKey%256);
+
+        //left key
+        fw.write('l');
+        fw.write(leftKey/256);
+        fw.write(leftKey%256);
+
+        //up key
+        fw.write('u');
+        fw.write(upKey/256);
+        fw.write(upKey%256);
+
+        //down key
+        fw.write('d');
+        fw.write(downKey/256);
+        fw.write(downKey%256);
+
+        //select key
+        fw.write('s');
+        fw.write(selectKey/256);
+        fw.write(selectKey%256);
+
+        //suicide key
+        fw.write('e');
+        fw.write(suicideKey/256);
+        fw.write(suicideKey%256);
+
+        //reset key
+        fw.write('h');
+        fw.write(resetKey/256);
+        fw.write(resetKey%256);
+
+        //jump key
+        fw.write('j');
+        fw.write(jumpKey/256);
+        fw.write(jumpKey%256);
+    }
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
@@ -75,6 +145,9 @@ public class KeyHandler implements KeyListener {
         }
         if (k == suicideKey){
             isSuicideKeyPressed = true;
+        }
+        if (k == resetKey){
+            isResetKeyPressed = true;
         }
         if (k == menuKey){
             isMenuKeyPressed = true;
@@ -119,6 +192,9 @@ public class KeyHandler implements KeyListener {
         if (k == suicideKey){
             isSuicideKeyPressed = false;
         }
+        if (k == resetKey){
+            isResetKeyPressed = false;
+        }
         if (k == menuKey){
             isMenuKeyPressed = false;
         }
@@ -136,37 +212,35 @@ public class KeyHandler implements KeyListener {
         }
     }
 
-    public static void changeKey(String keyName, int key){
+    public static void changeKey(String keyName, int key) throws IOException {
         switch (keyName){
             case "right" -> rightKey = key;
             case "left" -> leftKey = key;
+            case "up" -> upKey = key;
+            case "down" -> downKey = key;
             case "jump" -> jumpKey = key;
             case "suicide" -> suicideKey = key;
+            case "reset" -> resetKey = key;
+            case "select" -> selectKey = key;
             case "debug" -> debugKey = key;
             case "menu" -> menuKey = key;
         }
+
+        saveKeys();
     }
 
     public static int getKey(String keyName){
         switch (keyName){
-            case "right" -> {
-                return rightKey;
-            }
-            case "left" -> {
-                return leftKey;
-            }
-            case "jump" -> {
-                return jumpKey;
-            }
-            case "suicide" -> {
-                return suicideKey;
-            }
-            case "debug" -> {
-                return debugKey;
-            }
-            case "menu" -> {
-                return menuKey;
-            }
+            case "right" -> {return rightKey;}
+            case "left" -> {return leftKey;}
+            case "up" -> {return upKey;}
+            case "down" -> {return downKey;}
+            case "jump" -> {return jumpKey;}
+            case "suicide" -> {return suicideKey;}
+            case "reset" -> {return resetKey;}
+            case "select" -> {return selectKey;}
+            case "debug" -> {return debugKey;}
+            case "menu" -> {return menuKey;}
         }
         return -1;
     }

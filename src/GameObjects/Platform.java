@@ -61,7 +61,7 @@ public class Platform extends GameObject2D{
         animate();
     }
 
-    public void collision(Entity e){
+    public void collision(Entity e) throws Exception {
         switch (utilType){
             case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
             case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);

@@ -73,7 +73,7 @@ public class Entity extends GameObject2D{
         return result;
     }
 
-    void move() {
+    void move() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();

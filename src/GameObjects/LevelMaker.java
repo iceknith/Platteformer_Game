@@ -454,8 +454,12 @@ public class LevelMaker extends GameObject2D{
                     try {
                         MovingPlatform mp = go.getThisMovingPlatform();
 
-                        txtInputMenu.setCategoryNames(Arrays.asList("X Movement: ", "Y Movement: ", "Travel time (ms): "));
-                        txtInputMenu.setDefaultValues(Arrays.asList(String.valueOf(mp.posX2 - mp.getX()), String.valueOf(mp.posY2 - mp.getY()), String.valueOf(mp.travelTime)));
+                        txtInputMenu.setCategoryNames(Arrays.asList("X Movement: ", "Y Movement: ", "Travel time (ms): ", "Initial Time (ms)"));
+                        txtInputMenu.setDefaultValues(Arrays.asList(
+                                String.valueOf(mp.posX2 - mp.getX()),
+                                String.valueOf(mp.posY2 - mp.getY()),
+                                String.valueOf(mp.travelTime),
+                                String.valueOf(mp.getInitialTime())));
                         txtInputMenu.setCategorySetValues(Arrays.asList(
                                 s -> {
                                     mp.posX2 = Integer.parseInt(s) + mp.getX();
@@ -467,6 +471,11 @@ public class LevelMaker extends GameObject2D{
                                 },
                                 s -> {
                                     mp.travelTime = Integer.parseInt(s);
+                                    return null;
+                                },
+                                s -> {
+                                    mp.setInitialTime(Integer.parseInt(s));
+                                    mp.resetPosition();
                                     return null;
                                 }
                                 ));
@@ -1119,6 +1128,8 @@ public class LevelMaker extends GameObject2D{
                     fw.write((mpGO.posY2 + 32767)%256);
                     fw.write(mpGO.travelTime/256);
                     fw.write(mpGO.travelTime%256);
+                    fw.write((mpGO.getInitialTime() + 32767)/256);
+                    fw.write((mpGO.getInitialTime() + 32767)%256);
                     fw.write(mpGO.utilType);
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());

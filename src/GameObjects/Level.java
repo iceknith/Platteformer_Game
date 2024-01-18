@@ -197,6 +197,7 @@ public class Level {
                         int posX2 = reader.read()*256 + reader.read() - 32767;
                         int posY2 = reader.read()*256 + reader.read() - 32767;
                         int speed = reader.read()*256 + reader.read();
+                        int initTime = reader.read()*256 + reader.read() - 32767;
 
                         char uType = (char) reader.read();
 
@@ -208,7 +209,7 @@ public class Level {
                             texture.append((char) cha);
                         }
 
-                        MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, uType, texture.toString(), frameCount,"#" + i, "");
+                        MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, initTime, uType, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(m);
                     }
 

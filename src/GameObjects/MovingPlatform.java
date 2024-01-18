@@ -12,13 +12,16 @@ public class MovingPlatform extends Entity{
     double animSpeed;
     int travelTime;
     double friction;
-    double time = 0;
+    double time;
+    int initialTime;
+    double initialPosX;
+    double initialPosY;
 
     MovingPlatform(int x, int y, int x2, int y2, int w, int h, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
-        this(x, y, x2, y2, w, h, 2000, uType, animName, framesCount, id, subLvl);
+        this(x, y, x2, y2, w, h, 2000, 0, uType, animName, framesCount, id, subLvl);
     }
 
-    MovingPlatform(int x, int y, int x2, int y2, int w, int h, int s, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
+    MovingPlatform(int x, int y, int x2, int y2, int w, int h, int s, int initTime, char uType, String animName, int framesCount, String id, String subLvl) throws IOException {
         super(x, y, w, h, subLvl);
 
         utilType = uType;
@@ -29,6 +32,12 @@ public class MovingPlatform extends Entity{
         posY2 = y2;
 
         travelTime = s;
+
+        initialTime = initTime;
+        time = initialTime;
+
+        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
 
         type = "MovingPlatform_" + animName;
         name = type+id;
@@ -68,6 +77,12 @@ public class MovingPlatform extends Entity{
         travelTime = m.travelTime;
         time = m.time;
 
+        initialTime = m.getInitialTime();
+        initialPosX = m.initialPosX;
+        initialPosY = m.initialPosY;
+
+        animSpeed = m.animSpeed;
+
         posX1 = m.posX1;
         posY1 = m.posY1;
         posX2 = m.posX2;
@@ -86,12 +101,25 @@ public class MovingPlatform extends Entity{
         double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
         double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
 
-        //System.out.println(posX1 + " < " + getX() + " < " + posX2);
         velocityX = newX - getX();
         velocityY = getY() - newY;
 
         move();
     }
+
+    public void resetPosition(){
+        setX(posX1);
+        setY(posY1);
+        time = initialTime;
+    }
+
+    public void setInitialTime(int initTime){
+        initialTime = initTime;
+        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+    }
+
+    public int getInitialTime(){return initialTime;}
 
     @Override
     public double getFriction(){
@@ -104,7 +132,7 @@ public class MovingPlatform extends Entity{
     }
 
     @Override
-    public void collision(Entity e){
+    public void collision(Entity e) throws Exception {
         switch (utilType){
             case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
             case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);

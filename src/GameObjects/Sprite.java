@@ -11,6 +11,7 @@ public class Sprite {
     int height;
     int offsetX;
     int offsetY;
+    int directionOffsetX;
     int direction;
     double resizeFactor;
 
@@ -38,6 +39,7 @@ public class Sprite {
         height = s.height;
         offsetX = s.offsetX;
         offsetY = s.offsetY;
+        directionOffsetX = s.directionOffsetX;
         direction = s.direction;
         resizeFactor = s.resizeFactor;
     }
@@ -50,7 +52,7 @@ public class Sprite {
 
     public int getOffsetX(Rectangle hitbox){
         setDirection(direction);
-        return hitbox.x - offsetX +  hitbox.width/2 - width/2;
+        return hitbox.x - offsetX*direction - directionOffsetX +  hitbox.width/2 - width/2;
     }
 
     public int getOffsetY(Rectangle hitbox){return hitbox.y - offsetY  +  hitbox.height/2 - height/2;}
@@ -87,12 +89,13 @@ public class Sprite {
     }
 
     void setDirection(int newDir){
+        int prevDir = direction;
         if (newDir > 0){
-            offsetX = 0;
+            directionOffsetX = 0;
             direction = 1;
         }
         else{
-            offsetX = -width;
+            directionOffsetX = -width;
             direction = -1;
         }
     }

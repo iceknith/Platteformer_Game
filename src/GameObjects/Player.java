@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
 
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -29,7 +30,10 @@ public class Player extends Entity{
 
     double jumpForce;
     double jumpingTime;
+    double defaultGravity;
     double gravity;
+    double defaultMaxYSpeed;
+    double maxYSpeed;
 
     public GameObject2D ground;
     public boolean doGroundVelocityXCount;
@@ -45,31 +49,49 @@ public class Player extends Entity{
     double deathYLine;
 
     ArrayList<BufferedImage> idle;
-    double idleAnimationSpeed = 3;
+    double idleAnimationSpeed;
+    int idleOffsetX;
+    int idleOffsetY;
 
     ArrayList<BufferedImage> run;
-    double runAnimationSpeed = 0.9;
+    double runAnimationSpeed;
+    int runOffsetX;
+    int runOffsetY;
 
     ArrayList<BufferedImage> jump;
-    double jumpAnimationSpeed = 1;
+    double jumpAnimationSpeed;
+    int jumpOffsetX;
+    int jumpOffsetY;
 
     ArrayList<BufferedImage> fall;
-    double fallAnimationSpeed = 1;
+    double fallAnimationSpeed;
+    int fallOffsetX;
+    int fallOffsetY;
 
     ArrayList<BufferedImage> fallFast;
-    double fallFastAnimationSpeed = 1;
+    double fallFastAnimationSpeed;
+    int fastFallOffsetX;
+    int fastFallOffsetY;
 
     ArrayList<BufferedImage> land;
-    double landAnimationSpeed = 1.5;
+    double landAnimationSpeed;
+    int landOffsetX;
+    int landOffsetY;
 
     ArrayList<BufferedImage> death;
-    double deathAnimationSpeed = 1;
+    double deathAnimationSpeed;
+    int deathOffsetX;
+    int deathOffsetY;
+
+    int originalOffsetX;
+    int originalOffsetY;
 
     boolean isDying;
 
     boolean wasJumpPressed;
 
     int[] spawnPointPos;
+    public boolean hasTakenCheckpoint = false;
 
     final int jumpBubblesDistance = 100;
     final int jumpBubblesRadius = 15;
@@ -77,7 +99,7 @@ public class Player extends Entity{
     final Color jumpBublesColor = new Color(0.64f, .88f, 1f, .5f);
 
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
-        super(posX,posY,42,81, subLvlName);
+        super(posX,posY,39,96, subLvlName);
 
         type = "Player";
         name = type + id;
@@ -103,7 +125,10 @@ public class Player extends Entity{
         airFriction = 1;
 
         jumpForce = 3;
-        gravity = 2.25;
+        defaultGravity = 2.25;
+        gravity = defaultGravity;
+        defaultMaxYSpeed = 150;
+        maxYSpeed = defaultMaxYSpeed;
 
         maxJumps = 0;
         maxJumpingTime = 1.2;
@@ -114,18 +139,44 @@ public class Player extends Entity{
 
         deathYLine = 2000;
 
-        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 2.5);
-        sprite.offsetY -= 1; //make it so that the player is visually in the ground
+        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 3);
 
         idle = getAnimationList("Player", "idle", 3);
-        run = getAnimationList("Player", "run", 7);
-        jump = getAnimationList("Player", "jump_up", 0);
-        fall = getAnimationList("Player", "fall", 0);
-        fallFast = getAnimationList("Player", "fall_fast", 0);
-        land = getAnimationList("Player", "land", 1);
-        death = getAnimationList("Player", "death", 6);
+        idleOffsetX = -21;
+        idleOffsetY = 3;
+        idleAnimationSpeed = 3;
 
-        setAnimation(idle, idleAnimationSpeed);
+        run = getAnimationList("Player", "run", 7);
+        runOffsetX = -24;
+        runOffsetY = 3;
+        runAnimationSpeed = 0.9;
+
+        jump = getAnimationList("Player", "jump_up", 0);
+        jumpOffsetX = -21;
+        jumpOffsetY = 6;
+        jumpAnimationSpeed = 1;
+
+        fall = getAnimationList("Player", "fall", 0);
+        fallOffsetX = 3;
+        fallOffsetY = 3;
+        fallAnimationSpeed = 1;
+
+        fallFast = getAnimationList("Player", "fall_fast", 0);
+        fastFallOffsetX = 6;
+        fastFallOffsetY = 12;
+        fallFastAnimationSpeed = 1;
+
+        land = getAnimationList("Player", "land", 1);
+        landOffsetX = -21;
+        landOffsetY = 3;
+        landAnimationSpeed = 2;
+
+        death = getAnimationList("Player", "death", 33);
+        deathOffsetX = 0;
+        deathOffsetY = 0;
+        deathAnimationSpeed = 0.2;
+
+        setAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
     }
 
     Player(Player p) throws IOException {
@@ -152,13 +203,17 @@ public class Player extends Entity{
 
         jumpForce = p.jumpForce;
         jumpingTime = p.jumpingTime;
+        defaultGravity = p.defaultGravity;
         gravity = p.gravity;
+        defaultMaxYSpeed = p.defaultMaxYSpeed;
+        maxYSpeed = p.maxYSpeed;
 
         jumps = p.jumps;
         maxJumps = p.maxJumps;
         maxJumpingTime = p.maxJumpingTime;
 
         spawnPointPos = p.spawnPointPos;
+        hasTakenCheckpoint = p.hasTakenCheckpoint;
         isOnGround = p.isOnGround;
         wasOnGround = p.wasOnGround;
         isJumping = p.isJumping;
@@ -186,13 +241,13 @@ public class Player extends Entity{
         landAnimationSpeed = p.landAnimationSpeed;
         deathAnimationSpeed = p.deathAnimationSpeed;
 
-        setAnimation(idle, idleAnimationSpeed);
+        setAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
 
         wasJumpPressed = p.wasJumpPressed;
 
     }
 
-    void movementHandler(){
+    void movementHandler() throws Exception {
         double sTh = speedThreshold;
         double eS = earlySpeed;
         double s = maxSpeed;
@@ -222,7 +277,7 @@ public class Player extends Entity{
             walk(1, eS, s, sTh, eAcc, lAcc, speedConversionPercent);
             sprite.setDirection(1);
             if (getAnimation().equals(idle)){
-                setAnimation(run, runAnimationSpeed);
+                setAnimation(run, runAnimationSpeed, runOffsetX, runOffsetY);
             }
         }
 
@@ -231,7 +286,7 @@ public class Player extends Entity{
             walk(-1, eS, s, sTh, eAcc, lAcc, speedConversionPercent);
             sprite.setDirection(-1);
             if (getAnimation().equals(idle)){
-                setAnimation(run, runAnimationSpeed);
+                setAnimation(run, runAnimationSpeed, runOffsetX, runOffsetY);
             }
         }
 
@@ -242,14 +297,35 @@ public class Player extends Entity{
                 stop(direction, friction);
             }
             if (isOnGround && getAnimation().equals(run)){
-                setAnimation(idle, idleAnimationSpeed);
+                setAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
             }
+        }
+
+        //down movement
+        if (KeyHandler.isDownPressed){
+            if (gravity != 1.5*defaultGravity){
+                gravity = 1.5*defaultGravity;
+                maxYSpeed = 1.4*defaultMaxYSpeed;
+            }
+        }
+
+        //up movement
+        else if (KeyHandler.isUpPressed){
+            if (gravity != 0.9*defaultGravity){
+                gravity = 0.9*defaultGravity;
+            }
+        }
+
+        //reset y movement to default settings
+        else if (gravity != defaultGravity){
+            gravity = defaultGravity;
+            maxYSpeed = defaultMaxYSpeed;
         }
 
         //landing
         if(isOnGround && (getAnimation().equals(fall) || getAnimation().equals(fallFast) || getAnimation().equals(jump))){
-            setAnimation(land, landAnimationSpeed);
-            setNextAnimation(idle, idleAnimationSpeed);
+            setAnimation(land, landAnimationSpeed, landOffsetX, landOffsetY);
+            setNextAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
         }
 
         //jumping logic
@@ -263,7 +339,7 @@ public class Player extends Entity{
 
         if(isJumping && KeyHandler.isJumpPressed){
             jump(jumpForce);
-            setAnimation(jump, jumpAnimationSpeed);
+            setAnimation(jump, jumpAnimationSpeed, jumpOffsetX, jumpOffsetY);
         }
 
         if (wasJumping){
@@ -281,10 +357,10 @@ public class Player extends Entity{
         //falling
         fall();
         if (velocityY < -60) {
-            setAnimation(fallFast, fallFastAnimationSpeed);
+            setAnimation(fallFast, fallFastAnimationSpeed, fastFallOffsetX, fastFallOffsetY);
         } else {
             if (velocityY < -10) {
-                setAnimation(fall, fallAnimationSpeed);
+                setAnimation(fall, fallAnimationSpeed, fallOffsetX, fallOffsetY);
             }
         }
 
@@ -293,26 +369,45 @@ public class Player extends Entity{
             death(spawnPointPos);
         }
 
+        // Reset Level
+        if (KeyHandler.isResetKeyPressed){
+            GamePanel.camera.setNextLevel(GamePanel.camera.level.getLevelName());
+        }
+
     }
 
-    void death(int[] spawnPoint){
+    void death(int[] spawnPoint) throws Exception {
         velocityY = 0;
         velocityX = 0;
 
         if (!isDying){
             isDying = true;
-            setAnimation(death, deathAnimationSpeed, 1);
-            setNextAnimation(idle, idleAnimationSpeed);
+            setAnimation(death, deathAnimationSpeed, 1, deathOffsetX, deathOffsetY);
+            setNextAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
         }
         else{
             if (!getAnimation().equals(death)){
                 GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.screenWidth /2, spawnPoint[1] - GamePanel.camera.screenHeight /2);
 
+                // reset player position
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
 
+                // reset moving objects position
+                for (GameObject2D go : GamePanel.camera.level.permanentUpdatable){
+                    if (go.type.contains("MovingPlatform_")){
+                        go.getThisMovingPlatform().resetPosition();
+                    }
+                }
+
+                // reset timer if no checkpoints were taken
+                if (!hasTakenCheckpoint){
+                    GamePanel.inGameTimer = 0;
+                }
+
                 isDying = false;
-            }}
+            }
+        }
     }
 
     public void setSpawnPointPos(int posX, int posY){
@@ -320,7 +415,7 @@ public class Player extends Entity{
     }
 
     @Override
-    public void update() throws IOException {
+    public void update() throws Exception {
         animate();
         movementHandler();
         move();
@@ -410,11 +505,11 @@ public class Player extends Entity{
 
     void fall(){
         if (! isOnGround){
-            velocityY = Math.max(-150, velocityY - (gravity * GamePanel.deltaTime * 6));
+            velocityY = Math.max(-maxYSpeed, velocityY - (gravity * GamePanel.deltaTime * 6));
         }
     }
 
-    boolean collision(GameObject2D go) {
+    boolean collision(GameObject2D go) throws Exception {
 
         if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
                 getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
@@ -483,7 +578,7 @@ public class Player extends Entity{
     }
 
     @Override
-    public void move(){
+    public void move() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();
