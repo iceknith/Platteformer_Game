@@ -195,7 +195,7 @@ public class LevelMaker extends GameObject2D{
                 for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
                     if (potentialGOSpace.intersects(go)){
 
-                        // Remove GO if on delete list
+                        // Remove GO if on delete mode
                         if (nextObjType.equals("Delete") && !go.type.equals("Player")) {
                             objects.remove(go);
                             GamePanel.camera.level.getSubLvl("main").objectList.remove(go);

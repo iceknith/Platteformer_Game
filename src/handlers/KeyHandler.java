@@ -14,6 +14,7 @@ public class KeyHandler implements KeyListener {
     static int suicideKey = KeyEvent.VK_E;
     static int resetKey = KeyEvent.VK_R;
     static int jumpKey = KeyEvent.VK_SPACE;
+    static int placeKey = KeyEvent.VK_END;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
     static  int launchKey = KeyEvent.VK_F5;
@@ -28,6 +29,7 @@ public class KeyHandler implements KeyListener {
     public static boolean isDownPressed;
     public static boolean isSelectPressed;
     public static boolean isJumpPressed;
+    public static boolean isPlacePressed;
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
     public static boolean isResetKeyPressed;
@@ -55,6 +57,7 @@ public class KeyHandler implements KeyListener {
                 case 'e' -> suicideKey = reader.read()*256 + reader.read();
                 case 'h' -> resetKey = reader.read()*256 + reader.read();
                 case 'j' -> jumpKey = reader.read()*256 + reader.read();
+                case 'p' -> placeKey = reader.read()*256 + reader.read();
             }
         }
     }
@@ -104,6 +107,11 @@ public class KeyHandler implements KeyListener {
         fw.write('j');
         fw.write(jumpKey/256);
         fw.write(jumpKey%256);
+
+        //place key
+        fw.write('p');
+        fw.write(placeKey/256);
+        fw.write(placeKey%256);
     }
 
     @Override
@@ -114,7 +122,7 @@ public class KeyHandler implements KeyListener {
     }
 
     @Override
-    public void keyPressed(KeyEvent keyEvent) {
+    public synchronized void keyPressed(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
 
         lastKeyPressed = k;
@@ -131,33 +139,16 @@ public class KeyHandler implements KeyListener {
                 leftPressedTime = System.nanoTime();
             }
         }
-        if (k == upKey){
-            isUpPressed = true;
-        }
-        if (k == downKey){
-            isDownPressed = true;
-        }
-        if (k == jumpKey){
-            isJumpPressed = true;
-        }
-        if (k==debugKey){
-            isDebugKeyPressed = !isDebugKeyPressed;
-        }
-        if (k == suicideKey){
-            isSuicideKeyPressed = true;
-        }
-        if (k == resetKey){
-            isResetKeyPressed = true;
-        }
-        if (k == menuKey){
-            isMenuKeyPressed = true;
-        }
-        if (k == selectKey){
-            isSelectPressed = true;
-        }
-        if (k == launchKey){
-            isLaunchKeyPressed = true;
-        }
+        if (k == upKey) isUpPressed = true;
+        if (k == downKey) isDownPressed = true;
+        if (k == jumpKey) isJumpPressed = true;
+        if (k == placeKey) isPlacePressed = true;
+        if (k==debugKey) isDebugKeyPressed = !isDebugKeyPressed;
+        if (k == suicideKey) isSuicideKeyPressed = true;
+        if (k == resetKey) isResetKeyPressed = true;
+        if (k == menuKey) isMenuKeyPressed = true;
+        if (k == selectKey) isSelectPressed = true;
+        if (k == launchKey) isLaunchKeyPressed = true;
         if (k == instantQuitKeys[0]){
             isInstantQuitKeysPressed[0] = true;
             if (isInstantQuitKeysPressed[1]) System.exit(0);
@@ -169,7 +160,7 @@ public class KeyHandler implements KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent keyEvent) {
+    public synchronized void keyReleased(KeyEvent keyEvent) {
         int k = keyEvent.getKeyCode();
 
         if (k == rightKey){
@@ -180,36 +171,18 @@ public class KeyHandler implements KeyListener {
             isLeftPressed = false;
             leftPressedTime = 0;
         }
-        if (k == upKey){
-            isUpPressed = false;
-        }
-        if (k == downKey){
-            isDownPressed = false;
-        }
-        if (k == jumpKey){
-            isJumpPressed = false;
-        }
-        if (k == suicideKey){
-            isSuicideKeyPressed = false;
-        }
-        if (k == resetKey){
-            isResetKeyPressed = false;
-        }
-        if (k == menuKey){
-            isMenuKeyPressed = false;
-        }
-        if (k == selectKey){
-            isSelectPressed = false;
-        }
-        if (k == launchKey){
-            isLaunchKeyPressed = false;
-        }
-        if (k == instantQuitKeys[0]){
-            isInstantQuitKeysPressed[0] = false;
-        }
-        if (k == instantQuitKeys[1]){
-            isInstantQuitKeysPressed[1] = false;
-        }
+        if (k == upKey) isUpPressed = false;
+        if (k == downKey) isDownPressed = false;
+        if (k == jumpKey) isJumpPressed = false;
+        if (k == placeKey) isPlacePressed = false;
+        if (k == suicideKey) isSuicideKeyPressed = false;
+        if (k == resetKey) isResetKeyPressed = false;
+        if (k == menuKey) isMenuKeyPressed = false;
+        if (k == selectKey) isSelectPressed = false;
+        if (k == launchKey) isLaunchKeyPressed = false;
+        if (k == instantQuitKeys[0]) isInstantQuitKeysPressed[0] = false;
+        if (k == instantQuitKeys[1]) isInstantQuitKeysPressed[1] = false;
+
     }
 
     public static void changeKey(String keyName, int key) throws IOException {

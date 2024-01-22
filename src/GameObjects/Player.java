@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
 
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -83,9 +82,6 @@ public class Player extends Entity{
     int deathOffsetX;
     int deathOffsetY;
 
-    int originalOffsetX;
-    int originalOffsetY;
-
     boolean isDying;
 
     boolean wasJumpPressed;
@@ -97,6 +93,19 @@ public class Player extends Entity{
     final int jumpBubblesRadius = 15;
     final Color jumpBublesOutlineColor = new Color(.07f, .09f, .11f, .75f);
     final Color jumpBublesColor = new Color(0.64f, .88f, 1f, .5f);
+
+    public int snowflakeCount = 1;
+    public final int iceBlockPlacingDistanceX = 64;
+    public final int iceBlockPlacingDistanceY = 200;
+    int iceBlockDirectionX;
+    int iceBlockDirectionY;
+    int nextIceBlockDirectionX;
+    int nextIceBlockDirectionY;
+    double iceBlockPosXTimer;
+    double iceBlockPosYTimer;
+
+    public boolean isPlacingIceBlock;
+    public IceBlock currentIceBlock;
 
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
         super(posX,posY,39,96, subLvlName);
@@ -247,7 +256,7 @@ public class Player extends Entity{
 
     }
 
-    void movementHandler() throws Exception {
+    void playerHandler() throws Exception {
         double sTh = speedThreshold;
         double eS = earlySpeed;
         double s = maxSpeed;
@@ -257,7 +266,8 @@ public class Player extends Entity{
         if(isOnGround){
             jumps = maxJumps;
 
-        }else{
+        }
+        else{
             sTh = airSpeedThreshold;
             eS = airEarlySpeed;
             s = airMaxSpeed;
@@ -311,8 +321,8 @@ public class Player extends Entity{
 
         //up movement
         else if (KeyHandler.isUpPressed){
-            if (gravity != 0.9*defaultGravity){
-                gravity = 0.9*defaultGravity;
+            if (gravity != 0.97*defaultGravity){
+                gravity = 0.97*defaultGravity;
             }
         }
 
@@ -358,12 +368,12 @@ public class Player extends Entity{
         fall();
         if (velocityY < -60) {
             setAnimation(fallFast, fallFastAnimationSpeed, fastFallOffsetX, fastFallOffsetY);
-        } else {
+        }
+        else {
             if (velocityY < -10) {
                 setAnimation(fall, fallAnimationSpeed, fallOffsetX, fallOffsetY);
             }
         }
-
 
         if (getY() > deathYLine || KeyHandler.isSuicideKeyPressed || isDying){
             death(spawnPointPos);
@@ -372,6 +382,82 @@ public class Player extends Entity{
         // Reset Level
         if (KeyHandler.isResetKeyPressed){
             GamePanel.camera.setNextLevel(GamePanel.camera.level.getLevelName());
+        }
+
+        //Place Ice Block
+        if (!KeyHandler.isPlacePressed && isPlacingIceBlock){
+            //if (currentIceBlock.canBePlaced) snowflakeCount -= 1;
+            isPlacingIceBlock = false;
+            currentIceBlock.isPlaced = true;
+            currentIceBlock = null;
+        }
+
+        if (KeyHandler.isPlacePressed && snowflakeCount > 0 && !isPlacingIceBlock){
+
+                isPlacingIceBlock = true;
+
+                //creating Ice Block
+                iceBlockDirectionX = 0;
+                if (KeyHandler.isRightPressed) iceBlockDirectionX = 1;
+                else if (KeyHandler.isLeftPressed) iceBlockDirectionX = -1;
+
+                iceBlockDirectionY = 0;
+                if (KeyHandler.isUpPressed) iceBlockDirectionY = -1;
+                else if (KeyHandler.isDownPressed) iceBlockDirectionY = 1;
+
+                if (iceBlockDirectionX == 0 && iceBlockDirectionY == 0) iceBlockDirectionX = sprite.direction;
+
+                nextIceBlockDirectionX = iceBlockDirectionX;
+                nextIceBlockDirectionY = iceBlockDirectionY;
+
+                int iceBlockPosX = getX() + getWidth()/2 + iceBlockDirectionX*iceBlockPlacingDistanceX;
+                int iceBlockPosY = getY() + getHeight()/2 + iceBlockDirectionY*iceBlockPlacingDistanceY;
+
+                currentIceBlock = new IceBlock(iceBlockPosX, iceBlockPosY, "main", 0);
+                GamePanel.camera.addGOInGrid(currentIceBlock, true);
+                GamePanel.camera.updateGrid();
+        }
+
+        //Ice Block logic
+        if (isPlacingIceBlock){
+
+            int dirX = 0;
+            if (KeyHandler.isRightPressed) dirX = 1;
+            else if (KeyHandler.isLeftPressed) dirX = -1;
+
+            int dirY = 0;
+            if (KeyHandler.isUpPressed) dirY = -1;
+            else if (KeyHandler.isDownPressed) dirY = 1;
+
+            if (dirX == 0 && dirY == 0) dirX = sprite.direction;
+
+            //Delay input to simplify the placing mechanism
+            if (dirX == nextIceBlockDirectionX) {
+                iceBlockPosXTimer += GamePanel.deltaTime;
+                if (iceBlockPosXTimer > 1){ // > 0.1s
+                    iceBlockDirectionX = nextIceBlockDirectionX;
+                }
+            }
+            else {
+                nextIceBlockDirectionX = dirX;
+                iceBlockPosXTimer = 0;
+            }
+
+            if (dirY == nextIceBlockDirectionY) {
+                iceBlockPosYTimer += GamePanel.deltaTime;
+                if (iceBlockPosYTimer > 1){ // > 0.5s
+                    iceBlockDirectionY = nextIceBlockDirectionY;
+                }
+            }
+            else {
+                nextIceBlockDirectionY = dirY;
+                iceBlockPosYTimer = 0;
+            }
+
+            int newX = getX() + iceBlockDirectionX*(getWidth()/2 + iceBlockPlacingDistanceX);
+            int newY = getY() - iceBlockDirectionY*(getHeight()/2 - iceBlockPlacingDistanceY);
+
+            currentIceBlock.move(newX, newY);
         }
 
     }
@@ -417,7 +503,7 @@ public class Player extends Entity{
     @Override
     public void update() throws Exception {
         animate();
-        movementHandler();
+        playerHandler();
         move();
 
         //System.out.println(this.getDebugInfos());

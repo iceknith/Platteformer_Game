@@ -48,6 +48,7 @@ public class GamePanel extends JPanel implements Runnable {
         dim = Toolkit.getDefaultToolkit().getScreenSize();
         width = dim.width;
         height = dim.height;
+        System.out.println(width + "-" + height);
 
         this.setPreferredSize(new Dimension(width, height));
         this.setBackground(new Color(0, 27, 122));
