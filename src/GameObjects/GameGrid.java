@@ -73,7 +73,9 @@ public class GameGrid {
         //remove from permanent updated
         if (permaRemove &&
                 (r.type.equals("Player") ||
-                r.type.contains("MovingPlatform_"))){
+                r.type.contains("MovingPlatform_") ||
+                r.type.contains("IceBlock") ||
+                r.type.contains("SnowflakeGenerator"))){
             level.permanentUpdatableRemoveBuffer.add(r);
         }
 
@@ -92,7 +94,9 @@ public class GameGrid {
         //add to permanent updated
         if (firstAdd &&
                 (r.type.equals("Player") ||
-                r.type.contains("MovingPlatform_"))){
+                r.type.contains("MovingPlatform_") ||
+                r.type.contains("IceBlock") ||
+                r.type.contains("SnowflakeGenerator"))){
             level.permanentUpdatableAddBuffer.add(r);
         }
 

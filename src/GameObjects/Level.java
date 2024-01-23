@@ -239,6 +239,15 @@ public class Level {
                         CheckPoint c = new CheckPoint(posX, posY, uType, "#" + i, "");
                         objectsBuffer.add(c);
                     }
+                    case 'G' -> { //Snowflake generator
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+                        int snowflakeCnt = reader.read();
+
+                        SnowflakeGenerator s = new SnowflakeGenerator(posX, posY, snowflakeCnt, "#" + i, "");
+                        objectsBuffer.add(s);
+                    }
+
                     case 'B' ->{ //Button
                         int cha;
 

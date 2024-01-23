@@ -107,7 +107,8 @@ public class MovingPlatform extends Entity{
         move();
     }
 
-    public void resetPosition(){
+    @Override
+    public void reset(){
         setX(posX1);
         setY(posY1);
         time = initialTime;

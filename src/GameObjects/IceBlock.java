@@ -35,7 +35,6 @@ public class IceBlock extends Entity{
 
     double friction;
 
-
     IceBlock(int x, int y, String subLvl, int id) throws IOException {
         super(x, y, 64, 64, subLvl);
 
@@ -71,14 +70,26 @@ public class IceBlock extends Entity{
     IceBlock(IceBlock i) {
         super(i);
 
+        placingInvalid = i.placingInvalid;
+        placingValid = i.placingValid;
+        placingAnimationSpeed = i.placingAnimationSpeed;
+        stable = i.stable;
+        stableAnimationSpeed = i.stableAnimationSpeed;
+        breaking0 = i.breaking0;
+        breaking1 = i.breaking1;
+        breaking2 = i.breaking2;
+        breaking3 = i.breaking3;
+        breaking4 = i.breaking4;
+        breakingAnimationSpeed = i.breakingAnimationSpeed;
+        broken = i.broken;
+        brokenAnimationSpeed = i.brokenAnimationSpeed;
+        end = i.end;
+        tempCanBePlaced = i.tempCanBePlaced;
+        canBePlaced = i.canBePlaced;
         isPlaced = i.isPlaced;
+        friction = i.friction;
     }
 
-
-    @Override
-    public GameObject2D copy(){
-        return new IceBlock(this);
-    }
 
     @Override
     public void update() throws Exception {
@@ -101,17 +112,17 @@ public class IceBlock extends Entity{
             }
             else if (getAnimation().equals(placingInvalid)){
 
-                killThisEntity();
+                super.killThisEntity();
             }
 
             //break handler
             hp -= 2*GamePanel.deltaTime; //normally dies in 5s
 
-            if (hp < 17) setAnimation(breaking4, breakingAnimationSpeed);
-            else if (hp < 34) setAnimation(breaking3, breakingAnimationSpeed);
-            else if (hp < 51) setAnimation(breaking2, breakingAnimationSpeed);
-            else if (hp < 68) setAnimation(breaking1, breakingAnimationSpeed);
-            else if (hp < 85) setAnimation(breaking0, breakingAnimationSpeed);
+            if (hp < 16.67) setAnimation(breaking4, breakingAnimationSpeed);
+            else if (hp < 33.34) setAnimation(breaking3, breakingAnimationSpeed);
+            else if (hp < 50.01) setAnimation(breaking2, breakingAnimationSpeed);
+            else if (hp < 66.68) setAnimation(breaking1, breakingAnimationSpeed);
+            else if (hp < 83.35) setAnimation(breaking0, breakingAnimationSpeed);
         }
 
         //not placed handler
@@ -166,5 +177,15 @@ public class IceBlock extends Entity{
             setAnimation(broken, brokenAnimationSpeed);
             setNextAnimation(end, 1);
         }
+    }
+
+    @Override
+    public void reset(){
+        super.killThisEntity();
+    }
+
+    @Override
+    public GameObject2D copy(){
+        return new IceBlock(this);
     }
 }

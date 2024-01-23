@@ -172,6 +172,10 @@ public class LevelMaker extends GameObject2D{
                 h = 75;
                 mouseY -= Math.max(0, h-gridCellHeight);
             }
+            else if (nextObjType.contains("SnowflakeGenerator")){
+                w = 50;
+                h = 50;
+            }
             else if (nextObjType.equals("Delete")){
                 w = 3;
                 h = 3;
@@ -334,6 +338,17 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
         }
+        //snowflake generator
+        else if (nextObjType.equals("SnowflakeGenerator")){
+            if (isInGridMode){
+                x += gridCellWidth/2 - 50/2;
+                y += gridCellHeight/2 - 50/2;
+            }
+            SnowflakeGenerator s = new SnowflakeGenerator(x,y, 1, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(s);
+            objects.add(s);
+        }
+        //moving platforms
         else if (nextObjType.equals("Moving Platform")){
             MovingPlatform m = new MovingPlatform(
                     x, y, x+200, y+200, defaultObjWidth, defaultObjHeight, nextObjUtilType,
@@ -475,7 +490,7 @@ public class LevelMaker extends GameObject2D{
                                 },
                                 s -> {
                                     mp.setInitialTime(Integer.parseInt(s));
-                                    mp.resetPosition();
+                                    mp.reset();
                                     return null;
                                 }
                                 ));
@@ -723,11 +738,12 @@ public class LevelMaker extends GameObject2D{
         }
 
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Delete", "Background", "To Player", "Grid", "Load", "Save")){
+        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Delete", "Background",
+                                        "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Moving Platform","Checkpoint", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform","Checkpoint", "Snowflake Generator", "Background" -> b.buttonMessageColor = Color.orange;
                 case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
@@ -767,6 +783,8 @@ public class LevelMaker extends GameObject2D{
                             nextObjType = "Checkpoint";
                             nextObjUtilType = 'b';
                         }
+
+                        case "Snowflake Generator" -> nextObjType = "SnowflakeGenerator";
 
                         case "Moving Platform" -> {
                             rightClickMenu.setX(MouseHandler.getX());
@@ -1168,6 +1186,15 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write(go.utilType);
+                    fw.write("\n".getBytes());
+                }
+                else if (go.getType().contains("SnowflakeGenerator")){
+                    fw.write("G".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write(go.getThisSnowflakeGenerator().snowFlakeCount);
                     fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("Background_")){

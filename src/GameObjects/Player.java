@@ -89,12 +89,16 @@ public class Player extends Entity{
     int[] spawnPointPos;
     public boolean hasTakenCheckpoint = false;
 
-    final int jumpBubblesDistance = 100;
+    final int jumpBubblesDistance = 90;
     final int jumpBubblesRadius = 15;
-    final Color jumpBublesOutlineColor = new Color(.07f, .09f, .11f, .75f);
-    final Color jumpBublesColor = new Color(0.64f, .88f, 1f, .5f);
+    final Color jumpBublesOutlineColor = new Color(.07f, .09f, .11f, .85f);
+    final Color jumpBublesColor = new Color(0.64f, .88f, 1f, .6f);
 
-    public int snowflakeCount = 1;
+    public int snowflakeCount = 0;
+    final int snowflakesDistance = jumpBubblesDistance + 25;
+    final int snowflakesSpacing = 20;
+    final int snowflakeSize = 15;
+    BufferedImage snowflakeImage;
     public final int iceBlockPlacingDistanceX = 64;
     public final int iceBlockPlacingDistanceY = 200;
     int iceBlockDirectionX;
@@ -147,6 +151,8 @@ public class Player extends Entity{
         speedConversionPercent = 35;
 
         deathYLine = 2000;
+
+        snowflakeImage = readImageBuffered("assets/Player/snowflake_overlay/0.png");
 
         sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 3);
 
@@ -221,39 +227,71 @@ public class Player extends Entity{
         maxJumps = p.maxJumps;
         maxJumpingTime = p.maxJumpingTime;
 
+        isDying = p.isDying;
         spawnPointPos = p.spawnPointPos;
         hasTakenCheckpoint = p.hasTakenCheckpoint;
         isOnGround = p.isOnGround;
         wasOnGround = p.wasOnGround;
         isJumping = p.isJumping;
         wasJumping = p.wasJumping;
+        friction = p.friction;
+        ground = p.ground;
+        doGroundVelocityXCount = p.doGroundVelocityXCount;
 
         speedConversionPercent = p.speedConversionPercent;
 
         deathYLine = p.deathYLine;
 
-        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 2.5);
+        sprite = new Sprite(readImageBuffered("assets/Player/idle/0.png"), 3);
 
         idle = p.idle;
-        run = p.run;
-        jump = p.jump;
-        fall = p.fall;
-        fallFast = p.fallFast;
-        land = p.land;
-        death = p.death;
-
         idleAnimationSpeed = p.idleAnimationSpeed;
+        idleOffsetX = p.idleOffsetX;
+        idleOffsetY = p.idleOffsetY;
+
+        run = p.run;
         runAnimationSpeed = p.runAnimationSpeed;
+        runOffsetX = p.runOffsetX;
+        runOffsetY = p.runOffsetY;
+
+        jump = p.jump;
         jumpAnimationSpeed = p.jumpAnimationSpeed;
+        jumpOffsetX = p.jumpOffsetX;
+        jumpOffsetY = p.jumpOffsetY;
+
+        fall = p.fall;
         fallAnimationSpeed = p.fallAnimationSpeed;
+        fallOffsetX = p.fallOffsetX;
+        fallOffsetY = p.fallOffsetY;
+
+        fallFast = p.fallFast;
         fallFastAnimationSpeed = p.fallFastAnimationSpeed;
+        fastFallOffsetX = p.fastFallOffsetX;
+        fastFallOffsetY = p.fastFallOffsetY;
+
+        land = p.land;
         landAnimationSpeed = p.landAnimationSpeed;
+        landOffsetX = p.landOffsetX;
+        landOffsetY = p.landOffsetY;
+
+        death = p.death;
         deathAnimationSpeed = p.deathAnimationSpeed;
+        deathOffsetX = p.deathOffsetX;
+        deathOffsetY = p.deathOffsetY;
 
         setAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
 
         wasJumpPressed = p.wasJumpPressed;
-
+        snowflakeCount = p.snowflakeCount;
+        snowflakeImage = p.snowflakeImage;
+        iceBlockDirectionX = p.iceBlockDirectionX;
+        iceBlockDirectionY = p.iceBlockDirectionY;
+        nextIceBlockDirectionX = p.nextIceBlockDirectionX;
+        nextIceBlockDirectionY = p.nextIceBlockDirectionY;
+        iceBlockPosXTimer = p.iceBlockPosXTimer;
+        iceBlockPosYTimer = p.iceBlockPosYTimer;
+        isPlacingIceBlock = p.isPlacingIceBlock;
+        currentIceBlock = p.currentIceBlock;
     }
 
     void playerHandler() throws Exception {
@@ -386,7 +424,7 @@ public class Player extends Entity{
 
         //Place Ice Block
         if (!KeyHandler.isPlacePressed && isPlacingIceBlock){
-            //if (currentIceBlock.canBePlaced) snowflakeCount -= 1;
+            if (currentIceBlock.canBePlaced) snowflakeCount -= 1;
             isPlacingIceBlock = false;
             currentIceBlock.isPlaced = true;
             currentIceBlock = null;
@@ -481,9 +519,7 @@ public class Player extends Entity{
 
                 // reset moving objects position
                 for (GameObject2D go : GamePanel.camera.level.permanentUpdatable){
-                    if (go.type.contains("MovingPlatform_")){
-                        go.getThisMovingPlatform().resetPosition();
-                    }
+                    go.reset();
                 }
 
                 // reset timer if no checkpoints were taken
@@ -492,6 +528,9 @@ public class Player extends Entity{
                 }
 
                 isDying = false;
+
+                jumps = 0;
+                snowflakeCount = 0;
             }
         }
     }
@@ -511,8 +550,6 @@ public class Player extends Entity{
 
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO){
-        super.draw(g2D, IO);
-
         //drawing jump bubbles
         for (int i = 0; i < maxJumps; i++){
 
@@ -528,6 +565,20 @@ public class Player extends Entity{
             g2D.setColor(jumpBublesOutlineColor);
             g2D.drawOval(posX, posY, jumpBubblesRadius, jumpBubblesRadius);
         }
+
+        //drawing snowflakes
+        int posX = getX() + getWidth()/2 - snowflakesSpacing*(snowflakeCount-1)/2  - GamePanel.camera.getScreenX();
+        int posY = getY() + getHeight()/2  - GamePanel.camera.getScreenY();
+
+        if (maxJumps == 0) posY -= jumpBubblesDistance;
+        else posY -= snowflakesDistance;
+
+        for (int i = 0; i < snowflakeCount; i++){
+            g2D.drawImage(snowflakeImage, posX, posY, snowflakeSize, snowflakeSize, IO);
+            posX += snowflakesSpacing;
+        }
+
+        super.draw(g2D, IO);
     }
 
     public boolean getOnGround() {return isOnGround;}

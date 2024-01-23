@@ -247,6 +247,10 @@ public class GameObject2D{
         throw new Exception("Method used on a non-MovingPlatform GameObject");
     }
 
+    public SnowflakeGenerator getThisSnowflakeGenerator() throws Exception{
+        throw new Exception("Method used on a non-SnowflakeGenerator GameObject");
+    }
+
     public Player getThisPlayer() throws Exception{
         throw new Exception("Method used on a non-Player GameObject");
     }
@@ -254,6 +258,8 @@ public class GameObject2D{
     public double getFriction(){
         return 0;
     }
+
+    public void reset(){}
 
     //static methods and variables
     static Player player;
