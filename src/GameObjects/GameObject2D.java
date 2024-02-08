@@ -154,6 +154,7 @@ public class GameObject2D{
     }
 
     public void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
+        animateTime = 0;
         nextAnimation = animation;
         nextAnimationSpeed = animSpeed;
         nextAnimationOffsetX = offsetX;
@@ -265,7 +266,7 @@ public class GameObject2D{
         return 0;
     }
 
-    public void reset(){}
+    public void reset() throws Exception {}
 
     //static methods and variables
     static Player player;

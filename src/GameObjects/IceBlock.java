@@ -5,7 +5,6 @@ import main.GamePanel;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class IceBlock extends Entity{
@@ -32,6 +31,8 @@ public class IceBlock extends Entity{
     boolean tempCanBePlaced;
     public boolean canBePlaced;
     public boolean isPlaced;
+
+    final int damageAmount = 25;
 
     double friction;
 
@@ -168,7 +169,7 @@ public class IceBlock extends Entity{
     }
 
     @Override
-    public void killThisEntity() {
+    public void killThisEntity() throws Exception {
         if (getAnimation().equals(end)){
             super.killThisEntity();
         }
@@ -176,11 +177,17 @@ public class IceBlock extends Entity{
             hasPhysicalCollisions = false;
             setAnimation(broken, brokenAnimationSpeed);
             setNextAnimation(end, 1);
+
+            for (GameObject2D go : getInBox(100, 100)){
+                if (go.isEntity && getDistance(go) <= 100 && !go.getType().equals("Player")){
+                    go.getThisEntity().damage(damageAmount);
+                }
+            }
         }
     }
 
     @Override
-    public void reset(){
+    public void reset() throws Exception {
         super.killThisEntity();
     }
 

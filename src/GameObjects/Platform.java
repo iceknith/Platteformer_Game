@@ -62,11 +62,11 @@ public class Platform extends GameObject2D{
     }
 
     public void collision(Entity e) throws Exception {
-        if (e.type.equals("Player")){
-            switch (utilType){
-                case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
-                case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
-            }
+        if (e.type.equals("Player") && utilType == 'w'){
+            GamePanel.camera.level.openSubLevel("win", false, true);
+        }
+        else if (utilType == 'k' || utilType == 's'){
+            e.damage(25);
         }
     }
 

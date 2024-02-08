@@ -115,6 +115,9 @@ public class Player extends Entity{
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
         super(posX,posY,39,96, subLvlName);
 
+        hasHP = true;
+        hp = 1;
+
         type = "Player";
         name = type + id;
 
@@ -540,6 +543,11 @@ public class Player extends Entity{
 
     public void setSpawnPointPos(int posX, int posY){
         spawnPointPos = new int[] {posX, posY};
+    }
+
+    @Override
+    public void damage(int damage) {
+        death(spawnPointPos);
     }
 
     @Override

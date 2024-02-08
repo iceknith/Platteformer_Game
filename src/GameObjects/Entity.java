@@ -89,6 +89,35 @@ public class Entity extends GameObject2D{
         return result;
     }
 
+    protected ArrayList<GameObject2D> getInBox(int rectWidth, int rectHeight){
+        return getInBox(getX() + getWidth()/2 - rectWidth/2, getY() + getHeight()/2 - rectHeight/2, rectWidth, rectHeight);
+    }
+
+    protected ArrayList<GameObject2D> getInBox(int rX, int rY, int rWidth, int rHeight){
+        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(rX, rY, rWidth, rHeight, 0, 0, 0, 2);
+        ArrayList<GameObject2D> result = new ArrayList<>();
+
+        for ( int[] pos: thisEntityGridCells) {
+
+            ArrayList<GameObject2D> cell = GamePanel.camera.getCellContent(pos[0], pos[1]);
+
+            for (GameObject2D object: cell) {
+
+                if (!result.contains(object) && object != this){
+
+                    result.add(object);
+                }
+            }
+        }
+        return result;
+    }
+
+    protected double getDistance(GameObject2D go){
+        final int x = (getX() + getWidth()/2) - (go.getX() + go.getWidth()/2);
+        final int y = (getY() + getHeight()/2) - (go.getY() + go.getHeight()/2);
+        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+    }
+
     protected void move() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
@@ -143,7 +172,13 @@ public class Entity extends GameObject2D{
         return 0;
     }
 
-    public void killThisEntity(){
+    public void damage(int damage){
+        if (hasHP){
+            hp -= damage;
+        }
+    }
+
+    public void killThisEntity() throws Exception {
         GamePanel.camera.deleteGOInGrid(this);
         GamePanel.camera.bufferUpdateGrid = true;
     }
