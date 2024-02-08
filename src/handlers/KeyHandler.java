@@ -14,7 +14,8 @@ public class KeyHandler implements KeyListener {
     static int suicideKey = KeyEvent.VK_E;
     static int resetKey = KeyEvent.VK_R;
     static int jumpKey = KeyEvent.VK_SPACE;
-    static int placeKey = KeyEvent.VK_END;
+    static  int placeKey = KeyEvent.VK_SHIFT;
+    static int placeDownKey = KeyEvent.VK_END;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
     static  int launchKey = KeyEvent.VK_F5;
@@ -30,6 +31,7 @@ public class KeyHandler implements KeyListener {
     public static boolean isSelectPressed;
     public static boolean isJumpPressed;
     public static boolean isPlacePressed;
+    public static  boolean isPlaceDownPressed;
     public static boolean isDebugKeyPressed;
     public static boolean isSuicideKeyPressed;
     public static boolean isResetKeyPressed;
@@ -58,6 +60,7 @@ public class KeyHandler implements KeyListener {
                 case 'h' -> resetKey = reader.read()*256 + reader.read();
                 case 'j' -> jumpKey = reader.read()*256 + reader.read();
                 case 'p' -> placeKey = reader.read()*256 + reader.read();
+                case 'q' -> placeDownKey = reader.read()*256 + reader.read();
             }
         }
     }
@@ -112,6 +115,11 @@ public class KeyHandler implements KeyListener {
         fw.write('p');
         fw.write(placeKey/256);
         fw.write(placeKey%256);
+
+        //place down key
+        fw.write('q');
+        fw.write(placeDownKey/256);
+        fw.write(placeDownKey%256);
     }
 
     @Override
@@ -143,6 +151,7 @@ public class KeyHandler implements KeyListener {
         if (k == downKey) isDownPressed = true;
         if (k == jumpKey) isJumpPressed = true;
         if (k == placeKey) isPlacePressed = true;
+        if (k == placeDownKey) isPlaceDownPressed = true;
         if (k==debugKey) isDebugKeyPressed = !isDebugKeyPressed;
         if (k == suicideKey) isSuicideKeyPressed = true;
         if (k == resetKey) isResetKeyPressed = true;
@@ -175,6 +184,7 @@ public class KeyHandler implements KeyListener {
         if (k == downKey) isDownPressed = false;
         if (k == jumpKey) isJumpPressed = false;
         if (k == placeKey) isPlacePressed = false;
+        if (k == placeDownKey) isPlaceDownPressed = false;
         if (k == suicideKey) isSuicideKeyPressed = false;
         if (k == resetKey) isResetKeyPressed = false;
         if (k == menuKey) isMenuKeyPressed = false;

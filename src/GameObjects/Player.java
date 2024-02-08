@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -86,7 +87,7 @@ public class Player extends Entity{
 
     boolean wasJumpPressed;
 
-    int[] spawnPointPos;
+    public int[] spawnPointPos;
     public boolean hasTakenCheckpoint = false;
 
     final int jumpBubblesDistance = 90;
@@ -189,7 +190,7 @@ public class Player extends Entity{
         death = getAnimationList("Player", "death", 33);
         deathOffsetX = 0;
         deathOffsetY = 0;
-        deathAnimationSpeed = 0.2;
+        deathAnimationSpeed = 0.13;
 
         setAnimation(idle, idleAnimationSpeed, idleOffsetX, idleOffsetY);
     }
@@ -423,14 +424,14 @@ public class Player extends Entity{
         }
 
         //Place Ice Block
-        if (!KeyHandler.isPlacePressed && isPlacingIceBlock){
+        if (!KeyHandler.isPlacePressed && !KeyHandler.isPlaceDownPressed && isPlacingIceBlock){
             if (currentIceBlock.canBePlaced) snowflakeCount -= 1;
             isPlacingIceBlock = false;
             currentIceBlock.isPlaced = true;
             currentIceBlock = null;
         }
 
-        if (KeyHandler.isPlacePressed && snowflakeCount > 0 && !isPlacingIceBlock){
+        if ((KeyHandler.isPlacePressed || KeyHandler.isPlaceDownPressed) && snowflakeCount > 0 && !isPlacingIceBlock){
 
                 isPlacingIceBlock = true;
 
@@ -440,8 +441,8 @@ public class Player extends Entity{
                 else if (KeyHandler.isLeftPressed) iceBlockDirectionX = -1;
 
                 iceBlockDirectionY = 0;
-                if (KeyHandler.isUpPressed) iceBlockDirectionY = -1;
-                else if (KeyHandler.isDownPressed) iceBlockDirectionY = 1;
+                if (KeyHandler.isDownPressed || KeyHandler.isPlaceDownPressed) iceBlockDirectionY = 1;
+                else if (KeyHandler.isUpPressed) iceBlockDirectionY = -1;
 
                 if (iceBlockDirectionX == 0 && iceBlockDirectionY == 0) iceBlockDirectionX = sprite.direction;
 
@@ -464,8 +465,8 @@ public class Player extends Entity{
             else if (KeyHandler.isLeftPressed) dirX = -1;
 
             int dirY = 0;
-            if (KeyHandler.isUpPressed) dirY = -1;
-            else if (KeyHandler.isDownPressed) dirY = 1;
+            if (KeyHandler.isDownPressed || KeyHandler.isPlaceDownPressed) dirY = 1;
+            else if (KeyHandler.isUpPressed) dirY = -1;
 
             if (dirX == 0 && dirY == 0) dirX = sprite.direction;
 
@@ -500,7 +501,7 @@ public class Player extends Entity{
 
     }
 
-    void death(int[] spawnPoint) throws Exception {
+    public void death(int[] spawnPoint) {
         velocityY = 0;
         velocityX = 0;
 
@@ -514,13 +515,15 @@ public class Player extends Entity{
                 GamePanel.camera.move(spawnPoint[0] - GamePanel.camera.screenWidth /2, spawnPoint[1] - GamePanel.camera.screenHeight /2);
 
                 // reset player position
+                GamePanel.camera.deleteGOInGrid(this, true);
                 setX(spawnPoint[0]);
                 setY(spawnPoint[1]);
+                prevX = getX();
+                prevY = getY();
+                GamePanel.camera.addGOInGrid(this, true);
 
-                // reset moving objects position
-                for (GameObject2D go : GamePanel.camera.level.permanentUpdatable){
-                    go.reset();
-                }
+                // reset all objects
+                GamePanel.camera.level.resetAll = true;
 
                 // reset timer if no checkpoints were taken
                 if (!hasTakenCheckpoint){
@@ -646,51 +649,6 @@ public class Player extends Entity{
         }
     }
 
-    boolean collision(GameObject2D go) throws Exception {
-
-        if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
-                getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
-            return false;
-        }
-        if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
-            if (go.hasPhysicalCollisions){
-                setX(go.getX() - getWidth() - 1);
-                velocityX = go.getVelocityX();
-            }
-            go.collision(this);
-            return true;
-        }
-
-        if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
-            if (go.hasPhysicalCollisions){
-                setX(go.getX() + go.getWidth() + 1);
-                velocityX = go.getVelocityX();
-            }
-            go.collision(this);
-            return true;
-        }
-
-        if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
-            if (go.hasPhysicalCollisions){
-                isOnGround = true;
-                setY(go.getY() - getHeight() - 1);
-                velocityY = go.getVelocityY();
-            }
-            go.collision(this);
-            return true;
-        }
-
-        if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
-            if (go.hasPhysicalCollisions){
-                setY(go.getY() + go.getHeight() + 1);
-                velocityY = go.getVelocityY();
-            }
-            go.collision(this);
-            return true;
-        }
-        return false;
-    }
-
     void checkGround(GameObject2D go){
         if (wasOnGround && go.hasPhysicalCollisions){
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
@@ -715,19 +673,19 @@ public class Player extends Entity{
     }
 
     @Override
-    public void move() throws Exception {
+    protected void move() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();
         setX((int) (getX() + Math.round((velocityX + getGroundVelocityX()) * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round((velocityY + getGroundVelocityY()) * GamePanel.deltaTime)));
-        GamePanel.camera.addGOInGrid(this, false);
 
         wasOnGround = isOnGround;
         isOnGround = false;
         for (GameObject2D go: getNear()){
             checkGround(go);
-            collision(go);
+            int didCollide = didCollide(go);
+            if (didCollide == 1 && go.hasPhysicalCollisions) isOnGround = true;
         }
         if (!isOnGround){
             velocityX += getGroundVelocityX();
@@ -735,6 +693,8 @@ public class Player extends Entity{
             ground = null;
             friction = airFriction;
         }
+
+        GamePanel.camera.addGOInGrid(this, false);
     }
 
     @Override

@@ -109,8 +109,12 @@ public class MovingPlatform extends Entity{
 
     @Override
     public void reset(){
+        GamePanel.camera.deleteGOInGrid(this, true);
         setX(posX1);
         setY(posY1);
+        prevX = getX();
+        prevY = getY();
+        GamePanel.camera.addGOInGrid(this, true);
         time = initialTime;
     }
 
@@ -134,9 +138,11 @@ public class MovingPlatform extends Entity{
 
     @Override
     public void collision(Entity e) throws Exception {
-        switch (utilType){
-            case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
-            case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+        if (e.type.equals("Player")){
+            switch (utilType){
+                case 'w' -> GamePanel.camera.level.openSubLevel("win", false, true);
+                case 'k', 's' -> GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+            }
         }
     }
 

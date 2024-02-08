@@ -88,7 +88,7 @@ public class Sprite {
         return direction;
     }
 
-    void setDirection(int newDir){
+    public void setDirection(int newDir){
         int prevDir = direction;
         if (newDir > 0){
             directionOffsetX = 0;

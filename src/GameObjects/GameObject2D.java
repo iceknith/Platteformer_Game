@@ -13,17 +13,17 @@ import java.util.Map;
 
 public class GameObject2D{
 
-    String name;
-    String type;
+    public String name;
+    public String type;
 
     String subLevelName;
 
-    Rectangle hitbox;
+    public Rectangle hitbox;
 
     public boolean hasPhysicalCollisions = true;
     public boolean isGUI = false;
 
-    Sprite sprite;
+    public Sprite sprite;
 
     ArrayList<BufferedImage> currentAnimation;
     ArrayList<BufferedImage> nextAnimation;
@@ -37,6 +37,7 @@ public class GameObject2D{
     int animationPriority;
 
     public char utilType;
+    public boolean isEntity = false;
 
     GameObject2D(int x, int y, int w, int h, String subLvl){
         hitbox = new Rectangle(x,y,w,h);
@@ -116,11 +117,11 @@ public class GameObject2D{
 
     public String getType(){return type;}
 
-    void setX(int x){
+    protected void setX(int x){
         hitbox.x = x;
     }
 
-    void setY(int y){
+    protected void setY(int y){
         hitbox.y = y;
     }
 
@@ -130,7 +131,7 @@ public class GameObject2D{
 
     public void setSubLevelName(String name){subLevelName = name;}
 
-    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio,  int offsetX, int offsetY){
+    public void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio,  int offsetX, int offsetY){
         if (animationPriority <= animPrio) {
             currentAnimation = animation;
             animationSpeed = animSpeed;
@@ -144,26 +145,26 @@ public class GameObject2D{
         }
     }
 
-    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
+    public void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
         setAnimation(animation, animSpeed, 0, offsetX, offsetY);
     }
 
-    void setAnimation(ArrayList<BufferedImage> animation, double animSpeed){
+    public void setAnimation(ArrayList<BufferedImage> animation, double animSpeed){
         setAnimation(animation, animSpeed, sprite.offsetX, sprite.offsetY);
     }
 
-    void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
+    public void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
         nextAnimation = animation;
         nextAnimationSpeed = animSpeed;
         nextAnimationOffsetX = offsetX;
         nextAnimationOffsetY = offsetY;
     }
 
-    void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed){
+    public void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed){
         setNextAnimation(animation, animSpeed, sprite.offsetX, sprite.offsetY);
     }
 
-    void animate(){
+    public void animate(){
         animateTime += GamePanel.deltaTime;
 
         if(animateTime >= animationSpeed){
@@ -236,6 +237,11 @@ public class GameObject2D{
     }
 
     //type specific methods
+
+    public Entity getThisEntity() throws Exception{
+        throw  new Exception("Method used on a non-Entity GameObject");
+    }
+
     public Button getThisButton() throws Exception {
         throw new Exception("Method used on a non-button GameObject");
     }

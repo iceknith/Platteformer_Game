@@ -1,5 +1,6 @@
 package GameObjects;
 
+import GameObjects.Enemies.Hyena;
 import handlers.KeyHandler;
 import main.GamePanel;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,7 @@ public class Level {
     boolean wasMenuKeyPressed;
     boolean forceUpdate;
     boolean willUpdatableClear = false;
+    boolean resetAll;
 
     //level maker
     boolean hasLevelMaker;
@@ -120,6 +122,13 @@ public class Level {
             }
         }
         permanentUpdatableAddBuffer.clear();
+
+        if (resetAll){
+            resetAll = false;
+            for (GameObject2D go : new ArrayList<>(GamePanel.camera.allGOInGrid)){
+                go.reset();
+            }
+        }
     }
 
     public void loadLevel() throws FileNotFoundException {
@@ -212,7 +221,13 @@ public class Level {
                         MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, initTime, uType, texture.toString(), frameCount,"#" + i, "");
                         objectsBuffer.add(m);
                     }
+                    case 'h' -> { //Hyena
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
 
+                        Hyena h = new Hyena(x, y, "#" + i, "");
+                        objectsBuffer.add(h);
+                    }
                     case 'O' -> { //ImageObject
                         int w = reader.read()*256 + reader.read();
                         int h = reader.read()*256 + reader.read();

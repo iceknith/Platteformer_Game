@@ -1,5 +1,6 @@
 package GameObjects;
 
+import GameObjects.Enemies.Hyena;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
@@ -47,6 +48,9 @@ public class LevelMaker extends GameObject2D{
     ArrayList<Image> movingPlatformImages = new ArrayList<>();
     ArrayList<Character> movingPlatformUtilTypes = new ArrayList<>();
     ArrayList<Integer> movingPlatformFrameCount = new ArrayList<>();
+
+    ArrayList<String> enemyTypes = new ArrayList<>();
+    ArrayList<Image> enemyImages = new ArrayList<>();
 
     ArrayList<String> backgroundTextureNames = new ArrayList<>();
     ArrayList<int[]> backgroundDimensions = new ArrayList<>();
@@ -357,6 +361,12 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.addToMainSubLevel(m);
             objects.add(m);
         }
+        //Hyena
+        else if (nextObjType.equals("Hyena")){
+            Hyena h = new Hyena(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(h);
+            objects.add(h);
+        }
         else{
             objIsPlaced = true;
         }
@@ -510,7 +520,6 @@ public class LevelMaker extends GameObject2D{
         Function<Void, Void> changeCheckpointUtilType =
                 unused -> {
                     txtInputMenu.setAsInt(false);
-
                     txtInputMenu.setCategoryNames(List.of("Util Type"));
                     txtInputMenu.setDefaultValues(List.of(String.valueOf(go.utilType)));
                     txtInputMenu.setCategorySetValues(Arrays.asList(
@@ -521,6 +530,39 @@ public class LevelMaker extends GameObject2D{
                                 }
                                 return null;
                             }));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+
+                    canPlaceObj = false;
+                    MouseHandler.resetClicks();
+
+                    return unused;
+                };
+
+        Function<Void, Void> changeSnowflakeGenCount =
+                unused -> {
+                    txtInputMenu.setAsInt(true);
+                    try {
+                        SnowflakeGenerator snowGen = go.getThisSnowflakeGenerator();
+
+                        txtInputMenu.setCategoryNames(List.of("Snowflake Count"));
+                        txtInputMenu.setDefaultValues(List.of(String.valueOf(snowGen.snowFlakeCount)));
+                        txtInputMenu.setCategorySetValues(List.of(
+                                s -> {
+                                    try {
+                                        snowGen.setSnowFlakeCount(Integer.parseInt(s));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    return null;
+                                }
+                        ));
+
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
 
                     txtInputMenu.isOpen = true;
                     rightClickMenu.activate();
@@ -543,9 +585,16 @@ public class LevelMaker extends GameObject2D{
             rightClickMenu.setHeight(rightClickMenu.buttonHeight);
         }
 
-        else if (go.type.contains("Checkpoint")){
+        else if (go.type.contains("Checkpoint") || go.type.equals("Hyena")){
             rightClickMenu.setButtonText(Arrays.asList("Delete", "Move","Change uType"));
             rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeCheckpointUtilType));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
+        }
+
+        else if (go.type.contains("SnowflakeGenerator")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move","Change Snowflake Count"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeSnowflakeGenCount));
 
             rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
         }
@@ -693,7 +742,6 @@ public class LevelMaker extends GameObject2D{
 
             while (line != null) {
 
-                System.out.println(line);
                 int frameCnt = Integer.parseInt(line.split(";")[2]);
                 char utilType;
 
@@ -737,13 +785,17 @@ public class LevelMaker extends GameObject2D{
             throw new RuntimeException(e);
         }
 
+        //write enemy info
+        enemyTypes.add("Hyena");
+        enemyImages.add(readImageBuffered("assets/Enemy/Hyena/idle/0.png"));
+
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Delete", "Background",
+        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Delete", "Background",
                                         "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Moving Platform","Checkpoint", "Snowflake Generator", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform","Checkpoint", "Snowflake Generator", "Enemy", "Background" -> b.buttonMessageColor = Color.orange;
                 case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
@@ -812,6 +864,34 @@ public class LevelMaker extends GameObject2D{
                             rightClickMenu.setButtonExec(buttonExec);
                             rightClickMenu.setDisplayedWidth(500);
                             rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * movingPlatformTextures.size() - 10);
+                            if (!rightClickMenu.isOpen) {
+                                rightClickMenu.activate();
+                            }
+                            GamePanel.camera.update();
+                            GamePanel.camera.noUpdate = true;
+                        }
+
+                        case "Enemy" -> {
+                            rightClickMenu.setX(MouseHandler.getX());
+                            rightClickMenu.setY(MouseHandler.getY());
+                            rightClickMenu.setButtonText(enemyTypes);
+                            rightClickMenu.setButtonImages(enemyImages);
+
+                            ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
+                            for (int i = 0; i < enemyTypes.size(); i++){
+                                int finalI = i;
+                                buttonExec.add(unused -> {
+                                    nextObjType = enemyTypes.get(finalI);
+                                    rightClickMenu.activate();
+                                    MouseHandler.resetClicks();
+                                    GamePanel.camera.noUpdate = false;
+                                    return unused;
+                                });
+                            }
+
+                            rightClickMenu.setButtonExec(buttonExec);
+                            rightClickMenu.setDisplayedWidth(500);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * enemyTypes.size() - 10);
                             if (!rightClickMenu.isOpen) {
                                 rightClickMenu.activate();
                             }
@@ -1151,6 +1231,14 @@ public class LevelMaker extends GameObject2D{
                     fw.write(mpGO.utilType);
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
+                }
+                else if (go.getType().equals("Hyena")){
+                    fw.write("h".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("Platform_")){
                     fw.write("P".getBytes());

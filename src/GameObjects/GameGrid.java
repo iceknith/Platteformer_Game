@@ -9,9 +9,10 @@ import java.util.Vector;
 public class GameGrid {
 
     ArrayList<ArrayList<ArrayList<GameObject2D>>> grid;
+    public ArrayList<GameObject2D> allGOInGrid;
 
     Vector<GameObject2D> visible = new Vector<>();
-    Level level = new Level();
+    public Level level = new Level();
 
     int screenX;
     int screenY;
@@ -41,6 +42,7 @@ public class GameGrid {
         screenY = gridY;
 
         grid = new ArrayList<>();
+        allGOInGrid = new ArrayList<>();
     }
 
     public ArrayList<GameObject2D> getCellContent(int cellX, int cellY){
@@ -68,6 +70,8 @@ public class GameGrid {
     public void deleteGOInGrid(GameObject2D r){deleteGOInGrid(r, true);}
 
     public void deleteGOInGrid(GameObject2D r, boolean permaRemove){
+        allGOInGrid.remove(r);
+
         ArrayList<int[]> cellPos = findRectPosInGrid(r);
 
         //remove from permanent updated
@@ -90,6 +94,8 @@ public class GameGrid {
 
         //do not add gui in grid
         if (r.isGUI) return;
+
+        allGOInGrid.add(r);
 
         //add to permanent updated
         if (firstAdd &&
@@ -261,6 +267,7 @@ public class GameGrid {
         visible.clear();
         level.clearUpdatable();
         grid.clear();
+        allGOInGrid.clear();
         x = 0; y = 0;
 
         for (GameObject2D go : levelObjects){
@@ -283,6 +290,8 @@ public class GameGrid {
             int startIndexY = Math.max((screenY - y)/cellHeight - 1, 0);
             int endIndexY = Math.min((screenY + screenHeight - y)/cellHeight + 1, grid.get(0).size());
 
+            ArrayList<GameObject2D> lastDisplayed = new ArrayList<>();
+
             for (int indexX = startIndexX; indexX < endIndexX; indexX ++){
 
                 for (int indexY = startIndexY; indexY < endIndexY; indexY ++){
@@ -290,14 +299,14 @@ public class GameGrid {
                     if (!grid.get(indexX).get(indexY).isEmpty()){
 
                         for (GameObject2D go : grid.get(indexX).get(indexY)){
-                            if (!visible.contains(go)){
+                            if (!visible.contains(go) && !lastDisplayed.contains(go)){
 
                                 if (!go.type.equals("Player") &&
                                     !go.type.contains("MovingPlatform_")){
                                     level.addUpdatable(go);
                                 }
-                                if (go.type.equals("Player")){
-                                    visible.insertElementAt(go, 0);
+                                if (go.isEntity){
+                                    lastDisplayed.add(go);
                                 }
                                 else{
                                     visible.add(go);
@@ -307,14 +316,9 @@ public class GameGrid {
                     }
                 }
             }
-            //make the player render before everything else
-            if (!visible.isEmpty()){
-                GameObject2D go = visible.get(0);
-                if (go.type.equals("Player")) {
-                    visible.remove(0);
-                    visible.add(go);
-                }
-            }
+
+            //add the last displayed objects
+            visible.addAll(lastDisplayed);
         }
 
         //handle gui and background
