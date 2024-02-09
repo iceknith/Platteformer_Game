@@ -9,20 +9,17 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Hyena extends Entity {
+public class Chicken extends Entity {
 
     ArrayList<BufferedImage> idle;
-    final int idleAnimSpeed = 3;
     ArrayList<BufferedImage> run;
-    final int runAnimSpeed = 1;
     ArrayList<BufferedImage> damageAnim;
-    final int damageAnimSpeed = 2;
     ArrayList<BufferedImage> dying;
-    final  int dyingAnimSpeed = 1;
     ArrayList<BufferedImage> dead;
-    final  int deadAnimSpeed = 100;
+    final int animSpeed = 1;
 
-    final int offsetX = 15, offsetY = 50;
+    final int defaultOffsetX = 0, defaultOffsetY = 10;
+    final int deadOffsetX = 0, deadOffsetY = 5;
 
     int initialPosX, initialPosY;
 
@@ -43,9 +40,9 @@ public class Hyena extends Entity {
     boolean isVulnerable = true;
     boolean isDead = false;
 
-    public Hyena(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 75, 40, subLvl);
-        type = "Hyena";
+    public Chicken(int x, int y, String id, String subLvl) throws IOException {
+        super(x, y, 45, 38, subLvl);
+        type = "Chicken";
         name = type+id;
         isEnemy = true;
 
@@ -55,33 +52,34 @@ public class Hyena extends Entity {
         initialPosX = x;
         initialPosY = y;
 
-        idle = getAnimationList("Enemy/Hyena", "idle", 3);
-        run = getAnimationList("Enemy/Hyena", "run", 5);
-        damageAnim = getAnimationList("Enemy/Hyena", "damage", 1);
-        dying = getAnimationList("Enemy/Hyena", "dying", 5);
-        dead = getAnimationList("Enemy/Hyena", "dead", 0);
+        idle = getAnimationList("Enemy/Chicken", "idle", 4);
+        run = getAnimationList("Enemy/Chicken", "walking", 3);
+        damageAnim = getAnimationList("Enemy/Chicken", "damage", 5);
+        dying = getAnimationList("Enemy/Chicken", "dying", 3);
+        dead = getAnimationList("Enemy/Chicken", "dead", 0);
 
         sprite = new Sprite(idle.get(0), 3);
-        setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+        sprite.setDirection(-direction);
+        setAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
     }
 
-    public Hyena(Hyena h) {
-        super(h);
+    public Chicken(Chicken c) {
+        super(c);
 
-        run = h.run;
-        idle = h.idle;
-        damageAnim = h.damageAnim;
-        dying = h.dying;
-        dead = h.dead;
+        run = c.run;
+        idle = c.idle;
+        damageAnim = c.damageAnim;
+        dying = c.dying;
+        dead = c.dead;
 
-        isChasing = h.isChasing;
-        direction = h.direction;
-        turnTimer = h.turnTimer;
-        initialPosX = h.initialPosX;
-        initialPosY = h.initialPosY;
-        hadSideCollision = h.hadSideCollision;
-        isVulnerable = h.isVulnerable;
-        isDead = h.isDead;
+        isChasing = c.isChasing;
+        direction = c.direction;
+        turnTimer = c.turnTimer;
+        initialPosX = c.initialPosX;
+        initialPosY = c.initialPosY;
+        hadSideCollision = c.hadSideCollision;
+        isVulnerable = c.isVulnerable;
+        isDead = c.isDead;
     }
 
     @Override
@@ -102,7 +100,7 @@ public class Hyena extends Entity {
                 hasPhysicalCollisions = false;
                 hasHP = false;
                 isDead = true;
-                setNextAnimation(dead, deadAnimSpeed, offsetX, offsetY);
+                setNextAnimation(dead, animSpeed, deadOffsetX, deadOffsetY);
             }
             return;
         }
@@ -118,9 +116,9 @@ public class Hyena extends Entity {
                 hadSideCollision = false;
 
                 direction = -direction;
-                sprite.setDirection(direction);
+                sprite.setDirection(-direction);
                 turnTimer = 0;
-                setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+                setAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
             }
             velocityX = Math.min(runSpeed, Math.max(-runSpeed, velocityX-acceleration*direction));
         }
@@ -136,7 +134,7 @@ public class Hyena extends Entity {
 
                 direction = -direction;
 
-                sprite.setDirection(direction);
+                sprite.setDirection(-direction);
             }
 
             //spotting the player
@@ -149,8 +147,8 @@ public class Hyena extends Entity {
             int playerPosYMax = GameObject2D.getPlayer().getY() + GameObject2D.getPlayer().getHeight();
 
             if(posXMin < playerPosX && playerPosX < posXMax &&
-                playerPosYMin < posY && posY < playerPosYMax){
-                setAnimation(run, runAnimSpeed, offsetX, offsetY);
+                    playerPosYMin < posY && posY < playerPosYMax){
+                setAnimation(run, animSpeed, defaultOffsetX, defaultOffsetY);
                 isChasing = true;
             }
         }
@@ -199,12 +197,12 @@ public class Hyena extends Entity {
 
             isChasing = false;
             isVulnerable = false;
-            setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
+            setAnimation(damageAnim, animSpeed, defaultOffsetX, defaultOffsetY);
             if (hp <= 0){
-                setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+                setNextAnimation(dying, animSpeed, deadOffsetX, deadOffsetY);
             }
             else {
-                setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+                setNextAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
                 if (isChasing) hadSideCollision = true;
             }
         }
@@ -223,8 +221,8 @@ public class Hyena extends Entity {
         hadSideCollision = false;
         turnTimer = 0;
         direction = 1;
-        sprite.setDirection(direction);
-        setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+        sprite.setDirection(-direction);
+        setAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
         setNextAnimation(null, 0);
 
         GamePanel.camera.deleteGOInGrid(this, true);
@@ -239,6 +237,6 @@ public class Hyena extends Entity {
 
     @Override
     public GameObject2D copy() throws IOException {
-        return new Hyena(this);
+        return new Chicken(this);
     }
 }

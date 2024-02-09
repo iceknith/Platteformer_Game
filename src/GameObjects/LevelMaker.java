@@ -1,5 +1,6 @@
 package GameObjects;
 
+import GameObjects.Enemies.Chicken;
 import GameObjects.Enemies.Hyena;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
@@ -366,6 +367,12 @@ public class LevelMaker extends GameObject2D{
             Hyena h = new Hyena(x, y, "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(h);
             objects.add(h);
+        }
+        //Chicken
+        else if (nextObjType.equals("Chicken")){
+            Chicken c = new Chicken(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(c);
+            objects.add(c);
         }
         else{
             objIsPlaced = true;
@@ -788,6 +795,8 @@ public class LevelMaker extends GameObject2D{
         //write enemy info
         enemyTypes.add("Hyena");
         enemyImages.add(readImageBuffered("assets/Enemy/Hyena/idle/0.png"));
+        enemyTypes.add("Chicken");
+        enemyImages.add(readImageBuffered("assets/Enemy/Chicken/idle/0.png"));
 
         //define other buttons
         for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Delete", "Background",
@@ -1232,8 +1241,9 @@ public class LevelMaker extends GameObject2D{
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
-                else if (go.getType().equals("Hyena")){
-                    fw.write("h".getBytes());
+                else if (go.getType().equals("Hyena") || go.getType().equals("Chicken")){
+                    if (go.getType().equals("Hyena")) fw.write("h".getBytes());
+                    else fw.write("c".getBytes());
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);

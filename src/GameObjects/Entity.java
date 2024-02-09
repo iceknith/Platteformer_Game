@@ -14,6 +14,7 @@ public class Entity extends GameObject2D{
 
     public boolean hasHP = false;
     public double hp = 0;
+    public boolean isEnemy = false;
 
     protected Entity(int x, int y, int w, int h, String subLvl){
         super(x, y, w, h, subLvl);
@@ -26,6 +27,7 @@ public class Entity extends GameObject2D{
     protected Entity(Entity e){
         super(e);
 
+        isEnemy = e.isEnemy;
         velocityY = e.velocityY;
         velocityX = e.velocityX;
         prevX = e.prevX;

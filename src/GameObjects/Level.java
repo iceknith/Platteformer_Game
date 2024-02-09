@@ -1,5 +1,6 @@
 package GameObjects;
 
+import GameObjects.Enemies.Chicken;
 import GameObjects.Enemies.Hyena;
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -227,6 +228,13 @@ public class Level {
 
                         Hyena h = new Hyena(x, y, "#" + i, "");
                         objectsBuffer.add(h);
+                    }
+                    case 'c' -> { //Chicken
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+
+                        Chicken c = new Chicken(x, y, "#" + i, "");
+                        objectsBuffer.add(c);
                     }
                     case 'O' -> { //ImageObject
                         int w = reader.read()*256 + reader.read();
