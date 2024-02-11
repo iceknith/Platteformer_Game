@@ -2,6 +2,7 @@ package GameObjects;
 
 import GameObjects.Enemies.Chicken;
 import GameObjects.Enemies.Hyena;
+import GameObjects.Enemies.Knight;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
@@ -374,21 +375,35 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.addToMainSubLevel(c);
             objects.add(c);
         }
+        //Knight
+        else if (nextObjType.equals("Knight")){
+            Knight k = new Knight(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(k);
+            objects.add(k);
+        }
         else{
             objIsPlaced = true;
         }
     }
 
-    public void editGoLogic(GameObject2D go, int pointX, int pointY){
+    public void editGoLogic(GameObject2D go, int pointX, int pointY) throws Exception {
 
         Function<Void, Void> delete =
                 unused -> {
             objects.remove(go);
             GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
-            GamePanel.camera.deleteGOInGrid(go);
-            GamePanel.camera.updateGrid();
+                    try {
+                        GamePanel.camera.deleteGOInGrid(go);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        GamePanel.camera.updateGrid();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 
-            rightClickMenu.activate();
+                    rightClickMenu.activate();
             GamePanel.camera.noUpdate = false;
 
             MouseHandler.resetClicks();
@@ -405,19 +420,35 @@ public class LevelMaker extends GameObject2D{
             txtInputMenu.setCategorySetValues(Arrays.asList(
                     s -> {
                         int i = Integer.parseInt(s);
-                        GamePanel.camera.deleteGOInGrid(go);
+                        try {
+                            GamePanel.camera.deleteGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         go.setWidth(i);
                         go.sprite.setWidth(i);
-                        GamePanel.camera.addGOInGrid(go);
+                        try {
+                            GamePanel.camera.addGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         if (!isInGridMode) defaultObjWidth = i;
                         return null;
                         },
                     s -> {
                         int i = Integer.parseInt(s);
-                        GamePanel.camera.deleteGOInGrid(go);
+                        try {
+                            GamePanel.camera.deleteGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         go.setHeight(i);
                         go.sprite.setHeight(i);
-                        GamePanel.camera.addGOInGrid(go);
+                        try {
+                            GamePanel.camera.addGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         if (!isInGridMode) defaultObjHeight = i;
                         canPlaceObj = true;
                         return null;
@@ -441,7 +472,11 @@ public class LevelMaker extends GameObject2D{
             txtInputMenu.setCategorySetValues(Arrays.asList(
                     s -> {
                         int i = Integer.parseInt(s);
-                        GamePanel.camera.deleteGOInGrid(go);
+                        try {
+                            GamePanel.camera.deleteGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         go.setX(i);
                         if (go.name.contains("Player")) player.spawnPointPos[0] = i;
                         if (go.name.contains("MovingPlatform_")) {
@@ -451,11 +486,19 @@ public class LevelMaker extends GameObject2D{
                                 throw new RuntimeException(e);
                             }
                         }
-                        GamePanel.camera.addGOInGrid(go);
+                        try {
+                            GamePanel.camera.addGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         return null;},
 
                     s -> {int i = Integer.parseInt(s);
-                        GamePanel.camera.deleteGOInGrid(go);
+                        try {
+                            GamePanel.camera.deleteGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         go.setY(i);
                         if (go.name.contains("Player")) player.spawnPointPos[1] = i;
                         if (go.name.contains("MovingPlatform_")) {
@@ -465,7 +508,11 @@ public class LevelMaker extends GameObject2D{
                                 throw new RuntimeException(e);
                             }
                         }
-                        GamePanel.camera.addGOInGrid(go);
+                        try {
+                            GamePanel.camera.addGOInGrid(go);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         canPlaceObj = true;
                         return null;
                     }));
@@ -507,7 +554,11 @@ public class LevelMaker extends GameObject2D{
                                 },
                                 s -> {
                                     mp.setInitialTime(Integer.parseInt(s));
-                                    mp.reset();
+                                    try {
+                                        mp.reset();
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     return null;
                                 }
                                 ));
@@ -797,6 +848,8 @@ public class LevelMaker extends GameObject2D{
         enemyImages.add(readImageBuffered("assets/Enemy/Hyena/idle/0.png"));
         enemyTypes.add("Chicken");
         enemyImages.add(readImageBuffered("assets/Enemy/Chicken/idle/0.png"));
+        enemyTypes.add("Knight");
+        enemyImages.add(readImageBuffered("assets/Enemy/Knight/idle/0.png"));
 
         //define other buttons
         for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Delete", "Background",
@@ -820,7 +873,7 @@ public class LevelMaker extends GameObject2D{
         maxButtonY = y + 75;
     }
 
-    void buttonLogic() throws IOException {
+    void buttonLogic() throws Exception {
 
         cameraCanMove = true;
         canPlaceObj = !txtInputMenu.isOpen && !rightClickMenu.isOpen;
@@ -1241,8 +1294,9 @@ public class LevelMaker extends GameObject2D{
                     fw.write(mpGO.currentAnimation.size() - 1);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
-                else if (go.getType().equals("Hyena") || go.getType().equals("Chicken")){
+                else if (go.getType().equals("Hyena") || go.getType().equals("Chicken") || go.getType().equals("Knight")){
                     if (go.getType().equals("Hyena")) fw.write("h".getBytes());
+                    else if (go.getType().equals("Knight")) fw.write("k".getBytes());
                     else fw.write("c".getBytes());
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);

@@ -9,30 +9,36 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Hyena extends Entity {
+public class Knight extends Entity {
 
     ArrayList<BufferedImage> idle;
     final int idleAnimSpeed = 3;
     ArrayList<BufferedImage> run;
-    final int runAnimSpeed = 1;
+    final int defaultWalkAnimSpeed = 2;
+    final int defaultRunAnimSpeed = 1;
+    int runAnimSpeed = defaultWalkAnimSpeed;
     ArrayList<BufferedImage> damageAnim;
-    final int damageAnimSpeed = 2;
+    final double damageAnimSpeed = 1;
     ArrayList<BufferedImage> dying;
     final double dyingAnimSpeed = 1;
     ArrayList<BufferedImage> dead;
     final  int deadAnimSpeed = 100;
 
-    final int offsetX = 15, offsetY = 50;
+    final int offsetX = 0, offsetY = 5;
 
     int initialPosX, initialPosY;
 
-    final double gravity = 2.25;
-    final int maxYSpeed = 150;
-    final double acceleration = 10;
-    final int runSpeed = 60;
+    final double gravity = 2.5;
+    final int maxYSpeed = 200;
+    final double runAcceleration = 3;
+    final double walkAcceleration = 1;
+    double acceleration = walkAcceleration;
+    final int runSpeed = 40;
+    final int walkSpeed = 20;
+    int maxSpeed = walkSpeed;
     final  int maxHealth = 250;
+    final int knockBackForce = 15;
     boolean isChasing = false;
-    boolean hadSideCollision = true;
 
     int direction = 1;
 
@@ -44,46 +50,50 @@ public class Hyena extends Entity {
     boolean isVulnerable = true;
     boolean isDead = false;
 
-    public Hyena(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 75, 40, subLvl);
-        type = "Hyena";
+    public Knight(int x, int y, String id, String subLvl) throws IOException {
+        super(x, y, 35, 105, subLvl);
+        type = "Knight";
         name = type+id;
         isEnemy = true;
         doesDamage = true;
 
         hasHP = true;
-        hp  = maxHealth;
+        hp = maxHealth;
 
         initialPosX = x;
         initialPosY = y;
 
-        idle = getAnimationList("Enemy/Hyena", "idle", 3);
-        run = getAnimationList("Enemy/Hyena", "run", 5);
-        damageAnim = getAnimationList("Enemy/Hyena", "damage", 1);
-        dying = getAnimationList("Enemy/Hyena", "dying", 5);
-        dead = getAnimationList("Enemy/Hyena", "dead", 0);
+        idle = getAnimationList("Enemy/Knight", "idle", 2);
+        run = getAnimationList("Enemy/Knight", "run", 7);
+        damageAnim = getAnimationList("Enemy/Knight", "damage", 2);
+        dying = getAnimationList("Enemy/Knight", "dying", 8);
+        dead = getAnimationList("Enemy/Knight", "dead", 0);
 
-        sprite = new Sprite(idle.get(0), 3);
+        sprite = new Sprite(idle.get(0), 3.5);
+        sprite.setDirection(-direction);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
     }
 
-    public Hyena(Hyena h) {
-        super(h);
+    public Knight(Knight k) {
+        super(k);
 
-        run = h.run;
-        idle = h.idle;
-        damageAnim = h.damageAnim;
-        dying = h.dying;
-        dead = h.dead;
+        run = k.run;
+        idle = k.idle;
+        damageAnim = k.damageAnim;
+        dying = k.dying;
+        dead = k.dead;
 
-        isChasing = h.isChasing;
-        direction = h.direction;
-        turnTimer = h.turnTimer;
-        initialPosX = h.initialPosX;
-        initialPosY = h.initialPosY;
-        hadSideCollision = h.hadSideCollision;
-        isVulnerable = h.isVulnerable;
-        isDead = h.isDead;
+        runAnimSpeed = k.runAnimSpeed;
+        acceleration = k.acceleration;
+        maxSpeed = k.maxSpeed;
+
+        isChasing = k.isChasing;
+        direction = k.direction;
+        turnTimer = k.turnTimer;
+        initialPosX = k.initialPosX;
+        initialPosY = k.initialPosY;
+        isVulnerable = k.isVulnerable;
+        isDead = k.isDead;
     }
 
     @Override
@@ -110,48 +120,48 @@ public class Hyena extends Entity {
         }
 
         if (!isVulnerable){
-            if (getAnimation().equals(idle)) isVulnerable = true;
+            if (getAnimation().equals(idle) || getAnimation().equals(run)) isVulnerable = true;
             else return;
         }
 
         if (isChasing){
-            if (hadSideCollision){
-                isChasing = false;
-                hadSideCollision = false;
+            direction = (int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2);
+            sprite.setDirection(-direction);
 
-                direction = -direction;
-                sprite.setDirection(direction);
-                turnTimer = 0;
-                setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+            if (maxSpeed != runSpeed){
+                maxSpeed = runSpeed;
+                acceleration = runAcceleration;
+                runAnimSpeed = defaultRunAnimSpeed;
             }
-            velocityX = Math.min(runSpeed, Math.max(-runSpeed, velocityX-acceleration*direction));
         }
-
         else{
-            if (velocityX != 0) stop();
+            //patrolling
+            if (maxSpeed != walkSpeed){
+                maxSpeed = walkSpeed;
+                acceleration = walkAcceleration;
+                runAnimSpeed = defaultWalkAnimSpeed;
+            }
 
-
-            //turning
             turnTimer += GamePanel.deltaTime/10;
             if (turnTimer >= turnTime){
                 turnTimer = 0;
 
                 direction = -direction;
 
-                sprite.setDirection(direction);
+                sprite.setDirection(-direction);
             }
 
             //spotting the player
             int posXMin = Math.min(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
             int posXMax = Math.max(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
-            int posY = getY();
+            int posY = getY() + getHeight()/2;
 
             int playerPosX = GameObject2D.getPlayer().getX() + GameObject2D.getPlayer().getWidth()/2;
             int playerPosYMin = GameObject2D.getPlayer().getY();
             int playerPosYMax = GameObject2D.getPlayer().getY() + GameObject2D.getPlayer().getHeight();
 
             if(posXMin < playerPosX && playerPosX < posXMax &&
-                playerPosYMin < posY && posY < playerPosYMax){
+                    playerPosYMin < posY && posY < playerPosYMax){
                 setAnimation(run, runAnimSpeed, offsetX, offsetY);
                 isChasing = true;
             }
@@ -160,6 +170,21 @@ public class Hyena extends Entity {
 
     @Override
     public void move() throws Exception {
+        //x movement
+        if (isVulnerable){
+            if (isSafeGround(-maxSpeed*direction) && !isWall(-maxSpeed*direction, false)) {
+                velocityX = Math.min(maxSpeed, Math.max(-maxSpeed, velocityX-acceleration*direction));
+
+                if (!getAnimation().equals(run) || animationSpeed != runAnimSpeed) setAnimation(run, runAnimSpeed, offsetX, offsetY);
+            }
+            else {
+                velocityX = 0;
+
+                if (!getAnimation().equals(idle)) setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+            }
+        }
+
+        //y movement
         velocityY = Math.max(-maxYSpeed, velocityY - (gravity * GamePanel.deltaTime * 6));
 
         GamePanel.camera.deleteGOInGrid(this, false);
@@ -168,30 +193,20 @@ public class Hyena extends Entity {
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
-        hadSideCollision = false;
         for (GameObject2D go: getNear()){
             int didCollide = didCollide(go);
 
-            if (didCollide != 0 && go.type.equals("Player")) GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
-            else if ((didCollide == 3 || didCollide == 4) && go.hasPhysicalCollisions && isChasing) {
-                hadSideCollision = true;
-                if (go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(25);
-            }
+            if (didCollide != 0 && go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(100);
         }
         GamePanel.camera.addGOInGrid(this, false);
 
-    }
-
-    void stop(){
-        if (velocityX > 1) velocityX /= 2;
-        else velocityX = 0;
     }
 
     @Override
     public void collision(Entity e) throws Exception {
         super.collision(e);
 
-        if (!isDead && !e.isEnemy) e.damage(25);
+        if (!isDead && !e.isEnemy) e.damage(100);
     }
 
     @Override
@@ -199,16 +214,12 @@ public class Hyena extends Entity {
         if (isVulnerable && hasHP){
             hp -= damage;
 
-            isChasing = false;
             isVulnerable = false;
+            velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
-            if (hp <= 0){
-                setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
-            }
-            else {
-                setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
-                if (isChasing) hadSideCollision = true;
-            }
+            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            else if (isChasing) setNextAnimation(run, runAnimSpeed, offsetX, offsetY);
+            else setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         }
     }
 
@@ -222,10 +233,13 @@ public class Hyena extends Entity {
         hp = maxHealth;
 
         isChasing = false;
-        hadSideCollision = false;
+        runAnimSpeed = defaultWalkAnimSpeed;
+        maxSpeed = walkSpeed;
+        acceleration = walkAcceleration;
+
         turnTimer = 0;
         direction = 1;
-        sprite.setDirection(direction);
+        sprite.setDirection(-direction);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
 
@@ -241,6 +255,7 @@ public class Hyena extends Entity {
 
     @Override
     public GameObject2D copy() throws IOException {
-        return new Hyena(this);
+        return new Knight(this);
     }
 }
+

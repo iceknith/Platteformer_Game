@@ -85,7 +85,7 @@ public class GamePanel extends JPanel implements Runnable {
             //initialise keys
             KeyHandler.initialise();
 
-        } catch (IOException | FontFormatException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

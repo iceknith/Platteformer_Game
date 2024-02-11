@@ -2,6 +2,7 @@ package GameObjects;
 
 import main.GamePanel;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -15,6 +16,9 @@ public class Entity extends GameObject2D{
     public boolean hasHP = false;
     public double hp = 0;
     public boolean isEnemy = false;
+
+    int[] temp;
+    Color color;
 
     protected Entity(int x, int y, int w, int h, String subLvl){
         super(x, y, w, h, subLvl);
@@ -96,7 +100,10 @@ public class Entity extends GameObject2D{
     }
 
     protected ArrayList<GameObject2D> getInBox(int rX, int rY, int rWidth, int rHeight){
-        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(rX, rY, rWidth, rHeight, 0, 0, 0, 2);
+        Entity placeholder = new Entity(rX, rY, rWidth, rHeight, "None");
+        placeholder.type = "Placeholder";
+        placeholder.name = "Placeholder";
+        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(placeholder);
         ArrayList<GameObject2D> result = new ArrayList<>();
 
         for ( int[] pos: thisEntityGridCells) {
@@ -104,9 +111,7 @@ public class Entity extends GameObject2D{
             ArrayList<GameObject2D> cell = GamePanel.camera.getCellContent(pos[0], pos[1]);
 
             for (GameObject2D object: cell) {
-
-                if (!result.contains(object) && object != this){
-
+                if (!result.contains(object) && object != this && placeholder.intersects(object)){
                     result.add(object);
                 }
             }
@@ -145,6 +150,7 @@ public class Entity extends GameObject2D{
                 velocityY = go.getVelocityY();
             }
             go.collision(this);
+            collision(go);
             return 1;
         }
         if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
@@ -153,6 +159,7 @@ public class Entity extends GameObject2D{
                 velocityY = go.getVelocityY();
             }
             go.collision(this);
+            collision(go);
             return 2;
         }
         if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
@@ -161,6 +168,7 @@ public class Entity extends GameObject2D{
                 velocityX = go.getVelocityX();
             }
             go.collision(this);
+            collision(go);
             return 3;
         }
         if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
@@ -169,12 +177,31 @@ public class Entity extends GameObject2D{
                 velocityX = go.getVelocityX();
             }
             go.collision(this);
+            collision(go);
             return 4;
         }
         return 0;
     }
 
-    public void damage(int damage){
+    protected void collision(GameObject2D go) throws Exception {
+        if (go.isEntity) collision(go.getThisEntity());
+    }
+
+    protected boolean isSafeGround(int distance){
+        for (GameObject2D go: getInBox(getX() + getWidth()/2 + distance, getY() + getHeight() + 3, 1, 1)){
+            if (go.hasPhysicalCollisions && !go.doesDamage) return true;
+        }
+        return false;
+    }
+
+    protected boolean isWall(int distance, boolean ignoreIceBlock){
+        for (GameObject2D go: getInBox(getX() + getWidth()/2 + distance, getY(), 1, getHeight())){
+            if (go.hasPhysicalCollisions && !go.getType().equals("Player") && (!go.getType().equals("IceBlock") || ignoreIceBlock)) return true;
+        }
+        return false;
+    }
+
+    public void damage(int damage) throws Exception {
         if (hasHP){
             hp -= damage;
         }

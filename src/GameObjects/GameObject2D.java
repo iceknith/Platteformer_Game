@@ -29,7 +29,7 @@ public class GameObject2D{
     ArrayList<BufferedImage> nextAnimation;
 
     int animationIndex;
-    double animationSpeed;
+    protected double animationSpeed;
     double nextAnimationSpeed;
     int nextAnimationOffsetX;
     int nextAnimationOffsetY;
@@ -37,6 +37,7 @@ public class GameObject2D{
     int animationPriority;
 
     public char utilType;
+    public boolean doesDamage = false;
     public boolean isEntity = false;
 
     GameObject2D(int x, int y, int w, int h, String subLvl){

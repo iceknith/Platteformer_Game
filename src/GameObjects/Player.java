@@ -504,7 +504,7 @@ public class Player extends Entity{
 
     }
 
-    public void death(int[] spawnPoint) {
+    public void death(int[] spawnPoint) throws Exception {
         velocityY = 0;
         velocityX = 0;
 
@@ -546,7 +546,7 @@ public class Player extends Entity{
     }
 
     @Override
-    public void damage(int damage) {
+    public void damage(int damage) throws Exception {
         death(spawnPointPos);
     }
 
@@ -657,8 +657,8 @@ public class Player extends Entity{
         }
     }
 
-    void checkGround(GameObject2D go){
-        if (wasOnGround && go.hasPhysicalCollisions){
+    void checkGround(GameObject2D go) throws Exception {
+        if (wasOnGround && go.hasPhysicalCollisions && (!go.isEntity || !go.getThisEntity().isEnemy)){
             if (getY() + getHeight() < go.getY() - 2 || getY() > go.getY() + go.getHeight() ||
                     getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
                 //If player is just on top of the ground
@@ -674,6 +674,7 @@ public class Player extends Entity{
                 //If player is in/on the ground
                 doGroundVelocityXCount = (Math.abs(velocityX) < earlySpeed * 1.1);
                 ground = go;
+                go.collision(this);
                 velocityY = 0;
                 friction = go.getFriction();
             }

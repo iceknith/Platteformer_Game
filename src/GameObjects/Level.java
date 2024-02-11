@@ -2,6 +2,7 @@ package GameObjects;
 
 import GameObjects.Enemies.Chicken;
 import GameObjects.Enemies.Hyena;
+import GameObjects.Enemies.Knight;
 import handlers.KeyHandler;
 import main.GamePanel;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,8 @@ public class Level {
     ArrayList<GameObject2D> permanentUpdatableAddBuffer = new ArrayList<>();
     ArrayList<GameObject2D> permanentUpdatableRemoveBuffer = new ArrayList<>();
     ArrayList<Button> buttons = new ArrayList<>();
+
+    final int permanentUpdatableRenderDistance = 2500;
 
     boolean noUpdatableModification;
     boolean wasMenuKeyPressed;
@@ -96,7 +99,11 @@ public class Level {
             go.update();
         }
         for (GameObject2D go: permanentUpdatable){
-            if (getSubLvl(go.subLevelName).isUpdated) go.update();
+            if (getSubLvl(go.subLevelName).isUpdated &&
+                    (GameObject2D.getPlayer().getDistance(go) <= permanentUpdatableRenderDistance ||
+                            go.getType().contains("MovingPlatform_"))){
+                go.update();
+            }
         }
         for (SubLevel sl: subLevels){
             if (sl.isUpdated){
@@ -235,6 +242,13 @@ public class Level {
 
                         Chicken c = new Chicken(x, y, "#" + i, "");
                         objectsBuffer.add(c);
+                    }
+                    case 'k' -> { //Knight
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+
+                        Knight k = new Knight(x, y, "#" + i, "");
+                        objectsBuffer.add(k);
                     }
                     case 'O' -> { //ImageObject
                         int w = reader.read()*256 + reader.read();

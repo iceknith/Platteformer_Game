@@ -93,7 +93,7 @@ public class Camera extends GameGrid {
         update();
     }
 
-    void update(){
+    void update() throws Exception {
 
         if (noUpdate) return;
 
@@ -185,7 +185,7 @@ public class Camera extends GameGrid {
         move();
     }
 
-    void levelMakerCameraUpdate(){
+    void levelMakerCameraUpdate() throws Exception {
 
         if (!LevelMaker.cameraCanMove) return;
         boolean doMove = false;
@@ -235,7 +235,7 @@ public class Camera extends GameGrid {
 
     public int getHardBorderY(){return hardBorder.y;}
 
-    void move(){
+    void move() throws Exception {
         int movX = (int) Math.round(velocityX * GamePanel.deltaTime);
         int movY = (int) Math.round(velocityY * GamePanel.deltaTime);
 
@@ -293,7 +293,7 @@ public class Camera extends GameGrid {
     public double getVelocityY(){return velocityY;}
 
     @Override
-    public void loadNextLevel() throws FileNotFoundException {
+    public void loadNextLevel() throws Exception {
         GameObject2D.setPlayer(null);
         velocityX = 0;
         velocityY = 0;

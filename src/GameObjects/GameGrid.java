@@ -67,9 +67,9 @@ public class GameGrid {
     public void setScreenY(int posY) {
         screenY = posY;}
 
-    public void deleteGOInGrid(GameObject2D r){deleteGOInGrid(r, true);}
+    public void deleteGOInGrid(GameObject2D r) throws Exception {deleteGOInGrid(r, true);}
 
-    public void deleteGOInGrid(GameObject2D r, boolean permaRemove){
+    public void deleteGOInGrid(GameObject2D r, boolean permaRemove) throws Exception {
         allGOInGrid.remove(r);
 
         ArrayList<int[]> cellPos = findRectPosInGrid(r);
@@ -79,7 +79,8 @@ public class GameGrid {
                 (r.type.equals("Player") ||
                 r.type.contains("MovingPlatform_") ||
                 r.type.contains("IceBlock") ||
-                r.type.contains("SnowflakeGenerator"))){
+                r.type.contains("SnowflakeGenerator") ||
+                (r.isEntity && r.getThisEntity().isEnemy))){
             level.permanentUpdatableRemoveBuffer.add(r);
         }
 
@@ -88,9 +89,9 @@ public class GameGrid {
         }
     }
 
-    public void addGOInGrid(GameObject2D r){addGOInGrid(r, true);}
+    public void addGOInGrid(GameObject2D r) throws Exception {addGOInGrid(r, true);}
 
-    public void addGOInGrid(GameObject2D r, boolean firstAdd){
+    public void addGOInGrid(GameObject2D r, boolean firstAdd) throws Exception {
 
         //do not add gui in grid
         if (r.isGUI) return;
@@ -102,7 +103,8 @@ public class GameGrid {
                 (r.type.equals("Player") ||
                 r.type.contains("MovingPlatform_") ||
                 r.type.contains("IceBlock") ||
-                r.type.contains("SnowflakeGenerator"))){
+                r.type.contains("SnowflakeGenerator")) ||
+                (r.isEntity && r.getThisEntity().isEnemy)){
             level.permanentUpdatableAddBuffer.add(r);
         }
 
@@ -263,7 +265,7 @@ public class GameGrid {
                 y <= goPosY && goPosY + go.sprite.getHeight() <= y + cellHeight * grid.get(0).size();
     }
 
-    public void initialiseGrid(ArrayList<GameObject2D> levelObjects){
+    public void initialiseGrid(ArrayList<GameObject2D> levelObjects) throws Exception {
         visible.clear();
         level.clearUpdatable();
         grid.clear();
@@ -278,7 +280,7 @@ public class GameGrid {
         //visualiseGrid();
     }
 
-    public void loadVisible(){
+    public void loadVisible() throws Exception {
 
         visible.clear();
         level.updatable.clear();
@@ -302,7 +304,9 @@ public class GameGrid {
                             if (!visible.contains(go) && !lastDisplayed.contains(go)){
 
                                 if (!go.type.equals("Player") &&
-                                    !go.type.contains("MovingPlatform_")){
+                                    !go.type.contains("MovingPlatform_") &&
+                                    !go.type.contains("IceBlock") &&
+                                    !(go.isEntity && go.getThisEntity().isEnemy)){
                                     level.addUpdatable(go);
                                 }
                                 if (go.isEntity){
@@ -368,7 +372,7 @@ public class GameGrid {
         return nextLevel;
     }
 
-    public void loadNextLevel() throws FileNotFoundException {
+    public void loadNextLevel() throws Exception {
         isOperational = false;
         setScreenX(0);
         setScreenY(0);
@@ -381,7 +385,7 @@ public class GameGrid {
         isOperational = true;
     }
 
-    public void updateGrid() {
+    public void updateGrid() throws Exception {
         loadVisible();
     }
 

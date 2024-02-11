@@ -33,13 +33,14 @@ public class IceBlock extends Entity{
     public boolean isPlaced;
 
     final int damageAmount = 25;
+    final int explosionRange = 100;
 
     double friction;
 
     IceBlock(int x, int y, String subLvl, int id) throws IOException {
         super(x, y, 64, 64, subLvl);
 
-        type = "IceBlock ";
+        type = "IceBlock";
         name = type + id;
 
         isPlaced = false;
@@ -145,7 +146,7 @@ public class IceBlock extends Entity{
         }
     }
 
-    public void move(int nextX, int nextY){
+    public void move(int nextX, int nextY) throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();
         prevY = getY();
@@ -178,8 +179,8 @@ public class IceBlock extends Entity{
             setAnimation(broken, brokenAnimationSpeed);
             setNextAnimation(end, 1);
 
-            for (GameObject2D go : getInBox(100, 100)){
-                if (go.isEntity && getDistance(go) <= 100 && !go.getType().equals("Player")){
+            for (GameObject2D go : getInBox(explosionRange, explosionRange)){
+                if (go.isEntity && !go.getType().equals("Player")){
                     go.getThisEntity().damage(damageAmount);
                 }
             }

@@ -47,6 +47,8 @@ public class MovingPlatform extends Entity{
             default -> friction = 2.5;
         }
 
+        if (utilType == 'k' || utilType == 's') doesDamage = true;
+
         switch (animName){
             case "killers/saw" -> animSpeed = 1;
             default ->  animSpeed = 5;
@@ -108,7 +110,7 @@ public class MovingPlatform extends Entity{
     }
 
     @Override
-    public void reset(){
+    public void reset() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, true);
         setX(posX1);
         setY(posY1);

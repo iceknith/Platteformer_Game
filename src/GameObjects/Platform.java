@@ -21,6 +21,8 @@ public class Platform extends GameObject2D{
             default -> friction = 2.5;
         }
 
+        if (utilType == 'k' || utilType == 's') doesDamage = true;
+
         switch (animName){
             case "industrial/saw" -> animSpeed = 1;
             default ->  animSpeed = 5;
