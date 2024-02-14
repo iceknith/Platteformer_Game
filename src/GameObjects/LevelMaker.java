@@ -794,10 +794,10 @@ public class LevelMaker extends GameObject2D{
         }
 
         else if (go.type.equals("TextObject")){
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Size", "Text"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, changeTextSize, changeText));
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move", "Size", "Text"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeTextSize, changeText));
 
-            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
         }
 
         else{
@@ -1471,6 +1471,16 @@ public class LevelMaker extends GameObject2D{
                     fw.write(go.currentAnimation.size() - 1);
                     fw.write(go.getDirection()+2);
                     fw.write((go.getType().substring(12) + "\n").getBytes());
+                }
+                else if (go.getType().equals("TextObject")){
+                    TextObject t = go.getThisTextObject();
+                    fw.write("t".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write(t.getSize());
+                    fw.write((t.getText() + "\n").getBytes());
                 }
                 else if (go.getType().contains("Checkpoint")){
                     fw.write("C".getBytes());

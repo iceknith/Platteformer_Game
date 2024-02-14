@@ -283,6 +283,20 @@ public class Level {
                         img.setDirection(direction);
                         objectsBuffer.add(img);
                     }
+                    case 't' -> { //TextObject
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        int size = reader.read();
+                        StringBuilder text = new StringBuilder();
+                        int cha;
+                        while ((cha = reader.read()) != 10) {
+                            text.append((char) cha);
+                        }
+
+                        TextObject t = new TextObject(posX, posY, text.toString(), size, "#" + i, "");
+                        objBuffer.add(t);
+                    }
 
                     case 'C' ->{ //Checkpoint
                         int posX = reader.read()*256 + reader.read() - 32767;

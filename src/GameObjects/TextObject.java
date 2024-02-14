@@ -98,14 +98,14 @@ public class TextObject extends GameObject2D{
         rawText = newText;
         text = computeText(newText);
     }
-    public ArrayList<String> getText(){
-        return text;
+    public String getText(){
+        return rawText;
     }
     public ArrayList<String> computeText(String text){
 
         ArrayList<String> result = new ArrayList<>();
-        int prevSavePoint = 1;
-        for (int i = 1; i < text.length(); i++){
+        int prevSavePoint = 0;
+        for (int i = 0; i < text.length(); i++){
             //key
             switch (text.charAt(i)){
                 case '#' -> {
