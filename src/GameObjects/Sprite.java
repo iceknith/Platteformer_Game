@@ -84,12 +84,11 @@ public class Sprite {
         height = h;
     }
 
-    int getDirection(){
+    public int getDirection(){
         return direction;
     }
 
     public void setDirection(int newDir){
-        int prevDir = direction;
         if (newDir > 0){
             directionOffsetX = 0;
             direction = 1;

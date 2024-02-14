@@ -80,7 +80,6 @@ public class HighScoresDisplay extends GameObject2D {
 
         g2D.setFont(new Font("Eight Bit Dragon", Font.PLAIN, 20));
 
-        //System.out.println("Nombre de lignes maximal "+(GamePanel.camera.height/2)/g2D.getFontMetrics().getHeight());
         for (int i = 0; i < Math.min(highScoresNames.size(), (GamePanel.camera.screenHeight *3/5 - yOffset)/(g2D.getFontMetrics().getHeight() + 10)); i++){
 
             int posX = x+30+g2D.getFontMetrics().stringWidth(highScoresNames.get(i) + " : ");

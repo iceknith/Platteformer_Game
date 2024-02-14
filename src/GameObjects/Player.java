@@ -555,8 +555,6 @@ public class Player extends Entity{
         animate();
         playerHandler();
         move();
-
-        //System.out.println(this.getDebugInfos());
     }
 
     @Override

@@ -526,6 +526,29 @@ public class LevelMaker extends GameObject2D{
             return unused;
         };
 
+        Function<Void, Void> changeDirection =
+                unused -> {
+                    txtInputMenu.setAsInt(true);
+
+                    txtInputMenu.setCategoryNames(List.of("Direction"));
+                    txtInputMenu.setDefaultValues(List.of(String.valueOf(go.getDirection())));
+                    txtInputMenu.setCategorySetValues(List.of(
+                            s -> {
+                                int i = Integer.parseInt(s);
+                                go.setDirection((int) Math.signum(i));
+                                return null;
+                            }
+                    ));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+
+                    canPlaceObj = false;
+                    MouseHandler.resetClicks();
+
+                    return unused;
+                };
+
         Function<Void, Void> movingPlatformSettings =
                 unused -> {
                     txtInputMenu.setAsInt(true);
@@ -580,9 +603,9 @@ public class LevelMaker extends GameObject2D{
                     txtInputMenu.setAsInt(false);
                     txtInputMenu.setCategoryNames(List.of("Util Type"));
                     txtInputMenu.setDefaultValues(List.of(String.valueOf(go.utilType)));
-                    txtInputMenu.setCategorySetValues(Arrays.asList(
+                    txtInputMenu.setCategorySetValues(List.of(
                             s -> {
-                                switch (s){
+                                switch (s) {
                                     case "d", "default", "base" -> go.utilType = 'd';
                                     case "j", "jump", "add jump" -> go.utilType = 'j';
                                 }
@@ -643,32 +666,32 @@ public class LevelMaker extends GameObject2D{
             rightClickMenu.setHeight(rightClickMenu.buttonHeight);
         }
 
-        else if (go.type.contains("Checkpoint") || go.type.equals("Hyena")){
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move","Change uType"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeCheckpointUtilType));
-
-            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
-        }
-
-        else if (go.type.contains("SnowflakeGenerator")){
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move","Change Snowflake Count"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeSnowflakeGenCount));
-
-            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
-        }
-
-        else if (go.type.contains("MovingPlatform")){
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Movement", "Resize", "Move"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, movingPlatformSettings, resize, move));
+        else if (go.type.contains("Checkpoint")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move", "Change Direction", "Change uType"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeDirection, changeCheckpointUtilType));
 
             rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
         }
 
-        else{
-            rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move"));
-            rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move));
+        else if (go.type.contains("SnowflakeGenerator")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Move", "Change Direction", "Change Snowflake Count"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeDirection, changeSnowflakeGenCount));
 
-            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
+        }
+
+        else if (go.type.contains("MovingPlatform")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Movement", "Resize", "Move", "Change Direction"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, movingPlatformSettings, resize, move, changeDirection));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*5 - 10);
+        }
+
+        else{
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move", "Change Direction"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move, changeDirection));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
         }
 
         rightClickMenu.activate();
@@ -1292,6 +1315,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((mpGO.getInitialTime() + 32767)%256);
                     fw.write(mpGO.utilType);
                     fw.write(mpGO.currentAnimation.size() - 1);
+                    fw.write(mpGO.getDirection()+2);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
                 else if (go.getType().equals("Hyena") || go.getType().equals("Chicken") || go.getType().equals("Knight")){
@@ -1302,6 +1326,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getX() + 32767)%256);
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
+                    fw.write(go.getDirection()+2);
                     fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("Platform_")){
@@ -1316,6 +1341,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() - (go.sprite.getHeight() - go.getHeight())/2 + 32767)%256);
                     fw.write(go.utilType);
                     fw.write(go.currentAnimation.size() - 1);
+                    fw.write(go.getDirection()+2);
                     fw.write((go.getType().substring(10) + "\n").getBytes());
                 }
                 else if (go.getType().contains("ImageObject_")){
@@ -1329,6 +1355,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write(go.currentAnimation.size() - 1);
+                    fw.write(go.getDirection()+2);
                     fw.write((go.getType().substring(12) + "\n").getBytes());
                 }
                 else if (go.getType().contains("Checkpoint")){
@@ -1338,6 +1365,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write(go.utilType);
+                    fw.write(go.getDirection()+2);
                     fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("SnowflakeGenerator")){
@@ -1347,6 +1375,7 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write(go.getThisSnowflakeGenerator().snowFlakeCount);
+                    fw.write(go.getDirection()+2);
                     fw.write("\n".getBytes());
                 }
                 else if (go.getType().contains("Background_")){

@@ -23,7 +23,7 @@ public class Chicken extends Entity {
     final int defaultOffsetX = 0, defaultOffsetY = 10;
     final int deadOffsetX = 0, deadOffsetY = 5;
 
-    int initialPosX, initialPosY;
+    int initialPosX, initialPosY, initDirection;
 
     final double gravity = 2.25;
     final double flyGravity = 0.75;
@@ -101,6 +101,18 @@ public class Chicken extends Entity {
         jumpingTime = c.jumpingTime;
     }
 
+    public void setDirection(int newDirection){
+        direction = newDirection;
+        sprite.setDirection(-newDirection);
+
+        if (initDirection == 0) initDirection = direction;
+    }
+
+    public int getDirection(){
+        return direction;
+    }
+
+
     @Override
     public void update() throws Exception {
         super.update();
@@ -143,8 +155,7 @@ public class Chicken extends Entity {
             else turnTimer = 0;
 
             if (turnTimer > chaseTurnTime) {
-                direction = newDirection;
-                sprite.setDirection(-direction);
+                setDirection(newDirection);
             }
 
             velocityX = Math.min(runSpeed, Math.max(-runSpeed, velocityX-acceleration*direction));
@@ -183,8 +194,7 @@ public class Chicken extends Entity {
             turnTimer += GamePanel.deltaTime/10;
             if (turnTimer >= turnTime){
                     turnTimer = 0;
-                    direction = -direction;
-                    sprite.setDirection(-direction);
+                    setDirection(-direction);
                 }
 
             //spotting the player
@@ -299,8 +309,7 @@ public class Chicken extends Entity {
         isOnGround = false;
         jumpingTime = 0;
         turnTimer = 0;
-        direction = 1;
-        sprite.setDirection(-direction);
+        setDirection(initDirection);
         setAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
         setNextAnimation(null, 0);
 

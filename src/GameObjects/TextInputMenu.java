@@ -136,7 +136,6 @@ public class TextInputMenu extends GameObject2D {
         if (editingFillSpace != -1 && !KeyHandler.getLastStrTyped().isEmpty()) {
 
             String key = KeyHandler.getLastStrTyped();
-            System.out.println(key);
             KeyHandler.resetLastStrTyped();
 
             if (isInt) {

@@ -166,6 +166,12 @@ public class GameObject2D{
         setNextAnimation(animation, animSpeed, sprite.offsetX, sprite.offsetY);
     }
 
+    public int getDirection(){return sprite.getDirection();}
+
+    public void setDirection(int newDirection){
+        sprite.setDirection(newDirection);
+    }
+
     public void animate(){
         animateTime += GamePanel.deltaTime;
 

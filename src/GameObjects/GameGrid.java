@@ -275,9 +275,6 @@ public class GameGrid {
         for (GameObject2D go : levelObjects){
             addGOInGrid(go);
         }
-
-        //System.out.println("grid has been initialised :");
-        //visualiseGrid();
     }
 
     public void loadVisible() throws Exception {

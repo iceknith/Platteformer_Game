@@ -196,6 +196,7 @@ public class Level {
 
                         char uType = (char) reader.read();
                         int frameCount = reader.read();
+                        int direction = reader.read() - 2;
 
                         StringBuilder texture = new StringBuilder();
                         int cha;
@@ -204,6 +205,7 @@ public class Level {
                         }
 
                         Platform p = new Platform(w, h, posX, posY, uType, texture.toString(), frameCount,"#" + i, "");
+                        p.setDirection(direction);
                         objectsBuffer.add(p);
                     }
                     case 'm' -> { //Moving Platform
@@ -219,6 +221,7 @@ public class Level {
                         char uType = (char) reader.read();
 
                         int frameCount = reader.read();
+                        int direction = reader.read() - 2;
 
                         StringBuilder texture = new StringBuilder();
                         int cha;
@@ -227,27 +230,34 @@ public class Level {
                         }
 
                         MovingPlatform m = new MovingPlatform(posX1, posY1, posX2, posY2, w, h, speed, initTime, uType, texture.toString(), frameCount,"#" + i, "");
+                        m.setDirection(direction);
                         objectsBuffer.add(m);
                     }
                     case 'h' -> { //Hyena
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
 
                         Hyena h = new Hyena(x, y, "#" + i, "");
+                        h.setDirection(direction);
                         objectsBuffer.add(h);
                     }
                     case 'c' -> { //Chicken
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
 
                         Chicken c = new Chicken(x, y, "#" + i, "");
+                        c.setDirection(direction);
                         objectsBuffer.add(c);
                     }
                     case 'k' -> { //Knight
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
 
                         Knight k = new Knight(x, y, "#" + i, "");
+                        k.setDirection(direction);
                         objectsBuffer.add(k);
                     }
                     case 'O' -> { //ImageObject
@@ -257,6 +267,7 @@ public class Level {
                         int posY = reader.read()*256 + reader.read() - 32767;
 
                         int frameCount = reader.read();
+                        int direction = reader.read() - 2;
 
                         StringBuilder texture = new StringBuilder();
                         int cha;
@@ -265,6 +276,7 @@ public class Level {
                         }
 
                         ImageObject img = new ImageObject(w, h, posX, posY, texture.toString(), frameCount,"#" + i, "");
+                        img.setDirection(direction);
                         objectsBuffer.add(img);
                     }
 
@@ -272,16 +284,20 @@ public class Level {
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
                         char uType = (char) reader.read();
+                        int direction = reader.read() - 2;
 
                         CheckPoint c = new CheckPoint(posX, posY, uType, "#" + i, "");
+                        c.setDirection(direction);
                         objectsBuffer.add(c);
                     }
                     case 'G' -> { //Snowflake generator
                         int posX = reader.read()*256 + reader.read() - 32767;
                         int posY = reader.read()*256 + reader.read() - 32767;
                         int snowflakeCnt = reader.read();
+                        int direction = reader.read() - 2;
 
                         SnowflakeGenerator s = new SnowflakeGenerator(posX, posY, snowflakeCnt, "#" + i, "");
+                        s.setDirection(direction);
                         objectsBuffer.add(s);
                     }
 

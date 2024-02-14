@@ -24,7 +24,7 @@ public class Hyena extends Entity {
 
     final int offsetX = 15, offsetY = 50;
 
-    int initialPosX, initialPosY;
+    int initialPosX, initialPosY, initDirection = 0;
 
     final double gravity = 2.25;
     final int maxYSpeed = 150;
@@ -86,6 +86,13 @@ public class Hyena extends Entity {
         isDead = h.isDead;
     }
 
+    public void setDirection(int newDirection){
+        direction = newDirection;
+        sprite.setDirection(newDirection);
+
+        if (initDirection == 0) initDirection = direction;
+    }
+
     @Override
     public void update() throws Exception {
         super.update();
@@ -119,8 +126,7 @@ public class Hyena extends Entity {
                 isChasing = false;
                 hadSideCollision = false;
 
-                direction = -direction;
-                sprite.setDirection(direction);
+                setDirection(-direction);
                 turnTimer = 0;
                 setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
             }
@@ -136,9 +142,7 @@ public class Hyena extends Entity {
             if (turnTimer >= turnTime){
                 turnTimer = 0;
 
-                direction = -direction;
-
-                sprite.setDirection(direction);
+                setDirection(-direction);
             }
 
             //spotting the player
@@ -224,8 +228,7 @@ public class Hyena extends Entity {
         isChasing = false;
         hadSideCollision = false;
         turnTimer = 0;
-        direction = 1;
-        sprite.setDirection(direction);
+        setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
 

@@ -26,7 +26,7 @@ public class Knight extends Entity {
 
     final int offsetX = 0, offsetY = 5;
 
-    int initialPosX, initialPosY;
+    int initialPosX, initialPosY, initDirection = 0;
 
     final double gravity = 2.5;
     final int maxYSpeed = 200;
@@ -96,6 +96,17 @@ public class Knight extends Entity {
         isDead = k.isDead;
     }
 
+    public void setDirection(int newDirection){
+        direction = newDirection;
+        sprite.setDirection(-newDirection);
+
+        if (initDirection == 0) initDirection = direction;
+    }
+
+    public int getDirection(){
+        return direction;
+    }
+
     @Override
     public void update() throws Exception {
         super.update();
@@ -125,8 +136,8 @@ public class Knight extends Entity {
         }
 
         if (isChasing){
-            direction = (int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2);
-            sprite.setDirection(-direction);
+            //following the player
+            setDirection((int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2));
 
             if (maxSpeed != runSpeed){
                 maxSpeed = runSpeed;
@@ -146,9 +157,7 @@ public class Knight extends Entity {
             if (turnTimer >= turnTime){
                 turnTimer = 0;
 
-                direction = -direction;
-
-                sprite.setDirection(-direction);
+                setDirection(-direction);
             }
 
             //spotting the player
@@ -238,8 +247,7 @@ public class Knight extends Entity {
         acceleration = walkAcceleration;
 
         turnTimer = 0;
-        direction = 1;
-        sprite.setDirection(-direction);
+        setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
 
