@@ -155,7 +155,7 @@ public class TextInputMenu extends GameObject2D {
                 categoryValues.add(editingFillSpace, s);
             }
         }
-        else if (categoryValues.get(editingFillSpace).length() <= 25) {
+        else {
 
             String s = categoryValues.get(editingFillSpace) + key;
             categoryValues.remove(editingFillSpace);
@@ -223,9 +223,11 @@ public class TextInputMenu extends GameObject2D {
                     getX() + getWidth()/2 - g2D.getFontMetrics().stringWidth(categoryNames.get(i))/2,
                     getY() + i*categoryHeight + g2D.getFontMetrics().getHeight() + 10);
 
-            g2D.drawString(categoryValues.get(i),
-                    getX() + getWidth()/2 - g2D.getFontMetrics().stringWidth(categoryValues
-                            .get(i))/2,
+            final int minDisplayIndex = Math.max(0, categoryValues.get(i).length() - 20);
+            final String displayedStr = categoryValues.get(i).substring(minDisplayIndex);
+
+            g2D.drawString(displayedStr,
+                    getX() + getWidth()/2 - g2D.getFontMetrics().stringWidth(displayedStr)/2,
                     getY() + (i + 1)*categoryHeight - fillSpaceHeight + g2D.getFontMetrics().getHeight() + 10);
         }
 

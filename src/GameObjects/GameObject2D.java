@@ -265,6 +265,10 @@ public class GameObject2D{
         throw new Exception("Method used on a non-SnowflakeGenerator GameObject");
     }
 
+    public TextObject getThisTextObject() throws Exception{
+        throw new Exception("Method used on a non-TextObject GameObject");
+    }
+
     public Player getThisPlayer() throws Exception{
         throw new Exception("Method used on a non-Player GameObject");
     }

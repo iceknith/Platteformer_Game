@@ -67,6 +67,8 @@ public class LevelMaker extends GameObject2D{
     String nextObjTexture = "";
     char nextObjUtilType;
     int nextObjFrameCount = 0;
+
+    public GameObject2D updatableGo;
     
 
     boolean isInGridMode = false;
@@ -101,6 +103,12 @@ public class LevelMaker extends GameObject2D{
 
         rightClickMenu.update();
         txtInputMenu.update();
+
+        //update last placed text (so that it adapts to his hitbox)
+        if (updatableGo != null) {
+            updatableGo.update();
+            updatableGo = null;
+        }
 
         //if level is already launched
         if (isLevelLaunched){
@@ -185,6 +193,10 @@ public class LevelMaker extends GameObject2D{
             else if (nextObjType.equals("Delete")){
                 w = 3;
                 h = 3;
+            }
+            else if (nextObjType.equals("Text")){
+                w = 0;
+                h = 0;
             }
             else{
                 w = defaultObjWidth;
@@ -332,6 +344,32 @@ public class LevelMaker extends GameObject2D{
 
             GamePanel.camera.level.addToMainSubLevel(i);
             objects.add(i);
+        }
+        //Text
+        else if(nextObjType.equals("Text")){
+            txtInputMenu.setAsInt(false);
+            txtInputMenu.setCategoryNames(List.of("Text"));
+            txtInputMenu.setDefaultValues(List.of(""));
+            int finalY = y;
+            int finalX = x;
+            txtInputMenu.setCategorySetValues(List.of(
+                    s -> {
+                        try {
+                            TextObject t = new TextObject(finalX, finalY, s, 60, "#"+id_counter, "");
+                            GamePanel.camera.level.addToMainSubLevel(t);
+                            objects.add(t);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    }
+            ));
+
+            txtInputMenu.isOpen = true;
+            canPlaceObj = false;
+            GamePanel.camera.update();
+            GamePanel.camera.noUpdate = true;
+            MouseHandler.resetClicks();
         }
         //checkpoint
         else if (nextObjType.equals("Checkpoint")) {
@@ -654,6 +692,74 @@ public class LevelMaker extends GameObject2D{
                     return unused;
                 };
 
+        Function<Void, Void> changeText =
+                unused -> {
+                    txtInputMenu.setAsInt(false);
+                    txtInputMenu.setCategoryNames(List.of("Text"));
+                    try {
+                        txtInputMenu.setDefaultValues(List.of(go.getThisTextObject().rawText));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    txtInputMenu.setCategorySetValues(List.of(
+                            s -> {
+                                try {
+                                    go.getThisTextObject().setText(s);
+                                    GamePanel.camera.update();
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return null;
+                            }
+                    ));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+                    canPlaceObj = false;
+                    try {
+                        GamePanel.camera.update();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    GamePanel.camera.noUpdate = true;
+                    MouseHandler.resetClicks();
+                    return unused;
+                };
+
+        Function<Void, Void> changeTextSize =
+                unused -> {
+                    txtInputMenu.setAsInt(true);
+                    txtInputMenu.setCategoryNames(List.of("Text Size"));
+                    try {
+                        txtInputMenu.setDefaultValues(List.of(String.valueOf(go.getThisTextObject().getSize())));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    txtInputMenu.setCategorySetValues(List.of(
+                            s -> {
+                                try {
+                                    go.getThisTextObject().setSize(Integer.parseInt(s));
+                                    GamePanel.camera.update();
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return null;
+                            }
+                    ));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+                    canPlaceObj = false;
+                    try {
+                        GamePanel.camera.update();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    GamePanel.camera.noUpdate = true;
+                    MouseHandler.resetClicks();
+                    return unused;
+                };
+
         rightClickMenu.setX(pointX);
         rightClickMenu.setY(pointY);
         rightClickMenu.setDisplayedWidth(150);
@@ -685,6 +791,13 @@ public class LevelMaker extends GameObject2D{
             rightClickMenu.setButtonExec(Arrays.asList(delete, movingPlatformSettings, resize, move, changeDirection));
 
             rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*5 - 10);
+        }
+
+        else if (go.type.equals("TextObject")){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Size", "Text"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, changeTextSize, changeText));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*3 - 10);
         }
 
         else{
@@ -875,12 +988,12 @@ public class LevelMaker extends GameObject2D{
         enemyImages.add(readImageBuffered("assets/Enemy/Knight/idle/0.png"));
 
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Delete", "Background",
+        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Text", "Delete", "Background",
                                         "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Moving Platform","Checkpoint", "Snowflake Generator", "Enemy", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform","Checkpoint", "Snowflake Generator", "Text", "Enemy", "Background" -> b.buttonMessageColor = Color.orange;
                 case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
@@ -922,6 +1035,7 @@ public class LevelMaker extends GameObject2D{
                         }
 
                         case "Snowflake Generator" -> nextObjType = "SnowflakeGenerator";
+                        case "Text" -> nextObjType = "Text";
 
                         case "Moving Platform" -> {
                             rightClickMenu.setX(MouseHandler.getX());

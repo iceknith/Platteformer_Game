@@ -166,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
             g2D.draw(camera.getHardBorder());
 
             //soft borders
-            g2D.setColor(Color.green);
+            g2D.setColor(Color.GREEN);
             g2D.draw(camera.getSoftBorder());
 
             //hitboxes

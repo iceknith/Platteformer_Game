@@ -38,6 +38,10 @@ public class Level {
     boolean updateLevelMaker;
     LevelMaker lvlMaker;
 
+    public LevelMaker getLvlMaker() {
+        return lvlMaker;
+    }
+
     public Level(){
 
     }
