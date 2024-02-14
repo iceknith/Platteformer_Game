@@ -501,7 +501,6 @@ public class Player extends Entity{
 
             currentIceBlock.move(newX, newY);
         }
-
     }
 
     public void death(int[] spawnPoint) throws Exception {
@@ -559,6 +558,7 @@ public class Player extends Entity{
 
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO){
+
         //drawing jump bubbles
         for (int i = 0; i < maxJumps; i++){
 
