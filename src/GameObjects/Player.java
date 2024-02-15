@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import handlers.KeyHandler;
 import main.GamePanel;
@@ -111,6 +110,8 @@ public class Player extends Entity{
 
     public boolean isPlacingIceBlock;
     public IceBlock currentIceBlock;
+
+    public ArrayList<KeyObject> keys = new ArrayList<>();
 
     public Player(int posX, int posY, String id, String subLvlName) throws IOException {
         super(posX,posY,39,96, subLvlName);

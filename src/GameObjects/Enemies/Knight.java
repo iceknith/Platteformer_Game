@@ -1,12 +1,8 @@
 package GameObjects.Enemies;
 
-import GameObjects.Entity;
-import GameObjects.GameObject2D;
-import GameObjects.ParticleGenerator;
-import GameObjects.Sprite;
+import GameObjects.*;
 import main.GamePanel;
 
-import javax.swing.plaf.InsetsUIResource;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -54,7 +50,7 @@ public class Knight extends Entity {
     boolean isVulnerable = true;
     boolean isDead = false;
 
-    ParticleGenerator pGen;
+    ParticleGenerator exclamationMark;
 
     public Knight(int x, int y, String id, String subLvl) throws IOException {
         super(x, y, 35, 105, subLvl);
@@ -101,7 +97,7 @@ public class Knight extends Entity {
         isVulnerable = k.isVulnerable;
         isDead = k.isDead;
 
-        pGen = k.pGen;
+        exclamationMark = k.exclamationMark;
     }
 
     public void setDirection(int newDirection){
@@ -118,7 +114,7 @@ public class Knight extends Entity {
     @Override
     public void update() throws Exception {
         super.update();
-        if (pGen != null) pGen.update();
+        if (exclamationMark != null) exclamationMark.update();
 
         animate();
 
@@ -131,10 +127,10 @@ public class Knight extends Entity {
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
         super.draw(g2D, IO);
-        if (pGen != null) pGen.draw(g2D, IO);
+        if (exclamationMark != null) exclamationMark.draw(g2D, IO);
     }
 
-    public void iaLogic() throws IOException {
+    public void iaLogic() throws Exception {
 
         if (hp <= 0){
             if (getAnimation().equals(dying)){
@@ -142,6 +138,10 @@ public class Knight extends Entity {
                 hasHP = false;
                 isDead = true;
                 setNextAnimation(dead, deadAnimSpeed, offsetX, offsetY);
+                if (dropsKey) {
+                    KeyObject k = new KeyObject(getX()+getWidth()/2-32, getY()+getHeight()/2-32, true, "#-1", "");
+                    GamePanel.camera.level.addToMainSubLevel(k);
+                }
             }
             return;
         }
@@ -189,11 +189,14 @@ public class Knight extends Entity {
                     playerPosYMin < posY && posY < playerPosYMax){
                 setAnimation(run, runAnimSpeed, offsetX, offsetY);
                 isChasing = true;
-                pGen = new ParticleGenerator(getX() + getWidth()/2 - 10, getY() - 50, 1, 0, 10,
+
+                //particles
+                exclamationMark = new ParticleGenerator(getX() + getWidth()/2 - 10, getY() - 50, 1, 0, 1,
                         25, 25, 65, 65,
-                        0, 0, 1, 3,
-                        0, 0, 0.05,0.13,0,
+                        0, 0, 0, 0,
+                        0, 0, 0.25,0.65,0,
                         100, "exclamation_mark", 0, "#-1", "main");
+                exclamationMark.move(getX() + getWidth()/2 - 5, getY() - 50);
             }
         }
     }
@@ -223,8 +226,6 @@ public class Knight extends Entity {
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
-        if (pGen != null) pGen.move(getX() + getWidth()/2 - 5, getY() - 50);
-
         for (GameObject2D go: getNear()){
             int didCollide = didCollide(go);
 
@@ -242,7 +243,7 @@ public class Knight extends Entity {
     }
 
     @Override
-    public void damage(int damage) {
+    public void damage(int damage) throws Exception {
         if (isVulnerable && hasHP){
             hp -= damage;
 
@@ -273,7 +274,7 @@ public class Knight extends Entity {
         setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
-        pGen = null;
+        exclamationMark = null;
 
         GamePanel.camera.deleteGOInGrid(this, true);
         setX(initialPosX);

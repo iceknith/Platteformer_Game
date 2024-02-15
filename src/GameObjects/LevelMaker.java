@@ -53,6 +53,8 @@ public class LevelMaker extends GameObject2D{
 
     ArrayList<String> enemyTypes = new ArrayList<>();
     ArrayList<Image> enemyImages = new ArrayList<>();
+    ArrayList<String> utilsTypes = new ArrayList<>();
+    ArrayList<Image> utilsImages = new ArrayList<>();
 
     ArrayList<String> backgroundTextureNames = new ArrayList<>();
     ArrayList<int[]> backgroundDimensions = new ArrayList<>();
@@ -419,6 +421,18 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.addToMainSubLevel(k);
             objects.add(k);
         }
+        //Key
+        else if (nextObjType.equals("Key")){
+            KeyObject k = new KeyObject(x, y, false, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(k);
+            objects.add(k);
+        }
+        //Door
+        else if (nextObjType.equals("Door")){
+            Door d = new Door(x, y, defaultObjWidth, defaultObjHeight, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(d);
+            objects.add(d);
+        }
         else{
             objIsPlaced = true;
         }
@@ -760,6 +774,36 @@ public class LevelMaker extends GameObject2D{
                     return unused;
                 };
 
+        Function<Void, Void> doesDropKey =
+                unused -> {
+                    txtInputMenu.setAsInt(true);
+                    txtInputMenu.setCategoryNames(List.of("Does Drop Key"));
+                    try {
+                        String defaultTxt = "0";
+                        if (go.getThisEntity().dropsKey) defaultTxt = "1";
+                        txtInputMenu.setDefaultValues(Collections.singletonList(defaultTxt));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    txtInputMenu.setCategorySetValues(List.of(
+                            s -> {
+                                try {
+                                    go.getThisEntity().dropsKey = !s.equals("0");
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return null;
+                            }
+                    ));
+
+                    txtInputMenu.isOpen = true;
+                    rightClickMenu.activate();
+                    canPlaceObj = false;
+                    GamePanel.camera.noUpdate = true;
+                    MouseHandler.resetClicks();
+                    return unused;
+                };
+
         rightClickMenu.setX(pointX);
         rightClickMenu.setY(pointY);
         rightClickMenu.setDisplayedWidth(150);
@@ -798,6 +842,12 @@ public class LevelMaker extends GameObject2D{
             rightClickMenu.setButtonExec(Arrays.asList(delete, move, changeTextSize, changeText));
 
             rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*4 - 10);
+        }
+        else if (go.isEntity && go.getThisEntity().isEnemy){
+            rightClickMenu.setButtonText(Arrays.asList("Delete", "Resize", "Move", "Change Direction", "Drop Key"));
+            rightClickMenu.setButtonExec(Arrays.asList(delete, resize, move, changeDirection, doesDropKey));
+
+            rightClickMenu.setHeight((rightClickMenu.buttonHeight+10)*5 - 10);
         }
 
         else{
@@ -987,13 +1037,20 @@ public class LevelMaker extends GameObject2D{
         enemyTypes.add("Knight");
         enemyImages.add(readImageBuffered("assets/Enemy/Knight/idle/0.png"));
 
+        //write utils
+        utilsTypes.add("Key");
+        utilsImages.add(readImageBuffered("assets/Key/spin/0.png"));
+        utilsTypes.add("Door");
+        utilsImages.add(readImageBuffered("assets/Door/closed/0.png"));
+
+
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Enemy", "Text", "Delete", "Background",
+        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Utils", "Enemy", "Text", "Delete", "Background",
                                         "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Moving Platform","Checkpoint", "Snowflake Generator", "Text", "Enemy", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform","Checkpoint", "Snowflake Generator", "Utils", "Enemy", "Text", "Background" -> b.buttonMessageColor = Color.orange;
                 case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
@@ -1091,6 +1148,34 @@ public class LevelMaker extends GameObject2D{
                             rightClickMenu.setButtonExec(buttonExec);
                             rightClickMenu.setDisplayedWidth(500);
                             rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * enemyTypes.size() - 10);
+                            if (!rightClickMenu.isOpen) {
+                                rightClickMenu.activate();
+                            }
+                            GamePanel.camera.update();
+                            GamePanel.camera.noUpdate = true;
+                        }
+
+                        case "Utils" -> {
+                            rightClickMenu.setX(MouseHandler.getX());
+                            rightClickMenu.setY(MouseHandler.getY());
+                            rightClickMenu.setButtonText(utilsTypes);
+                            rightClickMenu.setButtonImages(utilsImages);
+
+                            ArrayList<Function<Void, Void>> buttonExec = new ArrayList<>();
+                            for (int i = 0; i < utilsTypes.size(); i++){
+                                int finalI = i;
+                                buttonExec.add(unused -> {
+                                    nextObjType = utilsTypes.get(finalI);
+                                    rightClickMenu.activate();
+                                    MouseHandler.resetClicks();
+                                    GamePanel.camera.noUpdate = false;
+                                    return unused;
+                                });
+                            }
+
+                            rightClickMenu.setButtonExec(buttonExec);
+                            rightClickMenu.setDisplayedWidth(500);
+                            rightClickMenu.setHeight((rightClickMenu.buttonHeight + 10) * utilsTypes.size() - 10);
                             if (!rightClickMenu.isOpen) {
                                 rightClickMenu.activate();
                             }
@@ -1441,7 +1526,29 @@ public class LevelMaker extends GameObject2D{
                     fw.write((go.getY() + 32767)/256);
                     fw.write((go.getY() + 32767)%256);
                     fw.write(go.getDirection()+2);
+                    if (go.getThisEntity().dropsKey) fw.write(1);
+                    else fw.write(0);
                     fw.write("\n".getBytes());
+                }
+                else if (go.getType().equals("Key")){
+                    fw.write("o".getBytes());
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write("\n".getBytes());
+                }
+                else if (go.getType().equals("Door")){
+                    fw.write("d".getBytes());
+                    fw.write(go.sprite.getWidth()/256);
+                    fw.write(go.sprite.getWidth()%256);
+                    fw.write(go.sprite.getHeight()/256);
+                    fw.write(go.sprite.getHeight()%256);
+                    fw.write((go.getX() + 32767)/256);
+                    fw.write((go.getX() + 32767)%256);
+                    fw.write((go.getY() + 32767)/256);
+                    fw.write((go.getY() + 32767)%256);
+                    fw.write(("\n").getBytes());
                 }
                 else if (go.getType().contains("Platform_")){
                     fw.write("P".getBytes());

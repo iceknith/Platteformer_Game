@@ -133,7 +133,6 @@ public class TextObject extends GameObject2D{
         if (prevSavePoint < text.length()){
             result.add(subTxtFormatting(text.substring(prevSavePoint), false));
         }
-        System.out.println(result);
         return result;
     }
     String subTxtFormatting(String subTxt, boolean isKey){

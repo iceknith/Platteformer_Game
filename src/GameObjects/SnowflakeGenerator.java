@@ -1,6 +1,8 @@
 package GameObjects;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +21,8 @@ public class SnowflakeGenerator extends GameObject2D{
     final List<Integer> validSnowflakeCounts = Arrays.asList(1,2,3,5,10);
     boolean isStable = true;
 
+    ParticleGenerator snowParticle;
+
     public SnowflakeGenerator(int x, int y, int snowflakeCnt, String id, String subLvlName) throws IOException {
         super(x,y,50,50, subLvlName);
 
@@ -35,6 +39,13 @@ public class SnowflakeGenerator extends GameObject2D{
 
         sprite = new Sprite(stable.get(0), 4);
         setAnimation(stable, stableAnimationSpeed);
+
+        snowParticle = new ParticleGenerator(
+                getX() + getWidth()/2, getY() + getHeight()/2, -1, getWidth()/2, 5,
+                13, 15, 13, 15,
+                -0.1, 0.1, -0.1, 0.1,
+                0.9995, 1.0005, 0.018,0.018,0.05,
+                100, "snow", 0, "#-1", "main");
     }
 
     public SnowflakeGenerator(SnowflakeGenerator s){
@@ -49,6 +60,8 @@ public class SnowflakeGenerator extends GameObject2D{
         recoveryAnimationSpeed = s.recoveryAnimationSpeed;
         explosion = s.explosion;
         explosionAnimationSpeed = s.explosionAnimationSpeed;
+
+        snowParticle = s.snowParticle;
     }
 
     public void setSnowFlakeCount(int snowflakeCnt) throws IOException {
@@ -67,17 +80,26 @@ public class SnowflakeGenerator extends GameObject2D{
     @Override
     public void update() throws Exception {
         super.update();
+        snowParticle.update();
+
         animate();
 
         // recovery process
         if (!isStable) {
             if (getAnimation().equals(stable)){
                 isStable = true;
+                snowParticle.isInactive = false;
             }
             else if (getAnimation().equals(recovery) && nextAnimation == null){
                 setNextAnimation(stable, stableAnimationSpeed);
             }
         }
+    }
+
+    @Override
+    public void draw(Graphics2D g2D, ImageObserver IO){
+        snowParticle.draw(g2D, IO);
+        super.draw(g2D, IO);
     }
 
     @Override
@@ -92,6 +114,7 @@ public class SnowflakeGenerator extends GameObject2D{
                 p.snowflakeCount = snowFlakeCount;
 
                 isStable = false;
+                snowParticle.isInactive = true;
                 setAnimation(explosion, explosionAnimationSpeed);
                 setNextAnimation(recovery, recoveryAnimationSpeed);
             }
@@ -111,6 +134,7 @@ public class SnowflakeGenerator extends GameObject2D{
     @Override
     public void reset() {
         isStable = true;
+        snowParticle.isInactive = false;
         setAnimation(stable, stableAnimationSpeed);
         nextAnimation = null;
     }

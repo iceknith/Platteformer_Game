@@ -13,7 +13,7 @@ public class ParticleGenerator extends Entity{
     ArrayList<BufferedImage> animation;
     ArrayList<Particle> particles = new ArrayList<>();
     int particleGenerationNum, spawnRadius;
-    double spawnTime, animSpeed, particleMaxLifeTime, timeSinceGeneration = 0,
+    public double spawnTime, animSpeed, particleMaxLifeTime, timeSinceGeneration = 0,
             defaultMinWidth, defaultMinHeight, defaultMaxWidth, defaultMaxHeight,
             minXVel, maxXVel, minYVel, maxYVel, xAcceleration, yAcceleration, shrinkXSpeed, shrinkYSpeed;
     boolean isInactive;
@@ -66,12 +66,12 @@ public class ParticleGenerator extends Entity{
             if (timeSinceGeneration > spawnTime){
 
                 final double angle = Math.random()*2*Math.PI;
-                final int x = getX() + (int) (Math.cos(angle)*spawnRadius);
-                final int y = getY() + (int) (Math.sin(angle)*spawnRadius);
-                final int width =(int) (Math.random()*(defaultMaxWidth - defaultMinWidth) + defaultMinWidth);
-                final int height =(int) (Math.random()*(defaultMaxHeight - defaultMinHeight) + defaultMinHeight);
-                final int velX = (int) (Math.random()*(maxXVel - minXVel) + minXVel);
-                final int velY = (int) (Math.random()*(maxYVel - minYVel) + minYVel);
+                final double x = getX() + Math.cos(angle)*Math.random()*spawnRadius;
+                final double y = getY() + Math.sin(angle)*Math.random()*spawnRadius;
+                final double width = Math.random()*(defaultMaxWidth - defaultMinWidth) + defaultMinWidth;
+                final double height = Math.random()*(defaultMaxHeight - defaultMinHeight) + defaultMinHeight;
+                final double velX =  Math.random()*(maxXVel - minXVel) + minXVel;
+                final double velY =  Math.random()*(maxYVel - minYVel) + minYVel;
                 particles.add(new Particle(x, y, width, height, velX, velY, 0, 0));
                 particleGenerationNum--;
                 timeSinceGeneration = 0;

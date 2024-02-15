@@ -244,6 +244,7 @@ public class Level {
 
                         Hyena h = new Hyena(x, y, "#" + i, "");
                         h.setDirection(direction);
+                        h.dropsKey = reader.read() == 1;
                         objectsBuffer.add(h);
                     }
                     case 'c' -> { //Chicken
@@ -253,6 +254,7 @@ public class Level {
 
                         Chicken c = new Chicken(x, y, "#" + i, "");
                         c.setDirection(direction);
+                        c.dropsKey = reader.read() == 1;
                         objectsBuffer.add(c);
                     }
                     case 'k' -> { //Knight
@@ -262,7 +264,24 @@ public class Level {
 
                         Knight k = new Knight(x, y, "#" + i, "");
                         k.setDirection(direction);
+                        k.dropsKey = reader.read() == 1;
                         objectsBuffer.add(k);
+                    }
+                    case 'o' -> { //key
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+
+                        KeyObject k = new KeyObject(x, y, false, "#" + i, "");
+                        objectsBuffer.add(k);
+                    }
+                    case 'd' -> { //Door
+                        int w = reader.read()*256 + reader.read();
+                        int h = reader.read()*256 + reader.read();
+                        int posX = reader.read()*256 + reader.read() - 32767;
+                        int posY = reader.read()*256 + reader.read() - 32767;
+
+                        Door d = new Door(posX, posY, w, h, "#" + i, "");
+                        objectsBuffer.add(d);
                     }
                     case 'O' -> { //ImageObject
                         int w = reader.read()*256 + reader.read();

@@ -1,11 +1,11 @@
 package GameObjects.Enemies;
 
-import GameObjects.Entity;
-import GameObjects.GameObject2D;
-import GameObjects.Sprite;
+import GameObjects.*;
 import main.GamePanel;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class Hyena extends Entity {
     final int maxYSpeed = 150;
     final double acceleration = 10;
     final int runSpeed = 60;
-    final  int maxHealth = 250;
+    final  int maxHealth = 100;
     boolean isChasing = false;
     boolean hadSideCollision = true;
 
@@ -43,6 +43,8 @@ public class Hyena extends Entity {
 
     boolean isVulnerable = true;
     boolean isDead = false;
+
+    ParticleGenerator exclamationMark;
 
     public Hyena(int x, int y, String id, String subLvl) throws IOException {
         super(x, y, 75, 40, subLvl);
@@ -84,6 +86,8 @@ public class Hyena extends Entity {
         hadSideCollision = h.hadSideCollision;
         isVulnerable = h.isVulnerable;
         isDead = h.isDead;
+
+        exclamationMark = h.exclamationMark;
     }
 
     public void setDirection(int newDirection){
@@ -96,6 +100,8 @@ public class Hyena extends Entity {
     @Override
     public void update() throws Exception {
         super.update();
+        if (exclamationMark != null) exclamationMark.update();
+
         animate();
 
         if (isDead) return;
@@ -104,7 +110,13 @@ public class Hyena extends Entity {
         move();
     }
 
-    public void iaLogic(){
+    @Override
+    public void draw(Graphics2D g2D, ImageObserver IO) {
+        super.draw(g2D, IO);
+        if (exclamationMark != null) exclamationMark.draw(g2D, IO);
+    }
+
+    public void iaLogic() throws Exception {
 
         if (hp <= 0){
             if (getAnimation().equals(dying)){
@@ -112,6 +124,10 @@ public class Hyena extends Entity {
                 hasHP = false;
                 isDead = true;
                 setNextAnimation(dead, deadAnimSpeed, offsetX, offsetY);
+                if (dropsKey) {
+                    KeyObject k = new KeyObject(getX()+getWidth()/2-32, getY()+getHeight()/2-32, true, "#-1", "");
+                    GamePanel.camera.level.addToMainSubLevel(k);
+                }
             }
             return;
         }
@@ -158,6 +174,14 @@ public class Hyena extends Entity {
                 playerPosYMin < posY && posY < playerPosYMax){
                 setAnimation(run, runAnimSpeed, offsetX, offsetY);
                 isChasing = true;
+
+                //particles
+                exclamationMark = new ParticleGenerator(getX() + getWidth()/2 - 10, getY() - 50, 1, 0, 1,
+                        25, 25, 65, 65,
+                        0, 0, 0, 0,
+                        0, 0, 0.25,0.65,0,
+                        100, "exclamation_mark", 0, "#-1", "main");
+                exclamationMark.move(getX() + getWidth()/2 - 5, getY() - 50);
             }
         }
     }
@@ -231,6 +255,7 @@ public class Hyena extends Entity {
         setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
+        exclamationMark = null;
 
         GamePanel.camera.deleteGOInGrid(this, true);
         setX(initialPosX);

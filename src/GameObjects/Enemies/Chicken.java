@@ -1,11 +1,11 @@
 package GameObjects.Enemies;
 
-import GameObjects.Entity;
-import GameObjects.GameObject2D;
-import GameObjects.Sprite;
+import GameObjects.*;
 import main.GamePanel;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -50,6 +50,8 @@ public class Chicken extends Entity {
     double turnTimer = 0;
     boolean isVulnerable = true;
     boolean isDead = false;
+
+    ParticleGenerator exclamationMark;
 
     public Chicken(int x, int y, String id, String subLvl) throws IOException {
         super(x, y, 45, 38, subLvl);
@@ -99,6 +101,8 @@ public class Chicken extends Entity {
         isOnGround = c.isOnGround;
         isJumping = c.isJumping;
         jumpingTime = c.jumpingTime;
+
+        exclamationMark = c.exclamationMark;
     }
 
     public void setDirection(int newDirection){
@@ -116,6 +120,8 @@ public class Chicken extends Entity {
     @Override
     public void update() throws Exception {
         super.update();
+        if (exclamationMark != null) exclamationMark.update();
+
         animate();
 
         if (isDead) return;
@@ -124,7 +130,13 @@ public class Chicken extends Entity {
         move();
     }
 
-    public void iaLogic(){
+    @Override
+    public void draw(Graphics2D g2D, ImageObserver IO) {
+        super.draw(g2D, IO);
+        if (exclamationMark != null) exclamationMark.draw(g2D, IO);
+    }
+
+    public void iaLogic() throws Exception {
 
         if (hp <= 0){
             if (getAnimation().equals(dying)){
@@ -132,6 +144,10 @@ public class Chicken extends Entity {
                 hasHP = false;
                 isDead = true;
                 setNextAnimation(dead, animSpeed, deadOffsetX, deadOffsetY);
+                if (dropsKey) {
+                    KeyObject k = new KeyObject(getX()+getWidth()/2-32, getY()+getHeight()/2-32, true, "#-1", "");
+                    GamePanel.camera.level.addToMainSubLevel(k);
+                }
             }
             return;
         }
@@ -190,13 +206,6 @@ public class Chicken extends Entity {
         else { //patrolling
             if (velocityX != 0) stop();
 
-            //turning
-            turnTimer += GamePanel.deltaTime/10;
-            if (turnTimer >= turnTime){
-                    turnTimer = 0;
-                    setDirection(-direction);
-                }
-
             //spotting the player
             int posXMin = Math.min(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
             int posXMax = Math.max(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
@@ -211,6 +220,14 @@ public class Chicken extends Entity {
                     playerPosYMin < posY && posY < playerPosYMax){
                 setAnimation(run, animSpeed, defaultOffsetX, defaultOffsetY);
                 isChasing = true;
+
+                //particles
+                exclamationMark = new ParticleGenerator(getX() + getWidth()/2 - 10, getY() - 50, 1, 0, 1,
+                        25, 25, 65, 65,
+                        0, 0, 0, 0,
+                        0, 0, 0.5,1.3,0,
+                        100, "exclamation_mark", 0, "#-1", "main");
+                exclamationMark.move(getX() + getWidth()/2 - 5, getY() - 50);
             }
         }
     }
@@ -312,6 +329,7 @@ public class Chicken extends Entity {
         setDirection(initDirection);
         setAnimation(idle, animSpeed, defaultOffsetX, defaultOffsetY);
         setNextAnimation(null, 0);
+        exclamationMark = null;
 
         GamePanel.camera.deleteGOInGrid(this, true);
         setX(initialPosX);

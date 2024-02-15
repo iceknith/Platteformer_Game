@@ -269,6 +269,10 @@ public class GameObject2D{
         throw new Exception("Method used on a non-TextObject GameObject");
     }
 
+    public Door getThisDoor() throws Exception {
+        throw new Exception("Method used on a non-Door GameObject");
+    }
+
     public Player getThisPlayer() throws Exception{
         throw new Exception("Method used on a non-Player GameObject");
     }
