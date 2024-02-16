@@ -36,8 +36,8 @@ public class MovingPlatform extends Entity{
         initialTime = initTime;
         time = initialTime;
 
-        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
-        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/travelTime);
+        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/travelTime);
 
         type = "MovingPlatform_" + animName;
         name = type+id;
@@ -97,11 +97,11 @@ public class MovingPlatform extends Entity{
         super.update();
         animate();
 
-        time += GamePanel.deltaTime/10;
+        time += GamePanel.deltaTime*100;
 
         //Find new pos
-        double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
-        double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        double newX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/travelTime);
+        double newY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/travelTime);
 
         velocityX = newX - getX();
         velocityY = getY() - newY;
@@ -112,18 +112,18 @@ public class MovingPlatform extends Entity{
     @Override
     public void reset() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, true);
-        setX(posX1);
-        setY(posY1);
-        prevX = getX();
-        prevY = getY();
+        setX((int) initialPosX);
+        setY((int) initialPosY);
         GamePanel.camera.addGOInGrid(this, true);
         time = initialTime;
+        prevX = getX();
+        prevY = getY();
     }
 
     public void setInitialTime(int initTime){
         initialTime = initTime;
-        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(time*Math.PI/((double) travelTime /1000));
-        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(time*Math.PI/((double) travelTime /1000));
+        initialPosX = (double) (posX1 + posX2) /2 + ((double) (posX1 - posX2)/2) * cos(initialTime*Math.PI/travelTime);
+        initialPosY = (double) (posY1 + posY2) /2 + ((double) (posY1 - posY2)/2) * cos(initialTime*Math.PI/travelTime);
     }
 
     public int getInitialTime(){return initialTime;}

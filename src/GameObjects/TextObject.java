@@ -140,7 +140,7 @@ public class TextObject extends GameObject2D{
             if (isKey) return subTxt.substring(0,8) + "^" + subTxt.substring(8);
             return subTxt;
         }
-        if (isKey) return "#FFFFFFF" + "^" + subTxt;
+        if (isKey) return "#FFFC400" + "^" + subTxt;
         return "#FFFFFFF" + subTxt;
     }
 

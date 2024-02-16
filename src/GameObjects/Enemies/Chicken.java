@@ -94,6 +94,7 @@ public class Chicken extends Entity {
         turnTimer = c.turnTimer;
         initialPosX = c.initialPosX;
         initialPosY = c.initialPosY;
+        initDirection = c.initDirection;
         isVulnerable = c.isVulnerable;
         isDead = c.isDead;
         isFlying = c.isFlying;

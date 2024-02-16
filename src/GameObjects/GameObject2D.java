@@ -64,10 +64,14 @@ public class GameObject2D{
         animationIndex = go.animationIndex;
         animationSpeed = go.animationSpeed;
         nextAnimationSpeed = go.nextAnimationSpeed;
+        nextAnimationOffsetX = go.nextAnimationOffsetX;
+        nextAnimationOffsetY = go.nextAnimationOffsetY;
         animateTime = go.animateTime;
         animationPriority = go.animationPriority;
 
         utilType = go.utilType;
+        isEntity = go.isEntity;
+        doesDamage = go.doesDamage;
     }
 
     public int getX() {

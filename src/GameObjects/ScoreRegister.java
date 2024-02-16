@@ -221,6 +221,12 @@ public class ScoreRegister extends GameObject2D{
         FileWriter fw = new FileWriter(fnew, false);
         PrintWriter pw = new PrintWriter(fw);
 
+        for (int i = 0; i < globalHighScoresTimes.size(); i++){
+            //fw.write(hsN.get(i)+"-"+hsT.get(i)+"\n");
+            String txt = globalHighScoresNames.get(i)+"-"+ globalHighScoresTimes.get(i);
+            pw.println(txt);
+        }
+
         pw.close();
         KeyHandler.isSelectPressed = false;
         GamePanel.camera.setNextLevel("menu");

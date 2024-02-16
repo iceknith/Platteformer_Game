@@ -163,6 +163,8 @@ public class LevelMaker extends GameObject2D{
                 MouseHandler.resetClicks();
                 txtInputMenu.isOpen = false;
                 GamePanel.camera.noUpdate = false;
+                canPlaceObj = true;
+                objIsPlaced = true;
             }
         }
 
@@ -369,7 +371,6 @@ public class LevelMaker extends GameObject2D{
 
             txtInputMenu.isOpen = true;
             canPlaceObj = false;
-            GamePanel.camera.update();
             GamePanel.camera.noUpdate = true;
             MouseHandler.resetClicks();
         }

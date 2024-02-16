@@ -32,7 +32,7 @@ public class Hyena extends Entity {
     final int runSpeed = 60;
     final  int maxHealth = 100;
     boolean isChasing = false;
-    boolean hadSideCollision = true;
+    boolean hadSideCollision = false;
 
     int direction = 1;
 
@@ -83,6 +83,7 @@ public class Hyena extends Entity {
         turnTimer = h.turnTimer;
         initialPosX = h.initialPosX;
         initialPosY = h.initialPosY;
+        initDirection = h.initDirection;
         hadSideCollision = h.hadSideCollision;
         isVulnerable = h.isVulnerable;
         isDead = h.isDead;

@@ -15,7 +15,7 @@ public class KeyHandler implements KeyListener {
     static int resetKey = KeyEvent.VK_R;
     static int jumpKey = KeyEvent.VK_SPACE;
     static  int placeKey = KeyEvent.VK_SHIFT;
-    static int placeDownKey = KeyEvent.VK_END;
+    static int placeDownKey = KeyEvent.VK_NUMPAD0;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
     static  int launchKey = KeyEvent.VK_F5;
@@ -205,6 +205,8 @@ public class KeyHandler implements KeyListener {
             case "suicide" -> suicideKey = key;
             case "reset" -> resetKey = key;
             case "select" -> selectKey = key;
+            case "place" -> placeKey = key;
+            case "place down" -> placeDownKey = key;
             case "debug" -> debugKey = key;
             case "menu" -> menuKey = key;
         }
@@ -222,6 +224,8 @@ public class KeyHandler implements KeyListener {
             case "suicide" -> {return suicideKey;}
             case "reset" -> {return resetKey;}
             case "select" -> {return selectKey;}
+            case "place" -> {return placeKey;}
+            case "place down" -> {return placeDownKey;}
             case "debug" -> {return debugKey;}
             case "menu" -> {return menuKey;}
         }

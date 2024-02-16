@@ -42,7 +42,7 @@ public class Knight extends Entity {
 
     int direction = 1;
 
-    final int detectionRangeX = 750;
+    final int detectionRangeX = 400;
 
     final int turnTime = 3; //3s
     double turnTimer = 0;
@@ -94,6 +94,7 @@ public class Knight extends Entity {
         turnTimer = k.turnTimer;
         initialPosX = k.initialPosX;
         initialPosY = k.initialPosY;
+        initDirection = k.initDirection;
         isVulnerable = k.isVulnerable;
         isDead = k.isDead;
 

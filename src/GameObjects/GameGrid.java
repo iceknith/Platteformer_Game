@@ -306,7 +306,7 @@ public class GameGrid {
                                     !(go.isEntity && go.getThisEntity().isEnemy)){
                                     level.addUpdatable(go);
                                 }
-                                if (go.isEntity){
+                                if (go.isEntity || go.getType().equals("TextObject")){
                                     lastDisplayed.add(go);
                                 }
                                 else{

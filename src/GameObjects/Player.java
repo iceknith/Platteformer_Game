@@ -308,7 +308,6 @@ public class Player extends Entity{
 
         if(isOnGround){
             jumps = maxJumps;
-
         }
         else{
             sTh = airSpeedThreshold;
@@ -318,6 +317,11 @@ public class Player extends Entity{
             lAcc = airLateAcceleration;
         }
 
+        //killing player
+        if (getY() > deathYLine || KeyHandler.isSuicideKeyPressed || isDying){
+            death(spawnPointPos);
+            return;
+        }
 
         if (KeyHandler.isRightPressed && KeyHandler.isLeftPressed){
             //making the last input the dominant one
@@ -416,10 +420,6 @@ public class Player extends Entity{
             if (velocityY < -10) {
                 setAnimation(fall, fallAnimationSpeed, fallOffsetX, fallOffsetY);
             }
-        }
-
-        if (getY() > deathYLine || KeyHandler.isSuicideKeyPressed || isDying){
-            death(spawnPointPos);
         }
 
         // Reset Level
