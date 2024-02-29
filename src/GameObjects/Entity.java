@@ -124,6 +124,10 @@ public class Entity extends GameObject2D{
         return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
     }
 
+    protected double getDistance(int x0, int y0, int x1, int y1){
+        return Math.sqrt(Math.pow(x0-x1, 2) + Math.pow(y0 - y1, 2));
+    }
+
     protected void move() throws Exception {
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();

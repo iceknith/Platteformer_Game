@@ -2,9 +2,13 @@ package GameObjects;
 
 import main.GamePanel;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class IceBlock extends Entity{
@@ -31,6 +35,8 @@ public class IceBlock extends Entity{
     boolean tempCanBePlaced;
     public boolean canBePlaced;
     public boolean isPlaced;
+
+    int playerCenterX, playerCenterY;
 
     final int damageAmount = 25;
     final int explosionRange = 100;
@@ -127,19 +133,23 @@ public class IceBlock extends Entity{
             else if (hp < 83.35) setAnimation(breaking0, breakingAnimationSpeed);
         }
 
-        //not placed handler
+        //placing handler
         if (!isPlaced){
 
-            for (GameObject2D go: getNear()){
-                if (go.hasPhysicalCollisions && intersects(go)){
-                    tempCanBePlaced = false;
-                    break;
+            canBePlaced = true;
+            boolean modif = true;
+            while (modif){
+                modif = false;
+
+                for (GameObject2D go: getNear()){
+                    if (go.hasPhysicalCollisions && intersects(go) && !go.getType().equals("Player")){
+                        modif = placingCollisionHandler(go);
+                        if (modif) break;
+                    }
                 }
             }
 
             // placing display handler
-            canBePlaced = tempCanBePlaced;
-            tempCanBePlaced = true;
 
             if (canBePlaced) setAnimation(placingValid, placingAnimationSpeed);
             else setAnimation(placingInvalid, placingAnimationSpeed);
@@ -154,6 +164,209 @@ public class IceBlock extends Entity{
         setY(nextY);
         GamePanel.camera.addGOInGrid(this, false);
     }
+
+    public void setPlayerCenter(int playerCX, int playerCY){
+        playerCenterX = playerCX;
+        playerCenterY = playerCY;
+    }
+
+    boolean placingCollisionHandler(GameObject2D go) throws Exception {
+        //returns true if a modification occurred, else returns false
+
+        final int centerX = getX() + getWidth()/2;
+        final int centerY = getY() + getHeight()/2;
+        final int cornerWidth = getWidth() * ((int) Math.signum(centerX - playerCenterX) + 1)/2;
+        final int cornerHeight = getHeight() * ((int) Math.signum(centerY - playerCenterY) + 1)/2;
+        final int cornerX = getX() + cornerWidth;
+        final int cornerY = getY() + cornerHeight;
+
+        int[] intersectionPoint;
+        int[] tempNewPos;
+        int[] nextPos = null;
+        double minDist = getDistance(cornerX, cornerY, playerCenterX, playerCenterY);
+        double distance;
+
+        //right
+        intersectionPoint = lineIntersectsVerticalLine(
+                playerCenterX, playerCenterY, cornerX, cornerY,
+                go.getX(), go.getY(), go.getY() + go.getHeight());
+
+        if (intersectionPoint.length == 2){
+            tempNewPos = lineIntersectsRect(intersectionPoint[0], intersectionPoint[1], getWidth() + 2, getHeight() + 2,
+                                        playerCenterX, playerCenterY, cornerX, cornerY);
+
+            if (tempNewPos.length == 2){
+                distance = getDistance(
+                        tempNewPos[0] - getWidth()/2 + cornerWidth,
+                        tempNewPos[1] - getHeight()/2 + cornerHeight,
+                        playerCenterX, playerCenterY);
+
+                if (distance < minDist){
+                    nextPos = new int[] {tempNewPos[0] - getWidth()/2, tempNewPos[1] - getHeight()/2};
+                    minDist = distance;
+                }
+            }
+        }
+
+        //left
+        intersectionPoint = lineIntersectsVerticalLine(
+                playerCenterX, playerCenterY, cornerX, cornerY,
+                go.getX() + go.getWidth(), go.getY(), go.getY() + go.getHeight());
+
+        if (intersectionPoint.length == 2){
+            tempNewPos = lineIntersectsRect(intersectionPoint[0], intersectionPoint[1], getWidth() + 2, getHeight() + 2,
+                    playerCenterX, playerCenterY, cornerX, cornerY);
+
+            if (tempNewPos.length == 2){
+                distance = getDistance(
+                        tempNewPos[0] - getWidth()/2 + cornerWidth,
+                        tempNewPos[1] - getHeight()/2 + cornerHeight,
+                        playerCenterX, playerCenterY);
+
+
+                if (distance < minDist){
+                    nextPos = new int[] {tempNewPos[0] - getWidth()/2, tempNewPos[1] - getHeight()/2};
+                    minDist = distance;
+                }
+            }
+        }
+
+        //down
+        intersectionPoint = lineIntersectsHorizontalLine(
+                playerCenterX, playerCenterY, cornerX, cornerY,
+                go.getX(), go.getX() + getWidth(), go.getY());
+
+        if (intersectionPoint.length == 2){
+            tempNewPos = lineIntersectsRect(intersectionPoint[0], intersectionPoint[1], getWidth() + 2, getHeight() + 2,
+                    playerCenterX, playerCenterY, cornerX, cornerY);
+
+            if (tempNewPos.length == 2){
+                distance = getDistance(
+                        tempNewPos[0] - getWidth()/2 + cornerWidth,
+                        tempNewPos[1] - getHeight()/2 + cornerHeight,
+                        playerCenterX, playerCenterY);
+
+
+                if (distance < minDist){
+                    nextPos = new int[] {tempNewPos[0] - getWidth()/2, tempNewPos[1] - getHeight()/2};
+                    minDist = distance;
+                }
+            }
+        }
+
+        //up
+        intersectionPoint = lineIntersectsHorizontalLine(
+                playerCenterX, playerCenterY, cornerX, cornerY,
+                go.getX(), go.getX() + getWidth(), go.getY() + getHeight());
+
+        if (intersectionPoint.length == 2){
+            tempNewPos = lineIntersectsRect(intersectionPoint[0], intersectionPoint[1], getWidth() + 2, getHeight() + 2,
+                    playerCenterX, playerCenterY, cornerX, cornerY);
+
+            if (tempNewPos.length == 2){
+                distance = getDistance(
+                        tempNewPos[0] - getWidth()/2 + cornerWidth,
+                        tempNewPos[1] - getHeight()/2 + cornerHeight,
+                        playerCenterX, playerCenterY);
+
+
+                if (distance < minDist){
+                    nextPos = new int[] {tempNewPos[0] - getWidth()/2, tempNewPos[1] - getHeight()/2};
+                }
+            }
+        }
+
+        //computing the results
+        if (nextPos == null) {
+            canBePlaced = false;
+            return false;
+        }
+        else {
+            move(nextPos[0], nextPos[1]);
+            canBePlaced = (!intersects(go) && !intersects(player));
+            return true;
+        }
+    }
+
+    int[] lineIntersectsRect(int rCX, int rCY, int w, int h, int lX0, int lY0, int lX1, int lY1){
+        int[] tempPos;
+        int[] bestPos = new int[] {};
+        double tempDistance;
+        double bestDistance = getDistance(lX0, lY0, lX1, lY1);
+
+        //right
+        tempPos = lineIntersectsVerticalLine(lX0, lY0, lX1, lY1, rCX - w/2, rCY - h/2, rCY + h/2);
+        if (tempPos.length == 2 ){
+            tempDistance = getDistance(lX0, lY0, tempPos[0], tempPos[1]);
+            if (tempDistance < bestDistance){
+                bestDistance = tempDistance;
+                bestPos = tempPos.clone();
+            }
+        }
+
+        //left
+        tempPos = lineIntersectsVerticalLine(lX0, lY0, lX1, lY1, rCX + w/2, rCY - h/2, rCY + h/2);
+        if (tempPos.length == 2 ){
+            tempDistance = getDistance(lX0, lY0, tempPos[0], tempPos[1]);
+            if (tempDistance < bestDistance){
+                bestDistance = tempDistance;
+                bestPos = tempPos.clone();
+            }
+        }
+
+        //down
+        tempPos = lineIntersectsHorizontalLine(lX0, lY0, lX1, lY1, rCX - w/2, rCX + w/2, rCY - h/2);
+        if (tempPos.length == 2 ){
+            tempDistance = getDistance(lX0, lY0, tempPos[0], tempPos[1]);
+            if (tempDistance < bestDistance){
+                bestDistance = tempDistance;
+                bestPos = tempPos.clone();
+            }
+        }
+
+        //down
+        tempPos = lineIntersectsHorizontalLine(lX0, lY0, lX1, lY1, rCX - w/2, rCX + w/2, rCY + h/2);
+        if (tempPos.length == 2 ){
+            tempDistance = getDistance(lX0, lY0, tempPos[0], tempPos[1]);
+            if (tempDistance < bestDistance){
+                bestDistance = tempDistance;
+                bestPos = tempPos.clone();
+            }
+        }
+
+        return bestPos;
+    }
+
+    int[] lineIntersectsVerticalLine(int lX0, int lY0, int lX1, int lY1, int vX, int vY0, int vY1){
+        //checks for intersection between a random line [l], and a vertical one [v]
+        //returns {} if no intersection, and the intersection point if there is
+
+        //Check if l is vertical
+        if (lX0 == lX1) return new int[] {};
+
+        final int iY = ((lY0 - lY1)*(lX0 - vX))/(lX1 - lX0) + lY0;
+
+        if (Math.min(lY0, lY1) <= iY && iY <= Math.max(lY0, lY1) && Math.min(vY0, vY1) <= iY && iY <= Math.max(vY0, vY1))
+            return new int[] {vX, iY};
+
+        return new int[] {};
+    }
+
+    int[] lineIntersectsHorizontalLine(int lX0, int lY0, int lX1, int lY1, int hX0, int hX1, int hY) {
+        //checks for intersection between a random line [l], and a horizontal one [h]
+        //returns {} if no intersection, and the intersection point if there is
+
+        //Check if l is horizontal
+        if (lY0 == lY1) return new int[]{};
+
+        final int iX = ((lX1 - lX0) * (lY0 - hY))/(lY0 - lY1) + lX0;
+
+        if (Math.min(lX0, lX1) <= iX && iX <= Math.max(lX0, lX1) && Math.min(hX0, hX1) <= iX && iX <= Math.max(hX0, hX1))
+            return new int[]{iX, hY};
+
+        return new int[]{};
+    }
+
 
     @Override
     public void collision(Entity e) throws Exception {

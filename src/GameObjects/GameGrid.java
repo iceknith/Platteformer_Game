@@ -290,6 +290,7 @@ public class GameGrid {
             int endIndexY = Math.min((screenY + screenHeight - y)/cellHeight + 1, grid.get(0).size());
 
             ArrayList<GameObject2D> lastDisplayed = new ArrayList<>();
+            GameObject2D latestDisplayed = null;
 
             for (int indexX = startIndexX; indexX < endIndexX; indexX ++){
 
@@ -306,7 +307,10 @@ public class GameGrid {
                                     !(go.isEntity && go.getThisEntity().isEnemy)){
                                     level.addUpdatable(go);
                                 }
-                                if (go.isEntity || go.getType().equals("TextObject")){
+                                if (go.type.equals("Player")) {
+                                    latestDisplayed = go;
+                                }
+                                else if (go.isEntity || go.getType().equals("TextObject")){
                                     lastDisplayed.add(go);
                                 }
                                 else{
@@ -320,6 +324,7 @@ public class GameGrid {
 
             //add the last displayed objects
             visible.addAll(lastDisplayed);
+            if (latestDisplayed != null) visible.add(latestDisplayed);
         }
 
         //handle gui and background
