@@ -74,11 +74,12 @@ public class KeyObject extends Entity{
             setY(nextY);
             GamePanel.camera.addGOInGrid(this, false);
 
-            for (GameObject2D go : getNear()){
-                if (intersects(go) && go.type.equals("Door") && !go.getThisDoor().isOpen){
+            for (GameObject2D go : getInBox(player.getX(), player.getY(), 150, 150)){
+                if (go.type.equals("Door") && !go.getThisDoor().isOpen){
                     go.getThisDoor().setOpen();
                     getPlayer().keys.remove(this);
                     isUsed = true;
+                    break;
                 }
             }
         }

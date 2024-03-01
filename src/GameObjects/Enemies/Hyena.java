@@ -38,9 +38,6 @@ public class Hyena extends Entity {
 
     final int detectionRangeX = 750;
 
-    final int turnTime = 3; //3s
-    double turnTimer = 0;
-
     boolean isVulnerable = true;
     boolean isDead = false;
 
@@ -80,7 +77,6 @@ public class Hyena extends Entity {
 
         isChasing = h.isChasing;
         direction = h.direction;
-        turnTimer = h.turnTimer;
         initialPosX = h.initialPosX;
         initialPosY = h.initialPosY;
         initDirection = h.initDirection;
@@ -144,7 +140,6 @@ public class Hyena extends Entity {
                 hadSideCollision = false;
 
                 setDirection(-direction);
-                turnTimer = 0;
                 setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
             }
             velocityX = Math.min(runSpeed, Math.max(-runSpeed, velocityX-acceleration*direction));
@@ -152,15 +147,6 @@ public class Hyena extends Entity {
 
         else{
             if (velocityX != 0) stop();
-
-
-            //turning
-            turnTimer += GamePanel.deltaTime/10;
-            if (turnTimer >= turnTime){
-                turnTimer = 0;
-
-                setDirection(-direction);
-            }
 
             //spotting the player
             int posXMin = Math.min(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
@@ -252,7 +238,6 @@ public class Hyena extends Entity {
 
         isChasing = false;
         hadSideCollision = false;
-        turnTimer = 0;
         setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);

@@ -479,7 +479,7 @@ public class Player extends Entity{
                     + (iceBlockDirectionY-1)*currentIceBlock.getHeight()/2
                         +10 - (int)((velocityY+getGroundVelocityY())*4*GamePanel.deltaTime);
 
-            currentIceBlock.move(newX, newY);
+            currentIceBlock.move(newX, newY, true);
             currentIceBlock.setPlayerCenter(getX()+getWidth()/2, getY()+getHeight()/2);
         }
     }
