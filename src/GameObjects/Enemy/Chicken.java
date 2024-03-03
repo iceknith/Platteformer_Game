@@ -1,4 +1,4 @@
-package GameObjects.Enemies;
+package GameObjects.Enemy;
 
 import GameObjects.*;
 import main.GamePanel;
@@ -30,14 +30,14 @@ public class Chicken extends Entity {
     final int maxYSpeed = 150;
     final int maxYFlySpeed = 75;
     final double acceleration = 3;
-    final int runSpeed = 50;
-    final  int maxHealth = 50;
+    final int runSpeed = 40;
+    final  int maxHealth = 15;
     boolean isChasing = false;
     boolean isFlying = false;
     boolean isJumping;
     boolean isOnGround;
 
-    final double jumpForce = 1;
+    final double jumpForce = 0.5;
     final double jumpTimer = 0.1;
     double jumpingTime;
 
@@ -285,6 +285,9 @@ public class Chicken extends Entity {
         }
         GamePanel.camera.addGOInGrid(this, false);
 
+        if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
+            GamePanel.camera.getVisible().add(this);
+        }
     }
 
     void stop(){

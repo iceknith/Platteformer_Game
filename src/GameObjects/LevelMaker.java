@@ -1,8 +1,8 @@
 package GameObjects;
 
-import GameObjects.Enemies.Chicken;
-import GameObjects.Enemies.Hyena;
-import GameObjects.Enemies.Knight;
+import GameObjects.Enemy.Chicken;
+import GameObjects.Enemy.Hyena;
+import GameObjects.Enemy.Knight;
 import handlers.KeyHandler;
 import handlers.MouseHandler;
 import main.GamePanel;
@@ -19,6 +19,8 @@ public class LevelMaker extends GameObject2D{
     //A Game object, that performs more as a handler.
     //It allows for the creation of levels inside the game,
     //WARNING: currently it can only be used in the main class
+
+    String currentLvlName = "Backup-Save";
 
     public static boolean cameraCanMove = true;
     boolean canPlaceObj = true;
@@ -264,6 +266,9 @@ public class LevelMaker extends GameObject2D{
 
         //Launch Level
         if (KeyHandler.isLaunchKeyPressed && !hasNoPlayer()){
+
+            //Save the level
+            saveLevel(currentLvlName);
 
             //move the camera to the player
             GamePanel.camera.setScreenX(GameObject2D.player.getX() - GamePanel.camera.getScreenWidth()/2);
@@ -1043,15 +1048,19 @@ public class LevelMaker extends GameObject2D{
         utilsImages.add(readImageBuffered("assets/Key/spin/0.png"));
         utilsTypes.add("Door");
         utilsImages.add(readImageBuffered("assets/Door/closed/0.png"));
+        utilsTypes.add("SnowflakeGenerator");
+        utilsImages.add(readImageBuffered("assets/SnowflakeGenerator/stable1/0.png"));
+        utilsTypes.add("Checkpoint");
+        utilsImages.add(readImageBuffered("assets/Checkpoint/addJump/flag/0.png"));
 
 
         //define other buttons
-        for (String msg : Arrays.asList("Moving Platform", "Checkpoint", "Snowflake Generator", "Utils", "Enemy", "Text", "Delete", "Background",
+        for (String msg : Arrays.asList("Moving Platform", "Utils", "Enemy", "Text", "Delete", "Background",
                                         "To Player", "Grid", "Load", "Save")){
 
             Button b = new Button(100, 75, x, y, "base", msg, "#" + id_counter, "");
             switch (msg){
-                case "Moving Platform","Checkpoint", "Snowflake Generator", "Utils", "Enemy", "Text", "Background" -> b.buttonMessageColor = Color.orange;
+                case "Moving Platform", "Utils", "Enemy", "Text", "Background" -> b.buttonMessageColor = Color.orange;
                 case "Delete" -> b.buttonMessageColor = Color.red;
                 default -> b.buttonMessageColor = Color.pink;
             }
@@ -1087,14 +1096,7 @@ public class LevelMaker extends GameObject2D{
 
                     switch (b.buttonMessage) {
 
-                        case "Checkpoint" -> {
-                            nextObjType = "Checkpoint";
-                            nextObjUtilType = 'b';
-                        }
-
-                        case "Snowflake Generator" -> nextObjType = "SnowflakeGenerator";
                         case "Text" -> nextObjType = "Text";
-
                         case "Moving Platform" -> {
                             rightClickMenu.setX(MouseHandler.getX());
                             rightClickMenu.setY(MouseHandler.getY());
@@ -1167,6 +1169,9 @@ public class LevelMaker extends GameObject2D{
                                 int finalI = i;
                                 buttonExec.add(unused -> {
                                     nextObjType = utilsTypes.get(finalI);
+                                    if (utilsTypes.get(finalI).equals("Checkpoint")){
+                                        nextObjUtilType = 'b';
+                                    }
                                     rightClickMenu.activate();
                                     MouseHandler.resetClicks();
                                     GamePanel.camera.noUpdate = false;
@@ -1315,11 +1320,12 @@ public class LevelMaker extends GameObject2D{
                             txtInputMenu.setAsInt(false);
 
                             txtInputMenu.setCategoryNames(List.of("File name"));
-                            txtInputMenu.setDefaultValues(List.of("TEST"));
+                            txtInputMenu.setDefaultValues(List.of(currentLvlName));
                             txtInputMenu.setCategorySetValues(List.of(
                                     i -> {
                                         try {
                                             loadLevel(i);
+                                            currentLvlName = i;
                                         } catch (Exception e) {
                                             throw new RuntimeException(e);
                                         }
@@ -1338,10 +1344,11 @@ public class LevelMaker extends GameObject2D{
                             txtInputMenu.setAsInt(false);
 
                             txtInputMenu.setCategoryNames(List.of("File name"));
-                            txtInputMenu.setDefaultValues(List.of("TEST"));
+                            txtInputMenu.setDefaultValues(List.of(currentLvlName));
                             txtInputMenu.setCategorySetValues(List.of(
                                     i -> {
                                         saveLevel(i);
+                                        currentLvlName = i;
                                         return null;
                                     }));
 

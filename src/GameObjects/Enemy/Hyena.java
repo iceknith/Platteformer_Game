@@ -1,4 +1,4 @@
-package GameObjects.Enemies;
+package GameObjects.Enemy;
 
 import GameObjects.*;
 import main.GamePanel;
@@ -9,107 +9,89 @@ import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Knight extends Entity {
+public class Hyena extends Entity {
 
     ArrayList<BufferedImage> idle;
     final int idleAnimSpeed = 3;
     ArrayList<BufferedImage> run;
-    final int defaultWalkAnimSpeed = 2;
-    final int defaultRunAnimSpeed = 1;
-    int runAnimSpeed = defaultWalkAnimSpeed;
+    final int runAnimSpeed = 1;
     ArrayList<BufferedImage> damageAnim;
-    final double damageAnimSpeed = 1;
+    final int damageAnimSpeed = 2;
     ArrayList<BufferedImage> dying;
     final double dyingAnimSpeed = 1;
     ArrayList<BufferedImage> dead;
     final  int deadAnimSpeed = 100;
 
-    final int offsetX = 0, offsetY = 5;
+    final int offsetX = 15, offsetY = 50;
 
     int initialPosX, initialPosY, initDirection = 0;
 
-    final double gravity = 2.5;
-    final int maxYSpeed = 200;
-    final double runAcceleration = 3;
-    final double walkAcceleration = 1;
-    double acceleration = walkAcceleration;
-    final int runSpeed = 40;
-    final int walkSpeed = 20;
-    int maxSpeed = walkSpeed;
-    final  int maxHealth = 250;
-    final int knockBackForce = 15;
+    final double gravity = 2.25;
+    final int maxYSpeed = 150;
+    final double acceleration = 7;
+    final int runSpeed = 60;
+    final  int maxHealth = 50;
     boolean isChasing = false;
+    boolean hadSideCollision = false;
 
     int direction = 1;
 
-    final int detectionRangeX = 400;
-
-    final int turnTime = 3; //3s
-    double turnTimer = 0;
+    final int detectionRangeX = 750;
 
     boolean isVulnerable = true;
     boolean isDead = false;
 
     ParticleGenerator exclamationMark;
 
-    public Knight(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 35, 105, subLvl);
-        type = "Knight";
+    public Hyena(int x, int y, String id, String subLvl) throws IOException {
+        super(x, y, 75, 40, subLvl);
+        type = "Hyena";
         name = type+id;
         isEnemy = true;
         doesDamage = true;
 
         hasHP = true;
-        hp = maxHealth;
+        hp  = maxHealth;
 
         initialPosX = x;
         initialPosY = y;
 
-        idle = getAnimationList("Enemy/Knight", "idle", 2);
-        run = getAnimationList("Enemy/Knight", "run", 7);
-        damageAnim = getAnimationList("Enemy/Knight", "damage", 2);
-        dying = getAnimationList("Enemy/Knight", "dying", 8);
-        dead = getAnimationList("Enemy/Knight", "dead", 0);
+        idle = getAnimationList("Enemy/Hyena", "idle", 3);
+        run = getAnimationList("Enemy/Hyena", "run", 5);
+        damageAnim = getAnimationList("Enemy/Hyena", "damage", 1);
+        dying = getAnimationList("Enemy/Hyena", "dying", 5);
+        dead = getAnimationList("Enemy/Hyena", "dead", 0);
 
-        sprite = new Sprite(idle.get(0), 3.5);
-        sprite.setDirection(-direction);
+        sprite = new Sprite(idle.get(0), 3);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
     }
 
-    public Knight(Knight k) {
-        super(k);
+    public Hyena(Hyena h) {
+        super(h);
 
-        run = k.run;
-        idle = k.idle;
-        damageAnim = k.damageAnim;
-        dying = k.dying;
-        dead = k.dead;
+        run = h.run;
+        idle = h.idle;
+        damageAnim = h.damageAnim;
+        dying = h.dying;
+        dead = h.dead;
 
-        runAnimSpeed = k.runAnimSpeed;
-        acceleration = k.acceleration;
-        maxSpeed = k.maxSpeed;
+        isChasing = h.isChasing;
+        direction = h.direction;
+        initialPosX = h.initialPosX;
+        initialPosY = h.initialPosY;
+        initDirection = h.initDirection;
+        hadSideCollision = h.hadSideCollision;
+        isVulnerable = h.isVulnerable;
+        isDead = h.isDead;
 
-        isChasing = k.isChasing;
-        direction = k.direction;
-        turnTimer = k.turnTimer;
-        initialPosX = k.initialPosX;
-        initialPosY = k.initialPosY;
-        initDirection = k.initDirection;
-        isVulnerable = k.isVulnerable;
-        isDead = k.isDead;
-
-        exclamationMark = k.exclamationMark;
+        exclamationMark = h.exclamationMark;
     }
 
     public void setDirection(int newDirection){
         direction = newDirection;
-        sprite.setDirection(-newDirection);
+        sprite.setDirection(newDirection);
 
         if (initDirection == 0) initDirection = direction;
-    }
-
-    public int getDirection(){
-        return direction;
     }
 
     @Override
@@ -148,46 +130,35 @@ public class Knight extends Entity {
         }
 
         if (!isVulnerable){
-            if (getAnimation().equals(idle) || getAnimation().equals(run)) isVulnerable = true;
+            if (getAnimation().equals(idle)) isVulnerable = true;
             else return;
         }
 
         if (isChasing){
-            //following the player
-            setDirection((int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2));
-
-            if (maxSpeed != runSpeed){
-                maxSpeed = runSpeed;
-                acceleration = runAcceleration;
-                runAnimSpeed = defaultRunAnimSpeed;
-            }
-        }
-        else{
-            //patrolling
-            if (maxSpeed != walkSpeed){
-                maxSpeed = walkSpeed;
-                acceleration = walkAcceleration;
-                runAnimSpeed = defaultWalkAnimSpeed;
-            }
-
-            turnTimer += GamePanel.deltaTime/10;
-            if (turnTimer >= turnTime){
-                turnTimer = 0;
+            if (hadSideCollision){
+                isChasing = false;
+                hadSideCollision = false;
 
                 setDirection(-direction);
+                setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
             }
+            velocityX = Math.min(runSpeed, Math.max(-runSpeed, velocityX-acceleration*direction));
+        }
+
+        else{
+            if (velocityX != 0) stop();
 
             //spotting the player
             int posXMin = Math.min(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
             int posXMax = Math.max(getX()+getWidth()/2, getX()+getWidth()/2-direction*detectionRangeX);
-            int posY = getY() + getHeight()/2;
+            int posY = getY();
 
             int playerPosX = GameObject2D.getPlayer().getX() + GameObject2D.getPlayer().getWidth()/2;
             int playerPosYMin = GameObject2D.getPlayer().getY();
             int playerPosYMax = GameObject2D.getPlayer().getY() + GameObject2D.getPlayer().getHeight();
 
             if(posXMin < playerPosX && playerPosX < posXMax &&
-                    playerPosYMin < posY && posY < playerPosYMax){
+                playerPosYMin < posY && posY < playerPosYMax){
                 setAnimation(run, runAnimSpeed, offsetX, offsetY);
                 isChasing = true;
 
@@ -204,21 +175,6 @@ public class Knight extends Entity {
 
     @Override
     public void move() throws Exception {
-        //x movement
-        if (isVulnerable){
-            if (isSafeGround(-maxSpeed*direction) && !isWall(-maxSpeed*direction, false)) {
-                velocityX = Math.min(maxSpeed, Math.max(-maxSpeed, velocityX-acceleration*direction));
-
-                if (!getAnimation().equals(run) || animationSpeed != runAnimSpeed) setAnimation(run, runAnimSpeed, offsetX, offsetY);
-            }
-            else {
-                velocityX = 0;
-
-                if (!getAnimation().equals(idle)) setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
-            }
-        }
-
-        //y movement
         velocityY = Math.max(-maxYSpeed, velocityY - (gravity * GamePanel.deltaTime * 6));
 
         GamePanel.camera.deleteGOInGrid(this, false);
@@ -227,33 +183,51 @@ public class Knight extends Entity {
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
+        hadSideCollision = false;
         for (GameObject2D go: getNear()){
             int didCollide = didCollide(go);
 
-            if (didCollide != 0 && go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(100);
+            if (didCollide != 0 && go.type.equals("Player")) GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);
+            else if ((didCollide == 3 || didCollide == 4) && go.hasPhysicalCollisions && isChasing) {
+                hadSideCollision = true;
+                if (go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(25);
+            }
         }
         GamePanel.camera.addGOInGrid(this, false);
 
+
+        if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
+            GamePanel.camera.getVisible().add(this);
+        }
+    }
+
+    void stop(){
+        if (velocityX > 1) velocityX /= 2;
+        else velocityX = 0;
     }
 
     @Override
     public void collision(Entity e) throws Exception {
         super.collision(e);
 
-        if (!isDead && !e.isEnemy) e.damage(100);
+        if (!isDead && !e.isEnemy) e.damage(25);
     }
 
     @Override
-    public void damage(int damage) throws Exception {
+    public void damage(int damage) {
         if (isVulnerable && hasHP){
             hp -= damage;
 
+            isChasing = false;
             isVulnerable = false;
-            velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
-            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
-            else if (isChasing) setNextAnimation(run, runAnimSpeed, offsetX, offsetY);
-            else setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+            if (hp <= 0){
+                setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            }
+            else {
+                setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+                if (isChasing) hadSideCollision = true;
+            }
         }
     }
 
@@ -267,11 +241,7 @@ public class Knight extends Entity {
         hp = maxHealth;
 
         isChasing = false;
-        runAnimSpeed = defaultWalkAnimSpeed;
-        maxSpeed = walkSpeed;
-        acceleration = walkAcceleration;
-
-        turnTimer = 0;
+        hadSideCollision = false;
         setDirection(initDirection);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         setNextAnimation(null, 0);
@@ -289,7 +259,6 @@ public class Knight extends Entity {
 
     @Override
     public GameObject2D copy() throws IOException {
-        return new Knight(this);
+        return new Hyena(this);
     }
 }
-

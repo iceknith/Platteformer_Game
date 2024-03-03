@@ -1,8 +1,8 @@
 package GameObjects;
 
-import GameObjects.Enemies.Chicken;
-import GameObjects.Enemies.Hyena;
-import GameObjects.Enemies.Knight;
+import GameObjects.Enemy.Chicken;
+import GameObjects.Enemy.Hyena;
+import GameObjects.Enemy.Knight;
 import handlers.KeyHandler;
 import main.GamePanel;
 import org.jetbrains.annotations.NotNull;

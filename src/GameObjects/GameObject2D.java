@@ -16,7 +16,7 @@ public class GameObject2D{
     public String name;
     public String type;
 
-    String subLevelName;
+    public String subLevelName;
 
     public Rectangle hitbox;
 
@@ -89,6 +89,7 @@ public class GameObject2D{
     public double getVelocityX(){return 0;}
 
     public double getVelocityY(){return 0;}
+    public int getAnimationIndex(){return animationIndex;}
 
 
     public int getWidth() {
@@ -182,7 +183,7 @@ public class GameObject2D{
         if(animateTime >= animationSpeed){
             animateTime = 0;
 
-            animationIndex++;
+            animationIndex+=1;
 
             if (animationIndex >= getAnimation().size()){
                 if (nextAnimation != null){
@@ -311,5 +312,8 @@ public class GameObject2D{
         BufferedImage image = ImageIO.read(new File(path));
         imageBuffer.put(path, image);
         return image;
+    }
+    public static double lerp(double val1, double val2, double speed){
+        return (1 - speed) * val1 + speed * val2;
     }
 }

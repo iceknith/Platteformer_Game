@@ -136,7 +136,8 @@ public class Entity extends GameObject2D{
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
         GamePanel.camera.addGOInGrid(this, false);
 
-        if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.visible.contains(this)){
+        if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
+            System.out.println(getDebugInfos());
             GamePanel.camera.visible.add(this);
         }
     }

@@ -14,10 +14,13 @@ public class KeyObject extends Entity{
     final double distanceToPlayer = 150;
     final double turnSpeed = 0.1;
     final double angleIncrement = Math.PI*2/25;
+    final double speed = 0.03;
     double angle;
     boolean isPermanent;
     boolean isUsed = false;
     int initialPosX, initialPosY;
+    boolean hasTargetedDoor = false;
+    Door targetDoor = null;
 
     ArrayList<BufferedImage> keyAnimation;
     final double animSpeed = 2;
@@ -62,6 +65,25 @@ public class KeyObject extends Entity{
         animate();
 
         if (isOnPlayer){
+
+            if (hasTargetedDoor){
+
+                final int nextX = (int) lerp(getX(), targetDoor.getX(), speed);
+                final int nextY = (int) lerp(getY(), targetDoor.getY(), speed);
+
+                GamePanel.camera.deleteGOInGrid(this, false);
+                setX(nextX);
+                setY(nextY);
+                GamePanel.camera.addGOInGrid(this, false);
+
+                if (intersects(targetDoor)){
+                    targetDoor.setOpen();
+                    getPlayer().keys.remove(this);
+                    isUsed = true;
+                }
+                return;
+            }
+
             angle += GamePanel.deltaTime*turnSpeed;
 
             final int nextX = (int) (getPlayer().getX() + getPlayer().getWidth()/2 - getWidth()/2 + Math.cos(angle)*distanceToPlayer);
@@ -74,11 +96,13 @@ public class KeyObject extends Entity{
             setY(nextY);
             GamePanel.camera.addGOInGrid(this, false);
 
-            for (GameObject2D go : getInBox(player.getX(), player.getY(), 150, 150)){
+            for (GameObject2D go : getInBox(
+                    player.getX() + player.getWidth()/2 - 125,
+                    player.getY() + player.getHeight()/2 - 125,
+                    250, 250)){
                 if (go.type.equals("Door") && !go.getThisDoor().isOpen){
-                    go.getThisDoor().setOpen();
-                    getPlayer().keys.remove(this);
-                    isUsed = true;
+                    hasTargetedDoor = true;
+                    targetDoor = go.getThisDoor();
                     break;
                 }
             }
@@ -114,6 +138,8 @@ public class KeyObject extends Entity{
         if (isPermanent){
             isOnPlayer = false;
             isUsed = false;
+            hasTargetedDoor = false;
+            targetDoor = null;
             animationIndex = 0;
 
             GamePanel.camera.deleteGOInGrid(this, true);

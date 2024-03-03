@@ -99,8 +99,8 @@ public class Player extends Entity{
     final int snowflakesSpacing = 20;
     final int snowflakeSize = 15;
     BufferedImage snowflakeImage;
-    public final int iceBlockPlacingDistanceX = 96;
-    public final int iceBlockPlacingDistanceY = 96;
+    public final int iceBlockPlacingDistanceX = 75;
+    public final int iceBlockPlacingDistanceY = 45;
     int iceBlockDirectionX;
     int iceBlockDirectionY;
     int nextIceBlockDirectionX;

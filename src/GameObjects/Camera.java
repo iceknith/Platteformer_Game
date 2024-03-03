@@ -35,7 +35,7 @@ public class Camera extends GameGrid {
     int centeredPosY;
 
     boolean noUpdate = false;
-    boolean bufferUpdateGrid = false;
+    public boolean bufferUpdateGrid = false;
 
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
@@ -116,7 +116,7 @@ public class Camera extends GameGrid {
 
         if (p.getX() - screenX < softBorder.x) { //player is to the left of the soft border
 
-            velocityX = lerp(velocityX, (softBorder.x - p.getX() + screenX) * speedX, smoothnessX);
+            velocityX = GameObject2D.lerp(velocityX, (softBorder.x - p.getX() + screenX) * speedX, smoothnessX);
 
             // change position of the softBorder if it isn't where the player looks
             if (p.sprite.getDirection() != directionX && p.sprite.getDirection() == -1){
@@ -130,7 +130,7 @@ public class Camera extends GameGrid {
         }
         else if (p.getX() + p.getWidth() - screenX > softBorder.x + softBorder.width) { //player is to the right of the soft border
 
-            velocityX = lerp(velocityX, (softBorder.x + softBorder.width - p.getX() - p.getWidth() + screenX) * speedX, smoothnessX);
+            velocityX = GameObject2D.lerp(velocityX, (softBorder.x + softBorder.width - p.getX() - p.getWidth() + screenX) * speedX, smoothnessX);
 
             // change position of the softBorder if it isn't where the player looks
             if (p.sprite.getDirection() != directionX && p.sprite.getDirection() == 1){
@@ -151,10 +151,10 @@ public class Camera extends GameGrid {
         if (p.getY() - screenY < softBorder.y){ //player is over the soft border
 
             if (p.velocityY > 0){ //if player is going up
-                velocityY = lerp(velocityY, p.velocityY, smoothnessY);
+                velocityY = GameObject2D.lerp(velocityY, p.velocityY, smoothnessY);
             }
             else{ //if player and camera are going down
-                velocityY = lerp(velocityY, (softBorder.y - p.getY() + screenY) * speedY, smoothnessY);
+                velocityY = GameObject2D.lerp(velocityY, (softBorder.y - p.getY() + screenY) * speedY, smoothnessY);
             }
 
             if (p.getY() - screenY < hardBorder.y){ //hard border up
@@ -164,10 +164,10 @@ public class Camera extends GameGrid {
         else if(p.getY() + p.getHeight() - screenY > softBorder.y + softBorder.height){ //player is under the soft border
 
             if (p.velocityY < 0){ //if player is going down
-                velocityY = lerp(velocityY, p.velocityY, smoothnessY);
+                velocityY = GameObject2D.lerp(velocityY, p.velocityY, smoothnessY);
             }
             else{ //if player and camera are going up
-                velocityY = lerp(velocityY, (softBorder.y + softBorder.height - p.getY() - p.getHeight() + screenY) * speedY, smoothnessY);
+                velocityY = GameObject2D.lerp(velocityY, (softBorder.y + softBorder.height - p.getY() - p.getHeight() + screenY) * speedY, smoothnessY);
             }
 
             if (p.getY() + p.getHeight() - screenY > hardBorder.y + hardBorder.height){ //hard border down
@@ -175,7 +175,7 @@ public class Camera extends GameGrid {
             }
         }
         else if (p.isOnGround && Math.abs(velocityY - (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY)) >= 1) {
-            velocityY = lerp(velocityY, (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY) * speedY, centeringSmoothnessY);
+            velocityY = GameObject2D.lerp(velocityY, (centeredPosY - p.getY() - (double) p.getHeight() /2 + screenY) * speedY, centeringSmoothnessY);
         }
         else {
             stopMovementY();
@@ -260,10 +260,6 @@ public class Camera extends GameGrid {
             screenY = Math.min(32767, Math.max(-32767, screenY));
             updateGrid();
         }
-    }
-
-    double lerp(double val1, double val2, double speed){
-        return (1 - speed) * val1 + speed * val2;
     }
 
     public void move(int posX, int posY){
