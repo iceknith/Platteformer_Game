@@ -30,7 +30,7 @@ public class Hyena extends Entity {
     final int maxYSpeed = 150;
     final double acceleration = 7;
     final int runSpeed = 60;
-    final  int maxHealth = 50;
+    final  int maxHealth = 25;
     boolean isChasing = false;
     boolean hadSideCollision = false;
 

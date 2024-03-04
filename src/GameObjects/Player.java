@@ -425,7 +425,8 @@ public class Player extends Entity{
 
         // Reset Level
         if (KeyHandler.isResetKeyPressed){
-            GamePanel.camera.setNextLevel(GamePanel.camera.level.getLevelName());
+            //GamePanel.camera.setNextLevel(GamePanel.camera.level.getLevelName());
+            GamePanel.camera.level.openSubLevel("restart", false, true);
         }
 
         iceBlockHandler();

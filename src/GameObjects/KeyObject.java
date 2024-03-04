@@ -14,7 +14,7 @@ public class KeyObject extends Entity{
     final double distanceToPlayer = 150;
     final double turnSpeed = 0.1;
     final double angleIncrement = Math.PI*2/25;
-    final double speed = 0.03;
+    final double speed = 0.02;
     double angle;
     boolean isPermanent;
     boolean isUsed = false;
@@ -100,9 +100,10 @@ public class KeyObject extends Entity{
                     player.getX() + player.getWidth()/2 - 125,
                     player.getY() + player.getHeight()/2 - 125,
                     250, 250)){
-                if (go.type.equals("Door") && !go.getThisDoor().isOpen){
+                if (go.type.equals("Door") && !go.getThisDoor().isOpen && !go.getThisDoor().isPlanedToOpen){
                     hasTargetedDoor = true;
                     targetDoor = go.getThisDoor();
+                    targetDoor.isPlanedToOpen = true;
                     break;
                 }
             }

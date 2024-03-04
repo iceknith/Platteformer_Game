@@ -11,6 +11,13 @@ import java.util.ArrayList;
 
 public class HighScoresDisplay extends GameObject2D {
 
+    int x; int y;
+
+    ArrayList<String> highScoresNames = new ArrayList<>();
+    ArrayList<Integer> highScoresTimes = new ArrayList<>();
+    static ArrayList<String> globalHighScoresNames = new ArrayList<>();
+    static ArrayList<Integer> globalHighScoresTimes = new ArrayList<>();
+
     HighScoresDisplay(int posX, int posY, String subLvl) throws IOException {
         this(posX, posY, subLvl, GamePanel.camera.nextLevel);
     }
@@ -57,12 +64,6 @@ public class HighScoresDisplay extends GameObject2D {
             throw new RuntimeException(e);
         }
     }
-    int x; int y;
-
-    ArrayList<String> highScoresNames = new ArrayList<>();
-    ArrayList<Integer> highScoresTimes = new ArrayList<>();
-    public static ArrayList<String> globalHighScoresNames = new ArrayList<>();
-    public static ArrayList<Integer> globalHighScoresTimes = new ArrayList<>();
 
     @Override
     public void draw(Graphics2D g2D, ImageObserver IO) {
@@ -100,7 +101,9 @@ public class HighScoresDisplay extends GameObject2D {
     }
 
     public static int getCurrentGlobalHighScores(){
-        if (!globalHighScoresTimes.isEmpty()) return globalHighScoresTimes.get(0);
+        if (!globalHighScoresTimes.isEmpty()) {
+            return globalHighScoresTimes.get(0);
+        }
         return Integer.MAX_VALUE;
     }
 

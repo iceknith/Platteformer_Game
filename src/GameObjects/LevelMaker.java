@@ -1656,7 +1656,18 @@ public class LevelMaker extends GameObject2D{
             fw.write(500%256);
             fw.write(400/256);
             fw.write(400%256);
-            fw.write((lvlName + ";Reset;base\nFsettings\nFwin\n").getBytes());
+            fw.write((lvlName + ";Reset;base\nFsettings\nFwin\nI").getBytes());
+            for (int i = 0; i < 8; i++) fw.write(0);
+            fw.write("settingsBg\nBL".getBytes());
+            fw.write(307/256);
+            fw.write(307%256);
+            fw.write(150/256);
+            fw.write(150%256);
+            fw.write(500/256);
+            fw.write(500%256);
+            fw.write(400/256);
+            fw.write(400%256);
+            fw.write((lvlName + ";Restart;base\nFrestart\n").getBytes());
 
             fw.close();
             System.out.println("File /assets/level/"+lvlName+".lvl has been successfully saved" );

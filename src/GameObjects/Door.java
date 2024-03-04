@@ -14,6 +14,7 @@ public class Door extends GameObject2D{
     final int openedAnimSpeed = 1000;
 
     boolean isOpen = false;
+    boolean isPlanedToOpen = false;
 
     Door(int x, int y, int w, int h, String id, String subLvl) throws IOException {
         super(x, y, w, h, subLvl);
@@ -34,6 +35,7 @@ public class Door extends GameObject2D{
         opening = d.opening;
         opened = d.opened;
         isOpen = d.isOpen;
+        isPlanedToOpen = d.isPlanedToOpen;
     }
 
     @Override
@@ -60,6 +62,7 @@ public class Door extends GameObject2D{
         super.reset();
 
         isOpen = false;
+        isPlanedToOpen = false;
         hasPhysicalCollisions = true;
         setAnimation(closed, closedAnimSpeed);
         nextAnimation = null;

@@ -84,8 +84,15 @@ public class SnowflakeGenerator extends GameObject2D{
 
         animate();
 
+        if (isStable){
+            for(GameObject2D go: getNear()){
+                if (intersects(go) && go.isEntity){
+                    collision(go.getThisEntity());
+                }
+            }
+        }
         // recovery process
-        if (!isStable) {
+        else {
             if (getAnimation().equals(stable)){
                 isStable = true;
                 snowParticle.isInactive = false;
@@ -94,6 +101,7 @@ public class SnowflakeGenerator extends GameObject2D{
                 setNextAnimation(stable, stableAnimationSpeed);
             }
         }
+
     }
 
     @Override

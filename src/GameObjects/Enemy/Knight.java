@@ -38,14 +38,14 @@ public class Knight extends Entity {
     final int runSpeed = 35;
     final int walkSpeed = 15;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 100;
+    final  int maxHealth = 75;
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isAttacking = false;
     final int atkWidth = 130;
     final int atkHeight = 10;
     boolean hasAttacked;
-    final double maxAtkCooldown = 1;
+    final double maxAtkCooldown = 0.3;
     double atkCooldown = 0;
 
     int direction = 1;
@@ -165,51 +165,12 @@ public class Knight extends Entity {
             //following the player
             if (!isAttacking){
                 setDirection((int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2));
-
             }
-            else{
-                stop();
-                if (!getAnimation().equals(attack)){
-
-                    isAttacking = false;
-                    hasAttacked = false;
-                }
-            }
-
 
             if (maxSpeed != runSpeed){
                 maxSpeed = runSpeed;
                 acceleration = runAcceleration;
                 runAnimSpeed = defaultRunAnimSpeed;
-            }
-
-            //launch attack
-            if (atkCooldown <= 0){
-                final int posX = getX() - atkWidth *(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
-                final int posY = getY() + getHeight()/2 - 5;
-
-                for (GameObject2D go : getInBox(posX, posY, atkWidth, atkHeight)){
-                    if (go.type.equals("Player") || go.type.equals("IceBlock")){
-                        setAnimation(attack, attackAnimSpeed);
-                        setNextAnimation(idle, idleAnimSpeed);
-                        isAttacking = true;
-                        atkCooldown = maxAtkCooldown;
-                        break;
-                    }
-                }
-            }
-            else atkCooldown -= GamePanel.deltaTime/10;
-
-            //effectue the damages
-            if (isAttacking && !hasAttacked && getAnimationIndex() == 4){
-                final int posX = getX() - atkWidth*(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
-                final int posY = getY() + getHeight()/2 - 5;
-                GamePanel.camera.addGOInGrid(
-                        new DamageArea(posX, posY, atkWidth, atkHeight,
-                                0.1, 25, true, subLevelName)
-                );
-                GamePanel.camera.bufferUpdateGrid = true;
-                hasAttacked = true;
             }
         }
 
@@ -251,6 +212,45 @@ public class Knight extends Entity {
                 exclamationMark.move(getX() + getWidth()/2 - 5, getY() - 50);
             }
         }
+
+        //launch attack
+        if (!isAttacking){
+            if (atkCooldown <= 0){
+                final int posX = getX() - atkWidth *(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
+                final int posY = getY() + getHeight()/2 - 5;
+
+                for (GameObject2D go : getInBox(posX, posY, atkWidth, atkHeight)){
+                    if (go.type.equals("Player") || (go.type.equals("IceBlock") && go.hasPhysicalCollisions)){
+                        setAnimation(attack, attackAnimSpeed);
+                        setNextAnimation(idle, idleAnimSpeed);
+                        isAttacking = true;
+                        atkCooldown = maxAtkCooldown;
+                        break;
+                    }
+                }
+            }
+            else atkCooldown -= GamePanel.deltaTime/10;
+        }
+        else{
+            stop();
+            if (!getAnimation().equals(attack)){
+
+                isAttacking = false;
+                hasAttacked = false;
+            }
+        }
+
+        //effectue the damages
+        if (isAttacking && !hasAttacked && getAnimationIndex() == 4){
+            final int posX = getX() - atkWidth*(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
+            final int posY = getY() + getHeight()/2 - 5;
+            GamePanel.camera.addGOInGrid(
+                    new DamageArea(posX, posY, atkWidth, atkHeight,
+                            0.1, 25, true, subLevelName)
+            );
+            GamePanel.camera.bufferUpdateGrid = true;
+            hasAttacked = true;
+        }
     }
 
     @Override
@@ -267,10 +267,6 @@ public class Knight extends Entity {
                 velocityX = 0;
 
                 if (!getAnimation().equals(idle) && !isAttacking) setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
-            }
-
-            if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
-                GamePanel.camera.getVisible().add(this);
             }
         }
 
@@ -290,6 +286,9 @@ public class Knight extends Entity {
         }
         GamePanel.camera.addGOInGrid(this, false);
 
+        if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
+            GamePanel.camera.getVisible().add(this);
+        }
     }
 
     void stop(){

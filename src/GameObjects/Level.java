@@ -158,7 +158,7 @@ public class Level {
         ArrayList<GameObject2D> objectsBuffer = objBuffer;
 
         //resetting high scores
-        HighScoresDisplay.resetHighScores();
+        if (objBuffer.isEmpty()) HighScoresDisplay.resetHighScores();
 
         try {
             FileInputStream fis = new FileInputStream("assets/level/" + level + ".lvl");

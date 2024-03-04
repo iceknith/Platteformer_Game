@@ -61,39 +61,6 @@ public class Entity extends GameObject2D{
 
     public int getPreviousY(){return prevY;}
 
-    boolean intersects(GameObject2D go){
-        //another way to do the collision, but without using the previous position
-        if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
-                getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
-            return false;
-        }
-
-        return (getX() + getWidth() >= go.getX()) ||
-                (getX() <= go.getX() + go.getWidth()) ||
-                (getY() + getHeight() >= go.getY()) ||
-                (getY() <= go.getY() + go.getHeight());
-    }
-
-    protected ArrayList<GameObject2D> getNear(){
-
-        ArrayList<int[]> thisEntityGridCells = GamePanel.camera.findRectPosInGrid(this, 0, 0, 0, 2);
-        ArrayList<GameObject2D> result = new ArrayList<>();
-
-        for ( int[] pos: thisEntityGridCells) {
-
-            ArrayList<GameObject2D> cell = GamePanel.camera.getCellContent(pos[0], pos[1]);
-
-            for (GameObject2D object: cell) {
-
-                if (!result.contains(object) && object != this){
-
-                    result.add(object);
-                }
-            }
-        }
-        return result;
-    }
-
     protected ArrayList<GameObject2D> getInBox(int rectWidth, int rectHeight){
         return getInBox(getX() + getWidth()/2 - rectWidth/2, getY() + getHeight()/2 - rectHeight/2, rectWidth, rectHeight);
     }

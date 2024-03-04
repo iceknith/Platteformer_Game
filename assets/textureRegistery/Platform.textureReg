@@ -1,6 +1,7 @@
 -Base blocks
 base/win;win;0
 base/killer;killer;0
+base/invisibleKill;killer;0
 base/neon_red;base;0
 base/neon_yellow;base;0
 base/neon_green;base;0

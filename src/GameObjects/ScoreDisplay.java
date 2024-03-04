@@ -35,7 +35,7 @@ public class ScoreDisplay extends GameObject2D {
     public void draw(Graphics2D g2D, ImageObserver IO){
         String timerText;
 
-        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentGlobalHighScores()) {//insert a high score condition
+        if (GamePanel.inGameTimer < HighScoresDisplay.getCurrentGlobalHighScores()) {
             timerText = "NEW HIGH SCORE: " + GamePanel.inGameTimer/60000 + " min " + (GamePanel.inGameTimer/1000)%60 + " s " + GamePanel.inGameTimer%1000 + " ms";
         }
         else {

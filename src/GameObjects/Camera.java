@@ -34,13 +34,16 @@ public class Camera extends GameGrid {
     int softBorderXPosRight;
     int centeredPosY;
 
+    final double maxChangeDirectionTimer = 1.5;
+    double changingDirectionTimer = 0;
+
     boolean noUpdate = false;
     public boolean bufferUpdateGrid = false;
 
     public Camera(int screenW, int screenH, int posX, int posY) throws IOException {
         super(screenW, screenH, posX, posY);
 
-        smoothnessX = 0.5;
+        smoothnessX = 0.1;
         smoothnessY = 0.04;
         centeringSmoothnessY = 0.07;
 
@@ -55,7 +58,7 @@ public class Camera extends GameGrid {
 
         centeredPosY = screenHeight * 5/8;
 
-        int softBorderW = (int) (screenWidth * 0.13);
+        int softBorderW = (int) (screenWidth * 0.17);
         int softBorderH = (int) (screenHeight * 0.4);
 
         directionX = 0;
@@ -113,6 +116,19 @@ public class Camera extends GameGrid {
         Player p = GameObject2D.player;
 
         //-----x camera-----//
+
+        if (p.getDirection() != directionX){
+            changingDirectionTimer += GamePanel.deltaTime/10;
+
+            if (changingDirectionTimer >= maxChangeDirectionTimer){
+                changingDirectionTimer = 0;
+                directionX = p.getDirection();
+
+                if (directionX == -1) softBorder.x = softBorderXPosRight;
+                else softBorder.x = softBorderXPosLeft;
+            }
+        }
+        else if (changingDirectionTimer != 0) changingDirectionTimer = 0;
 
         if (p.getX() - screenX < softBorder.x) { //player is to the left of the soft border
 
