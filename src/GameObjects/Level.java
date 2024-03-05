@@ -1,6 +1,7 @@
 package GameObjects;
 
 import GameObjects.Enemy.Chicken;
+import GameObjects.Enemy.DarkKnight;
 import GameObjects.Enemy.Hyena;
 import GameObjects.Enemy.Knight;
 import handlers.KeyHandler;
@@ -263,6 +264,16 @@ public class Level {
                         int direction = reader.read() - 2;
 
                         Knight k = new Knight(x, y, "#" + i, "");
+                        k.setDirection(direction);
+                        k.dropsKey = reader.read() == 1;
+                        objectsBuffer.add(k);
+                    }
+                    case 'a' -> { //DarkKnight
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
+
+                        DarkKnight k = new DarkKnight(x, y, "#" + i, "");
                         k.setDirection(direction);
                         k.dropsKey = reader.read() == 1;
                         objectsBuffer.add(k);

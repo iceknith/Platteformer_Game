@@ -140,6 +140,7 @@ public class GameObject2D{
     public void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio,  int offsetX, int offsetY){
         if (animationPriority <= animPrio) {
             currentAnimation = animation;
+            if (animation == null) System.out.println("c'est la merde");
             animationSpeed = animSpeed;
             animationIndex = 0;
             animationPriority = animPrio;

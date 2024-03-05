@@ -1,6 +1,7 @@
 package GameObjects;
 
 import GameObjects.Enemy.Chicken;
+import GameObjects.Enemy.DarkKnight;
 import GameObjects.Enemy.Hyena;
 import GameObjects.Enemy.Knight;
 import handlers.KeyHandler;
@@ -424,6 +425,12 @@ public class LevelMaker extends GameObject2D{
         //Knight
         else if (nextObjType.equals("Knight")){
             Knight k = new Knight(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(k);
+            objects.add(k);
+        }
+        //DarkKnight
+        else if (nextObjType.equals("DarkKnight")){
+            DarkKnight k = new DarkKnight(x, y, "#"+id_counter, "");
             GamePanel.camera.level.addToMainSubLevel(k);
             objects.add(k);
         }
@@ -1040,6 +1047,8 @@ public class LevelMaker extends GameObject2D{
         enemyImages.add(readImageBuffered("assets/Enemy/Hyena/idle/0.png"));
         enemyTypes.add("Chicken");
         enemyImages.add(readImageBuffered("assets/Enemy/Chicken/idle/0.png"));
+        enemyTypes.add("DarkKnight");
+        enemyImages.add(readImageBuffered("assets/Enemy/DarkKnight/idle/0.png"));
         enemyTypes.add("Knight");
         enemyImages.add(readImageBuffered("assets/Enemy/Knight/idle/0.png"));
 
@@ -1525,9 +1534,11 @@ public class LevelMaker extends GameObject2D{
                     fw.write(mpGO.getDirection()+2);
                     fw.write((mpGO.getType().substring(15) + "\n").getBytes());
                 }
-                else if (go.getType().equals("Hyena") || go.getType().equals("Chicken") || go.getType().equals("Knight")){
+                else if (go.getType().equals("Hyena") || go.getType().equals("Chicken") || go.getType().equals("Knight")
+                        || go.getType().equals("DarkKnight")){
                     if (go.getType().equals("Hyena")) fw.write("h".getBytes());
                     else if (go.getType().equals("Knight")) fw.write("k".getBytes());
+                    else if (go.getType().equals("DarkKnight")) fw.write("a".getBytes());
                     else fw.write("c".getBytes());
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);
