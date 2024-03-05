@@ -7,7 +7,7 @@ public class Sprite {
 
     BufferedImage image;
 
-    int width;
+    public int width;
     int height;
     int offsetX;
     int offsetY;

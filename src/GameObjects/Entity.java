@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Entity extends GameObject2D{
-    protected double velocityY;
-    protected double velocityX;
+    public double velocityY;
+    public double velocityX;
 
     protected int prevX;
     protected int prevY;
@@ -109,46 +109,46 @@ public class Entity extends GameObject2D{
         }
     }
 
-    protected int didCollide(GameObject2D go) throws Exception {
+    public int didCollide(GameObject2D go) throws Exception {
 
         if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
                 getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
             return 0;
         }
         if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
+            go.collision(this);
+            collision(go);
             if (go.hasPhysicalCollisions){
                 setY(go.getY() - getHeight() - 1);
                 velocityY = go.getVelocityY();
             }
-            go.collision(this);
-            collision(go);
             return 1;
         }
         if(getY() <= go.getY() + go.getHeight() && getPreviousY() > go.getPreviousY() + go.getHeight()){
+            go.collision(this);
+            collision(go);
             if (go.hasPhysicalCollisions){
                 setY(go.getY() + go.getHeight() + 1);
                 velocityY = go.getVelocityY();
             }
-            go.collision(this);
-            collision(go);
             return 2;
         }
         if(getX() + getWidth() >= go.getX() && getPreviousX() + getWidth() < go.getPreviousX()){
+            go.collision(this);
+            collision(go);
             if (go.hasPhysicalCollisions){
                 setX(go.getX() - getWidth() - 1);
                 velocityX = go.getVelocityX();
             }
-            go.collision(this);
-            collision(go);
             return 3;
         }
         if(getX() <= go.getX() + go.getWidth() && getPreviousX() > go.getPreviousX() + go.getWidth()){
+            go.collision(this);
+            collision(go);
             if (go.hasPhysicalCollisions){
                 setX(go.getX() + go.getWidth() + 1);
                 velocityX = go.getVelocityX();
             }
-            go.collision(this);
-            collision(go);
             return 4;
         }
         return 0;
@@ -170,6 +170,38 @@ public class Entity extends GameObject2D{
             if (go.hasPhysicalCollisions && !go.getType().equals("Player") && (!go.getType().equals("IceBlock") || ignoreIceBlock)) return true;
         }
         return false;
+    }
+
+    protected void ragdolPhysics(double gravity) throws Exception {
+        stop();
+
+        velocityY -= gravity * GamePanel.deltaTime * 6;
+
+        GamePanel.camera.deleteGOInGrid(this, false);
+        prevX = getX();
+        prevY = getY();
+        setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
+        setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
+        GamePanel.camera.addGOInGrid(this, false);
+
+        for (GameObject2D go: getNear()){
+            if (getY() + getHeight() < go.getY() || getY() > go.getY() + go.getHeight() ||
+                    getX() > go.getX() + go.getWidth() || getX() + getWidth() < go.getX()){
+                continue;
+            }
+            if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
+                if (go.hasPhysicalCollisions){
+                    setY(go.getY() - getHeight() - 1);
+                    velocityY = go.getVelocityY();
+                    return;
+                }
+            }
+        }
+    }
+
+    protected void stop(){
+        if (velocityX > 1) velocityX /= 2;
+        else velocityX = 0;
     }
 
     public void damage(int damage) throws Exception {

@@ -125,7 +125,10 @@ public class Chicken extends Entity {
 
         animate();
 
-        if (isDead) return;
+        if (isDead) {
+            ragdolPhysics(gravity);
+            return;
+        }
 
         iaLogic();
         move();
@@ -288,11 +291,6 @@ public class Chicken extends Entity {
         if (GamePanel.camera.isInVisibleRange(this) && !GamePanel.camera.getVisible().contains(this)){
             GamePanel.camera.getVisible().add(this);
         }
-    }
-
-    void stop(){
-        if (velocityX > 1) velocityX /= 2;
-        else velocityX = 0;
     }
 
     @Override

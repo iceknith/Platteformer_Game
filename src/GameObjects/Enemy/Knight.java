@@ -42,8 +42,8 @@ public class Knight extends Entity {
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isAttacking = false;
-    final int atkWidth = 130;
-    final int atkHeight = 10;
+    final int atkWidth = 125;
+    final int atkHeight = 7;
     boolean hasAttacked;
     final double maxAtkCooldown = 0.3;
     double atkCooldown = 0;
@@ -128,7 +128,10 @@ public class Knight extends Entity {
 
         animate();
 
-        if (isDead) return;
+        if (isDead) {
+            ragdolPhysics(gravity);
+            return;
+        }
 
         iaLogic();
         move();
@@ -291,10 +294,6 @@ public class Knight extends Entity {
         }
     }
 
-    void stop(){
-        if (velocityX > 1) velocityX /= 2;
-        else velocityX = 0;
-    }
     @Override
     public void collision(Entity e) throws Exception {
         super.collision(e);
@@ -330,7 +329,7 @@ public class Knight extends Entity {
         maxSpeed = walkSpeed;
         acceleration = walkAcceleration;
 
-        atkCooldown = maxAtkCooldown;
+        atkCooldown = 0;
         isAttacking = false;
         hasAttacked = false;
 
