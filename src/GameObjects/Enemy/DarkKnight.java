@@ -107,12 +107,24 @@ public class DarkKnight extends Entity {
         damageAnim = k.damageAnim;
         dying = k.dying;
         dead = k.dead;
+        attack = k.attack;
+        fallSlow = k.fallSlow;
+        fallNormal = k.fallNormal;
+        fallFast = k.fallFast;
+        jump = k.jump;
+        land = k.land;
+        groundImpact = k.groundImpact;
 
         runAnimSpeed = k.runAnimSpeed;
         acceleration = k.acceleration;
         maxSpeed = k.maxSpeed;
 
         isChasing = k.isChasing;
+        isAttacking = k.isAttacking;
+        isJumping = k.isJumping;
+        lastAttack = k.lastAttack;
+        jumpCooldown = k.jumpCooldown;
+        lastDamage = k.lastDamage;
         direction = k.direction;
         turnTimer = k.turnTimer;
         initialPosX = k.initialPosX;
@@ -311,6 +323,8 @@ public class DarkKnight extends Entity {
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
         for (GameObject2D go: getNear()){
+            if (go.isEntity && go.getThisEntity().isEnemy && !go.getType().equals(type)) continue;
+
             int didCollide = didCollide(go);
 
             if (didCollide != 0 && didCollide != 1 && go.isEntity && !go.getThisEntity().isEnemy) {
@@ -393,10 +407,10 @@ public class DarkKnight extends Entity {
         isJumping = false;
         lastAttack = 0;
         lastDamage = 0;
+        jumpCooldown = 0;
         runAnimSpeed = defaultWalkAnimSpeed;
         maxSpeed = walkSpeed;
         acceleration = walkAcceleration;
-        jumpCooldown = 0;
 
 
         turnTimer = 0;

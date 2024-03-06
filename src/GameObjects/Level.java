@@ -1,9 +1,6 @@
 package GameObjects;
 
-import GameObjects.Enemy.Chicken;
-import GameObjects.Enemy.DarkKnight;
-import GameObjects.Enemy.Hyena;
-import GameObjects.Enemy.Knight;
+import GameObjects.Enemy.*;
 import handlers.KeyHandler;
 import main.GamePanel;
 import org.jetbrains.annotations.NotNull;
@@ -277,6 +274,16 @@ public class Level {
                         k.setDirection(direction);
                         k.dropsKey = reader.read() == 1;
                         objectsBuffer.add(k);
+                    }
+                    case 'g' -> { //Magician
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
+
+                        Magician m = new Magician(x, y, "#" + i, "");
+                        m.setDirection(direction);
+                        m.dropsKey = reader.read() == 1;
+                        objectsBuffer.add(m);
                     }
                     case 'o' -> { //key
                         int x = reader.read()*256 + reader.read() - 32767;

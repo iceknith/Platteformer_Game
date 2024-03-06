@@ -9,14 +9,12 @@ import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Knight extends Entity {
+public class Magician extends Entity {
 
     ArrayList<BufferedImage> idle;
     final int idleAnimSpeed = 3;
-    ArrayList<BufferedImage> run;
-    final int defaultWalkAnimSpeed = 2;
-    final int defaultRunAnimSpeed = 1;
-    int runAnimSpeed = defaultWalkAnimSpeed;
+    ArrayList<BufferedImage> walk;
+    final int walkAnimSpeed = 1;
     ArrayList<BufferedImage> attack;
     final int attackAnimSpeed = 1;
     ArrayList<BufferedImage> damageAnim;
@@ -26,31 +24,27 @@ public class Knight extends Entity {
     ArrayList<BufferedImage> dead;
     final  int deadAnimSpeed = 100;
 
-    final int offsetX = 0, offsetY = 5;
+    final int offsetX = -5, offsetY = 87;
 
     int initialPosX, initialPosY, initDirection = 0;
 
     final double gravity = 2.5;
     final int maxYSpeed = 200;
-    final double runAcceleration = 3;
-    final double walkAcceleration = 1;
+    final double walkAcceleration = 0.5;
     double acceleration = walkAcceleration;
-    final int runSpeed = 35;
-    final int walkSpeed = 15;
-    int maxSpeed = walkSpeed;
-    final  int maxHealth = 75;
+    final int maxSpeed = 10;
+    final  int maxHealth = 50;
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isAttacking = false;
-    final int atkWidth = 125;
-    final int atkHeight = 7;
     boolean hasAttacked;
-    final double maxAtkCooldown = 0.3;
+    final double maxAtkCooldown = 1;
     double atkCooldown = 0;
 
     int direction = 1;
 
-    final int detectionRangeX = 400;
+    final int detectionRangeX = 600;
+    final int atkRange = 1000;
 
     final int turnTime = 3; //3s
     double turnTimer = 0;
@@ -60,9 +54,9 @@ public class Knight extends Entity {
 
     ParticleGenerator exclamationMark;
 
-    public Knight(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 35, 105, subLvl);
-        type = "Knight";
+    public Magician(int x, int y, String id, String subLvl) throws IOException {
+        super(x, y, 25, 140, subLvl);
+        type = "Magician";
         name = type+id;
         isEnemy = true;
         doesDamage = true;
@@ -73,45 +67,43 @@ public class Knight extends Entity {
         initialPosX = x;
         initialPosY = y;
 
-        idle = getAnimationList("Enemy/Knight", "idle", 2);
-        run = getAnimationList("Enemy/Knight", "run", 7);
-        damageAnim = getAnimationList("Enemy/Knight", "damage", 2);
-        dying = getAnimationList("Enemy/Knight", "dying", 8);
-        dead = getAnimationList("Enemy/Knight", "dead", 0);
-        attack = getAnimationList("Enemy/Knight", "attack", 6);
+        idle = getAnimationList("Enemy/Magician", "idle", 7);
+        walk = getAnimationList("Enemy/Magician", "walk", 6);
+        damageAnim = getAnimationList("Enemy/Magician", "damage", 1);
+        dying = getAnimationList("Enemy/Magician", "dying", 3);
+        dead = getAnimationList("Enemy/Magician", "dead", 0);
+        attack = getAnimationList("Enemy/Magician", "attack_arrow", 5);
 
-        sprite = new Sprite(idle.get(0), 3.5);
+        sprite = new Sprite(idle.get(0), 2.5);
         sprite.setDirection(-direction);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
     }
 
-    public Knight(Knight k) {
-        super(k);
+    public Magician(Magician m) {
+        super(m);
 
-        run = k.run;
-        idle = k.idle;
-        damageAnim = k.damageAnim;
-        dying = k.dying;
-        dead = k.dead;
-        attack = k.attack;
+        walk = m.walk;
+        idle = m.idle;
+        damageAnim = m.damageAnim;
+        dying = m.dying;
+        dead = m.dead;
+        attack = m.attack;
 
-        runAnimSpeed = k.runAnimSpeed;
-        acceleration = k.acceleration;
-        maxSpeed = k.maxSpeed;
+        acceleration = m.acceleration;
 
-        isChasing = k.isChasing;
-        isAttacking = k.isAttacking;
-        hasAttacked = k.hasAttacked;
-        atkCooldown = k.atkCooldown;
-        direction = k.direction;
-        turnTimer = k.turnTimer;
-        initialPosX = k.initialPosX;
-        initialPosY = k.initialPosY;
-        initDirection = k.initDirection;
-        isVulnerable = k.isVulnerable;
-        isDead = k.isDead;
+        isChasing = m.isChasing;
+        isAttacking = m.isAttacking;
+        hasAttacked = m.hasAttacked;
+        atkCooldown = m.atkCooldown;
+        direction = m.direction;
+        turnTimer = m.turnTimer;
+        initialPosX = m.initialPosX;
+        initialPosY = m.initialPosY;
+        initDirection = m.initDirection;
+        isVulnerable = m.isVulnerable;
+        isDead = m.isDead;
 
-        exclamationMark = k.exclamationMark;
+        exclamationMark = m.exclamationMark;
     }
 
     public void setDirection(int newDirection){
@@ -162,33 +154,67 @@ public class Knight extends Entity {
             }
             return;
         }
-
         if (!isVulnerable){
-            if (getAnimation().equals(idle) || getAnimation().equals(run)) isVulnerable = true;
+            if (getAnimation().equals(idle) || getAnimation().equals(walk)) isVulnerable = true;
             else return;
         }
 
+        //chasing & attacking
         if (isChasing){
-            //following the player
+            final int distX = Math.abs(getX() + getWidth()/2 - getPlayer().getX() - getPlayer().getWidth()/2);
+
             if (!isAttacking){
+                //launching atk
+                if (atkCooldown <= 0){
+                    if (distX <= atkRange){
+                        isAttacking = true;
+                        setAnimation(attack, attackAnimSpeed);
+                        setNextAnimation(idle, idleAnimSpeed);
+                    }
+                }
+                else atkCooldown -= GamePanel.deltaTime/10;
+
+                //advancing to the player
                 setDirection((int) Math.signum(getX() + (float) getWidth() /2 - getPlayer().getX() - (float) getPlayer().getWidth() /2));
+
+                if (distX <= atkRange){
+                    stop();
+                }
             }
 
-            if (maxSpeed != runSpeed){
-                maxSpeed = runSpeed;
-                acceleration = runAcceleration;
-                runAnimSpeed = defaultRunAnimSpeed;
+            //if is attacking
+            else {
+                stop();
+
+                //launch projectile
+                if (getAnimationIndex() == 4 && !hasAttacked) {
+                    final int x = getX() + getWidth()/2 - getPlayer().getX() - getPlayer().getWidth()/2;
+                    final int y = getY() + getHeight()/2 - getPlayer().getY() - getPlayer().getHeight()/2;
+                    GamePanel.camera.addGOInGrid(
+                            new Projectile(getX() + getWidth()/2, getY() + getHeight()/4, 56, 12,
+                                    4, 10, 0, -getDirection(),
+                                    -10 * getDirection(), (double) (10 * y) /x,
+                                    50, (double) (50 * y) /x,
+                                    5, 50,
+                                    true, "Charge_2", 1, 3, 1,
+                                    subLevelName),
+                            true
+                    );
+                    GamePanel.camera.bufferUpdateGrid = true;
+                    hasAttacked = true;
+                }
+
+                //stop the attack
+                if (!getAnimation().equals(attack)) {
+                    isAttacking = false;
+                    hasAttacked = false;
+                    atkCooldown = maxAtkCooldown;
+                }
             }
         }
 
+        //patrolling
         else{
-            //patrolling
-            if (maxSpeed != walkSpeed){
-                maxSpeed = walkSpeed;
-                acceleration = walkAcceleration;
-                runAnimSpeed = defaultWalkAnimSpeed;
-            }
-
             turnTimer += GamePanel.deltaTime/10;
             if (turnTimer >= turnTime){
                 turnTimer = 0;
@@ -207,7 +233,7 @@ public class Knight extends Entity {
 
             if(posXMin < playerPosX && playerPosX < posXMax &&
                     playerPosYMin < posY && posY < playerPosYMax){
-                setAnimation(run, runAnimSpeed, offsetX, offsetY);
+                setAnimation(walk, walkAnimSpeed, offsetX, offsetY);
                 isChasing = true;
 
                 //particles
@@ -219,61 +245,26 @@ public class Knight extends Entity {
                 exclamationMark.move(getX() + getWidth()/2 - 5, getY() - 50);
             }
         }
-
-        //launch attack
-        if (!isAttacking){
-            if (atkCooldown <= 0){
-                final int posX = getX() - atkWidth *(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
-                final int posY = getY() + getHeight()/2 - 5;
-
-                for (GameObject2D go : getInBox(posX, posY, atkWidth, atkHeight)){
-                    if (go.type.equals("Player") || (go.type.equals("IceBlock") && go.hasPhysicalCollisions)){
-                        setAnimation(attack, attackAnimSpeed);
-                        setNextAnimation(idle, idleAnimSpeed);
-                        isAttacking = true;
-                        atkCooldown = maxAtkCooldown;
-                        break;
-                    }
-                }
-            }
-            else atkCooldown -= GamePanel.deltaTime/10;
-        }
-        else{
-            stop();
-            if (!getAnimation().equals(attack)){
-
-                isAttacking = false;
-                hasAttacked = false;
-            }
-        }
-
-        //effectue the damages
-        if (isAttacking && !hasAttacked && getAnimationIndex() == 4){
-            final int posX = getX() - atkWidth*(getDirection() + 1)/2 - getWidth()*(getDirection() - 1)/2 ;
-            final int posY = getY() + getHeight()/2 - 5;
-            GamePanel.camera.addGOInGrid(
-                    new DamageArea(posX, posY, atkWidth, atkHeight,
-                            0.1, 25, true, subLevelName)
-            );
-            GamePanel.camera.bufferUpdateGrid = true;
-            hasAttacked = true;
-        }
     }
 
     @Override
     public void move() throws Exception {
         //x movement
-        if (isVulnerable){
+        if (isVulnerable && !isAttacking){
             if (isSafeGround(-maxSpeed*direction) && !isWall(-maxSpeed*direction, false)) {
                 velocityX = Math.min(maxSpeed, Math.max(-maxSpeed, velocityX-acceleration*direction));
 
-                if ((!getAnimation().equals(run) || animationSpeed != runAnimSpeed) && !isAttacking)
-                    setAnimation(run, runAnimSpeed, offsetX, offsetY);
+                if (Math.abs(velocityX) > 2*acceleration && !getAnimation().equals(walk)){
+                    setAnimation(walk, walkAnimSpeed, offsetX, offsetY);
+                }
+                else if (Math.abs(velocityX) < 2*acceleration && !getAnimation().equals(idle)){
+                    setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+                }
             }
             else {
                 velocityX = 0;
 
-                if (!getAnimation().equals(idle) && !isAttacking) setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
+                if (!getAnimation().equals(idle)) setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
             }
         }
 
@@ -316,7 +307,7 @@ public class Knight extends Entity {
             velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
             if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
-            else if (isChasing) setNextAnimation(run, runAnimSpeed, offsetX, offsetY);
+            else if (isChasing) setNextAnimation(walk, walkAnimSpeed, offsetX, offsetY);
             else setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         }
     }
@@ -331,8 +322,6 @@ public class Knight extends Entity {
         hp = maxHealth;
 
         isChasing = false;
-        runAnimSpeed = defaultWalkAnimSpeed;
-        maxSpeed = walkSpeed;
         acceleration = walkAcceleration;
 
         atkCooldown = 0;
@@ -357,7 +346,6 @@ public class Knight extends Entity {
 
     @Override
     public GameObject2D copy() throws IOException {
-        return new Knight(this);
+        return new Magician(this);
     }
 }
-

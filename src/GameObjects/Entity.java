@@ -165,9 +165,15 @@ public class Entity extends GameObject2D{
         return false;
     }
 
-    protected boolean isWall(int distance, boolean ignoreIceBlock){
+    protected boolean isWall(int distance, boolean ignoreIceBlock) throws Exception {
         for (GameObject2D go: getInBox(getX() + getWidth()/2 + distance, getY(), 1, getHeight())){
-            if (go.hasPhysicalCollisions && !go.getType().equals("Player") && (!go.getType().equals("IceBlock") || ignoreIceBlock)) return true;
+            if (go.hasPhysicalCollisions
+                    && !go.getType().equals("Player")
+                    && (!go.getType().equals("IceBlock") || ignoreIceBlock)
+                    && !(go.isEntity && go.getThisEntity().isEnemy)
+                    || go.getType().equals(getType())){
+                return true;
+            }
         }
         return false;
     }

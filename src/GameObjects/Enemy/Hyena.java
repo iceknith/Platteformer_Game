@@ -188,6 +188,8 @@ public class Hyena extends Entity {
 
         hadSideCollision = false;
         for (GameObject2D go: getNear()){
+            if (go.isEntity && go.getThisEntity().isEnemy && !go.getType().equals(type)) continue;
+
             int didCollide = didCollide(go);
 
             if (didCollide != 0 && go.type.equals("Player")) GameObject2D.getPlayer().death(GameObject2D.getPlayer().spawnPointPos);

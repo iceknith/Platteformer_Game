@@ -281,9 +281,11 @@ public class Chicken extends Entity {
 
         isOnGround = false;
         for (GameObject2D go: getNear()){
+            if (go.isEntity && go.getThisEntity().isEnemy && !go.getType().equals(type)) continue;
+
             int didCollide = didCollide(go);
 
-            //if (didCollide != 0 && go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(1);
+            if (didCollide != 0 && go.isEntity && !go.getThisEntity().isEnemy) go.getThisEntity().damage(1);
             if (didCollide == 1 && go.hasPhysicalCollisions) isOnGround = true;
         }
         GamePanel.camera.addGOInGrid(this, false);
