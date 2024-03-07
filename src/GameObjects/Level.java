@@ -23,7 +23,7 @@ public class Level {
     ArrayList<GameObject2D> permanentUpdatableRemoveBuffer = new ArrayList<>();
     ArrayList<Button> buttons = new ArrayList<>();
 
-    final int permanentUpdatableRenderDistance = 2500;
+    final int permanentUpdatableRenderDistance = 5000;
 
     boolean noUpdatableModification;
     boolean wasMenuKeyPressed;
@@ -284,6 +284,16 @@ public class Level {
                         m.setDirection(direction);
                         m.dropsKey = reader.read() == 1;
                         objectsBuffer.add(m);
+                    }
+                    case 's' -> { //SkeletalReaper
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
+
+                        SkeletalReaper s = new SkeletalReaper(x, y, "#" + i, "");
+                        s.setDirection(direction);
+                        s.dropsKey = reader.read() == 1;
+                        objectsBuffer.add(s);
                     }
                     case 'o' -> { //key
                         int x = reader.read()*256 + reader.read() - 32767;

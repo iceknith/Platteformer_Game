@@ -195,7 +195,7 @@ public class GamePanel extends JPanel implements Runnable {
                 g2D.drawString("Velocity X : " + (p.getVelocityX() + p.getGroundVelocityX()),15,100);
                 g2D.drawString("Velocity Y : " + (p.getVelocityY() + p.getGroundVelocityY()),15,115);
                 g2D.drawString("Ground Friction : " + p.getFriction(),15,130);
-                g2D.drawString("Is On Ground : " + p.getOnGround(),15,145);
+                g2D.drawString("Is On Ground : " + p.getIsOnGround(),15,145);
             }
 
             //camera info

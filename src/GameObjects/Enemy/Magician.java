@@ -196,7 +196,8 @@ public class Magician extends Entity {
                                     -10 * getDirection(), (double) (10 * y) /x,
                                     50, (double) (50 * y) /x,
                                     5, 50,
-                                    true, "Charge_2", 1, 3, 1,
+                                    true, false,
+                                    "Charge_2", 1, 3, 0, 1,
                                     subLevelName),
                             true
                     );

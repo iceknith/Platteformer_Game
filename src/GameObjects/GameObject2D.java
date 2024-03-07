@@ -138,9 +138,10 @@ public class GameObject2D{
     public void setSubLevelName(String name){subLevelName = name;}
 
     public void setAnimation(ArrayList<BufferedImage> animation, double animSpeed, int animPrio,  int offsetX, int offsetY){
+        animateTime = 0;
+
         if (animationPriority <= animPrio) {
             currentAnimation = animation;
-            if (animation == null) System.out.println("c'est la merde");
             animationSpeed = animSpeed;
             animationIndex = 0;
             animationPriority = animPrio;
@@ -161,7 +162,6 @@ public class GameObject2D{
     }
 
     public void setNextAnimation(ArrayList<BufferedImage> animation, double animSpeed, int offsetX, int offsetY){
-        animateTime = 0;
         nextAnimation = animation;
         nextAnimationSpeed = animSpeed;
         nextAnimationOffsetX = offsetX;

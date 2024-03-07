@@ -158,7 +158,7 @@ public class Entity extends GameObject2D{
         if (go.isEntity) collision(go.getThisEntity());
     }
 
-    protected boolean isSafeGround(int distance){
+    public boolean isSafeGround(int distance){
         for (GameObject2D go: getInBox(getX() + getWidth()/2 + distance, getY() + getHeight() + 3, 1, 1)){
             if (go.hasPhysicalCollisions && !go.doesDamage) return true;
         }

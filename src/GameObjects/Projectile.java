@@ -10,19 +10,18 @@ import java.util.ArrayList;
 
 public class Projectile extends Entity{
 
-    ArrayList<BufferedImage> startAnimation;
-    ArrayList<BufferedImage> baseAnimation;
-    double speedX, speedY, maxSpeedX, maxSpeedY, duration;
-    int damage, animationSpeed;
-    boolean ignoresEnemy, kill = false;
+    ArrayList<BufferedImage> startAnimation, baseAnimation, endAnimation;
+    double speedX, speedY, maxSpeedX, maxSpeedY, duration, animationSpeed;
+    int damage, offsetX, offsetY;
+    boolean ignoresEnemy, ignoresCollision, kill = false, destroy = false;
     ParticleGenerator particles;
 
 
     public Projectile(int x, int y, int w, int h, int resizeFact, int offsetX, int offsetY, int direction,
                       double speedX, double speedY, double maxSpeedX, double maxSpeedY,
-                      double duration, int damage, boolean ignoresEnemy,
-                      String animationName, int startAnimFrameCnt, int baseAnimFrameCnt,
-                      int animationSpeed, String subLvl) throws IOException {
+                      double duration, int damage, boolean ignoresEnemy, boolean ignoresCollision,
+                      String animationName, int startAnimFrameCnt, int baseAnimFrameCnt, int endAnimFrameCnt,
+                      double animationSpeed, String subLvl) throws IOException {
         super(x, y, w, h, subLvl);
         type = "Projectile";
         name = type + animationName;
@@ -38,9 +37,13 @@ public class Projectile extends Entity{
         this.duration = duration;
         this.damage = damage;
         this.ignoresEnemy = ignoresEnemy;
+        this.ignoresCollision = ignoresCollision;
         startAnimation = getAnimationList("Projectile", animationName + "/start", startAnimFrameCnt);
         baseAnimation = getAnimationList("Projectile", animationName + "/base", baseAnimFrameCnt);
+        endAnimation = getAnimationList("Projectile", animationName + "/end", endAnimFrameCnt);
         this.animationSpeed = animationSpeed;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
 
         sprite = new Sprite(baseAnimation.get(0), resizeFact);
         sprite.setDirection(direction);
@@ -61,9 +64,20 @@ public class Projectile extends Entity{
 
     @Override
     public void update() throws Exception {
-        duration -= GamePanel.deltaTime/10;
-        if (duration <= 0) kill = true;
-        if (kill) {
+        if (getAnimation().equals(baseAnimation)) duration -= GamePanel.deltaTime/10;
+        if (duration <= 0 && !kill) {
+            kill = true;
+            setAnimation(endAnimation, animationSpeed, offsetX, offsetY);
+            setNextAnimation(startAnimation, animationSpeed, offsetX, offsetY);
+        }
+        if (kill){
+            if (!getAnimation().equals(endAnimation)) destroy = true;
+            else {
+                animate();
+                return;
+            }
+        }
+        if (destroy) {
             killThisEntity();
             return;
         }
@@ -85,17 +99,25 @@ public class Projectile extends Entity{
         setX((int) (getX() + Math.round(velocityX * GamePanel.deltaTime)));
         setY((int) (getY() - Math.round(velocityY * GamePanel.deltaTime)));
 
-        for (GameObject2D go: getNear()){
-            if ((ignoresEnemy && go.isEntity && go.getThisEntity().isEnemy) || !go.hasPhysicalCollisions) {
-                continue;
-            }
+        if (getAnimation().equals(baseAnimation)){
+            for (GameObject2D go: getNear()){
+                if ((ignoresCollision && !go.getType().equals("Player"))
+                        || (ignoresEnemy && go.isEntity && go.getThisEntity().isEnemy)
+                        || !go.hasPhysicalCollisions) {
+                    continue;
+                }
 
-            int didCollide = didCollide(go);
+                int didCollide = didCollide(go);
 
-            if (didCollide != 0){
-                if (go.isEntity) go.getThisEntity().damage(damage);
+                if (didCollide != 0 || intersects(go)){
+                    if (go.isEntity) {
+                        go.getThisEntity().damage(damage);
+                    }
 
-                kill = true;
+                    kill = true;
+                    setAnimation(endAnimation, animationSpeed, offsetX, offsetY);
+                    setNextAnimation(startAnimation, animationSpeed, offsetX, offsetY);
+                }
             }
         }
         GamePanel.camera.addGOInGrid(this, false);
@@ -109,16 +131,22 @@ public class Projectile extends Entity{
     public void collision(Entity e) throws Exception {
         super.collision(e);
 
-        if (e.isEnemy) return;
+        if ((ignoresEnemy && e.isEnemy)
+                || (ignoresCollision && !e.getType().equals("Player"))
+                || !getAnimation().equals(baseAnimation)){
+            return;
+        }
 
         e.damage(damage);
         kill = true;
+        setAnimation(endAnimation, animationSpeed, offsetX, offsetY);
+        setNextAnimation(startAnimation, animationSpeed, offsetX, offsetY);
     }
 
     @Override
     public void reset() throws Exception {
         super.reset();
 
-        kill = true;
+        destroy = true;
     }
 }

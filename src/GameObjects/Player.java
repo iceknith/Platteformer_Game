@@ -574,7 +574,7 @@ public class Player extends Entity{
         super.draw(g2D, IO);
     }
 
-    public boolean getOnGround() {return isOnGround;}
+    public boolean getIsOnGround() {return isOnGround;}
 
     public double getGroundVelocityX() {
         if (ground == null){
