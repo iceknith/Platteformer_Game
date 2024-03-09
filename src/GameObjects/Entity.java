@@ -171,7 +171,7 @@ public class Entity extends GameObject2D{
                     && !go.getType().equals("Player")
                     && (!go.getType().equals("IceBlock") || ignoreIceBlock)
                     && !(go.isEntity && go.getThisEntity().isEnemy)
-                    || go.getType().equals(getType())){
+                    || (go.getType().equals(getType()) && go.hasPhysicalCollisions)){
                 return true;
             }
         }

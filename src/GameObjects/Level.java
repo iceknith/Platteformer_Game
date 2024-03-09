@@ -295,6 +295,16 @@ public class Level {
                         s.dropsKey = reader.read() == 1;
                         objectsBuffer.add(s);
                     }
+                    case 'r' -> { //Dragon
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
+
+                        Dragon d = new Dragon(x, y, "#" + i, "");
+                        d.setDirection(direction);
+                        d.dropsKey = reader.read() == 1;
+                        objectsBuffer.add(d);
+                    }
                     case 'o' -> { //key
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;

@@ -17,7 +17,7 @@ public class Projectile extends Entity{
     ParticleGenerator particles;
 
 
-    public Projectile(int x, int y, int w, int h, int resizeFact, int offsetX, int offsetY, int direction,
+    public Projectile(int x, int y, int w, int h, double resizeFact, int offsetX, int offsetY, int direction,
                       double speedX, double speedY, double maxSpeedX, double maxSpeedY,
                       double duration, int damage, boolean ignoresEnemy, boolean ignoresCollision,
                       String animationName, int startAnimFrameCnt, int baseAnimFrameCnt, int endAnimFrameCnt,
@@ -90,8 +90,8 @@ public class Projectile extends Entity{
     @Override
     public void move() throws Exception{
 
-        velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX + speedX));
-        velocityY = Math.max(-maxSpeedY, Math.min(maxSpeedY, velocityY + speedY));
+        velocityX = Math.max(-Math.abs(maxSpeedX), Math.min(Math.abs(maxSpeedX), velocityX + speedX));
+        velocityY = Math.max(-Math.abs(maxSpeedY), Math.min(Math.abs(maxSpeedY), velocityY + speedY));
 
         GamePanel.camera.deleteGOInGrid(this, false);
         prevX = getX();

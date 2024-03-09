@@ -43,7 +43,7 @@ public class DarkKnight extends Entity {
     final double runAcceleration = 3;
     final double walkAcceleration = 1;
     double acceleration = walkAcceleration;
-    final int runSpeed = 35;
+    final int runSpeed = 27;
     final int walkSpeed = 15;
     int maxSpeed = walkSpeed;
     final  int maxHealth = 100;
@@ -51,7 +51,7 @@ public class DarkKnight extends Entity {
     boolean isChasing = false;
     boolean isAttacking = false;
     int lastAttack = 0;
-    final double maxJumpCooldown = 0.5;
+    final double maxJumpCooldown = 1;
     double jumpCooldown = 0;
 
     int direction = 1;
@@ -331,7 +331,7 @@ public class DarkKnight extends Entity {
                 go.getThisEntity().damage(100);
             }
             if (didCollide == 1) {
-                if (prevY - getY() < -20*GamePanel.deltaTime && go.hasPhysicalCollisions){
+                if (prevY - getY() < -20*GamePanel.deltaTime && go.hasPhysicalCollisions && isVulnerable){
                     isJumping = false;
                     isAttacking = false;
                     lastAttack = 0;
@@ -358,6 +358,14 @@ public class DarkKnight extends Entity {
                     isJumping = true;
                     velocityY += jumpForce;
                     setAnimation(run, runAnimSpeed);
+                }
+                else if (isJumping && isVulnerable){
+                    isJumping = false;
+                    isAttacking = false;
+                    lastAttack = 0;
+                    jumpCooldown = maxJumpCooldown;
+                    setAnimation(land, landAnimSpeed);
+                    setNextAnimation(run, runAnimSpeed);
                 }
             }
         }
@@ -387,7 +395,12 @@ public class DarkKnight extends Entity {
             isVulnerable = false;
             velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
-            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            if (hp <= 0) {
+                isJumping = false;
+                isAttacking = false;
+                isChasing = false;
+                setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            }
             else if (isChasing) setNextAnimation(run, runAnimSpeed, offsetX, offsetY);
             else setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         }

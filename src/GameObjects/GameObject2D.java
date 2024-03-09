@@ -26,11 +26,11 @@ public class GameObject2D{
     public Sprite sprite;
 
     ArrayList<BufferedImage> currentAnimation;
-    ArrayList<BufferedImage> nextAnimation;
+    protected ArrayList<BufferedImage> nextAnimation;
 
     int animationIndex;
     protected double animationSpeed;
-    double nextAnimationSpeed;
+    protected double nextAnimationSpeed;
     int nextAnimationOffsetX;
     int nextAnimationOffsetY;
     double animateTime = 0;

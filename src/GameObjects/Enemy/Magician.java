@@ -24,7 +24,7 @@ public class Magician extends Entity {
     ArrayList<BufferedImage> dead;
     final  int deadAnimSpeed = 100;
 
-    final int offsetX = -5, offsetY = 87;
+    final int offsetX = 3, offsetY = 21;
 
     int initialPosX, initialPosY, initDirection = 0;
 
@@ -38,7 +38,7 @@ public class Magician extends Entity {
     boolean isChasing = false;
     boolean isAttacking = false;
     boolean hasAttacked;
-    final double maxAtkCooldown = 1;
+    final double maxAtkCooldown = 3, minAtkCooldown = 0.8;
     double atkCooldown = 0;
 
     int direction = 1;
@@ -55,7 +55,7 @@ public class Magician extends Entity {
     ParticleGenerator exclamationMark;
 
     public Magician(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 25, 140, subLvl);
+        super(x, y, 36, 120, subLvl);
         type = "Magician";
         name = type+id;
         isEnemy = true;
@@ -67,14 +67,14 @@ public class Magician extends Entity {
         initialPosX = x;
         initialPosY = y;
 
-        idle = getAnimationList("Enemy/Magician", "idle", 7);
-        walk = getAnimationList("Enemy/Magician", "walk", 6);
-        damageAnim = getAnimationList("Enemy/Magician", "damage", 1);
-        dying = getAnimationList("Enemy/Magician", "dying", 3);
+        idle = getAnimationList("Enemy/Magician", "idle", 2);
+        walk = getAnimationList("Enemy/Magician", "walk", 3);
+        damageAnim = getAnimationList("Enemy/Magician", "damage", 2);
+        dying = getAnimationList("Enemy/Magician", "dying", 5);
         dead = getAnimationList("Enemy/Magician", "dead", 0);
-        attack = getAnimationList("Enemy/Magician", "attack_arrow", 5);
+        attack = getAnimationList("Enemy/Magician", "attack", 10);
 
-        sprite = new Sprite(idle.get(0), 2.5);
+        sprite = new Sprite(idle.get(0), 3);
         sprite.setDirection(-direction);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
     }
@@ -108,7 +108,7 @@ public class Magician extends Entity {
 
     public void setDirection(int newDirection){
         direction = newDirection;
-        sprite.setDirection(-newDirection);
+        sprite.setDirection(newDirection);
 
         if (initDirection == 0) initDirection = direction;
     }
@@ -146,7 +146,7 @@ public class Magician extends Entity {
                 hasPhysicalCollisions = false;
                 hasHP = false;
                 isDead = true;
-                setNextAnimation(dead, deadAnimSpeed, offsetX, offsetY);
+                setNextAnimation(dead, deadAnimSpeed, offsetX, offsetY - 6);
                 if (dropsKey) {
                     KeyObject k = new KeyObject(getX()+getWidth()/2-32, getY()+getHeight()/2-32, true, "#-1", "");
                     GamePanel.camera.level.addToMainSubLevel(k);
@@ -188,16 +188,18 @@ public class Magician extends Entity {
 
                 //launch projectile
                 if (getAnimationIndex() == 4 && !hasAttacked) {
-                    final int x = getX() + getWidth()/2 - getPlayer().getX() - getPlayer().getWidth()/2;
-                    final int y = getY() + getHeight()/2 - getPlayer().getY() - getPlayer().getHeight()/2;
+                    final int projX = 150, projY = 126, projW = 30, projH = 30;
+
+                    final int posX = getSprite().getOffsetX(hitbox) + getDirection() * projX - projW * (getDirection() + 1)/2;
+                    final int posY = getSprite().getOffsetY(hitbox) + projY;
                     GamePanel.camera.addGOInGrid(
-                            new Projectile(getX() + getWidth()/2, getY() + getHeight()/4, 56, 12,
-                                    4, 10, 0, -getDirection(),
-                                    -10 * getDirection(), (double) (10 * y) /x,
-                                    50, (double) (50 * y) /x,
+                            new Projectile(posX, posY, projW, projH,
+                                    3, 4, 1, -getDirection(),
+                                    -2 * getDirection(), 0,
+                                    75, 0,
                                     5, 50,
                                     true, false,
-                                    "Charge_2", 1, 3, 0, 1,
+                                    "Fire_Spell", 1, 2, 0, 1,
                                     subLevelName),
                             true
                     );
@@ -209,7 +211,7 @@ public class Magician extends Entity {
                 if (!getAnimation().equals(attack)) {
                     isAttacking = false;
                     hasAttacked = false;
-                    atkCooldown = maxAtkCooldown;
+                    atkCooldown = Math.max(maxAtkCooldown*Math.random(), minAtkCooldown);
                 }
             }
         }
@@ -307,7 +309,7 @@ public class Magician extends Entity {
             isVulnerable = false;
             velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
-            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY - 6);
             else if (isChasing) setNextAnimation(walk, walkAnimSpeed, offsetX, offsetY);
             else setNextAnimation(idle, idleAnimSpeed, offsetX, offsetY);
         }

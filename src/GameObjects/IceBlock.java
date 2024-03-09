@@ -34,7 +34,7 @@ public class IceBlock extends Entity{
 
     boolean tempCanBePlaced;
     public boolean canBePlaced;
-    public boolean isPlaced;
+    public boolean isPlaced, isDead;
 
     int playerCenterX, playerCenterY, originalPosX, originalPosY;
 
@@ -99,12 +99,18 @@ public class IceBlock extends Entity{
         tempCanBePlaced = i.tempCanBePlaced;
         canBePlaced = i.canBePlaced;
         isPlaced = i.isPlaced;
+        isDead = i.isDead;
         friction = i.friction;
     }
 
 
     @Override
     public void update() throws Exception {
+        if (isDead) {
+            super.killThisEntity();
+            return;
+        }
+
         super.update();
         animate();
 
@@ -135,6 +141,15 @@ public class IceBlock extends Entity{
             else if (hp < 50.01) setAnimation(breaking2, breakingAnimationSpeed);
             else if (hp < 66.68) setAnimation(breaking1, breakingAnimationSpeed);
             else if (hp < 83.35) setAnimation(breaking0, breakingAnimationSpeed);
+
+            //check if collision
+            for (GameObject2D go : getInBox(getWidth() + 10, getHeight() + 10)){
+                if (go.hasPhysicalCollisions && go.isEntity && go.getThisEntity().hasHP
+                        && !go.getType().equals("IceBlock")
+                        && !go.getType().equals("Player")){
+                    killThisEntity();
+                }
+            }
         }
 
         //placing handler
@@ -413,6 +428,7 @@ public class IceBlock extends Entity{
         }
         else if (!getAnimation().equals(broken)){
             hasPhysicalCollisions = false;
+            hp  = -1;
             setAnimation(broken, brokenAnimationSpeed);
             setNextAnimation(end, 1);
 
@@ -426,6 +442,8 @@ public class IceBlock extends Entity{
 
     @Override
     public void reset() throws Exception {
+        isDead = true;
+        if (player.currentIceBlock != null && player.currentIceBlock.equals(this)) player.currentIceBlock = null;
         super.killThisEntity();
     }
 

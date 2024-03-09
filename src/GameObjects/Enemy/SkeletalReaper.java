@@ -29,7 +29,7 @@ public class SkeletalReaper extends Entity {
     ArrayList<BufferedImage> dead;
     final  int deadAnimSpeed = 100;
 
-    final int offsetX = -135, offsetY = 75;
+    final int offsetX = -130, offsetY = 80;
 
     int initialPosX, initialPosY, initDirection = 0;
 
@@ -41,7 +41,7 @@ public class SkeletalReaper extends Entity {
     final int runSpeed = 35;
     final int walkSpeed = 15;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 400;
+    final  int maxHealth = 350;
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isSummoning = false;
@@ -52,12 +52,12 @@ public class SkeletalReaper extends Entity {
     final int atkHeight = 255;
     final int atkRelativeX = 175;
     final int atkRelativeY = 65;
-    final int minSummonRange = 450;
-    final int maxSummonRange = 1500;
-    final double maxAtkCooldown = 2;
+    final int minSummonRange = 0;
+    final int maxSummonRange = 2500;
+    final double maxAtkCooldown = 3;
     double atkCooldown = 0;
-    final double maxSummonCooldown = 2.5;
-    double summonCooldown = 0;
+    final double maxSummonCooldown = 4;
+    double summonCooldown = maxSummonCooldown;
     int summonPosX, summonPosY;
 
     int direction = 1;
@@ -74,15 +74,15 @@ public class SkeletalReaper extends Entity {
 
     final int bossBarWidth = 431 * 2;
     final int bossBarHeight = 47 * 2;
-    final Font bossBarFont = new Font("Eight Bit Dragon", Font.PLAIN, 50);
+    final Font bossBarFont = new Font("Eight Bit Dragon", Font.PLAIN, 35);
     final int bossTxtX = GamePanel.camera.getScreenWidth()/2;
     final int bossBarX = bossTxtX - bossBarWidth/2;
-    final int bossTxtY = 100;
+    final int bossTxtY = 50;
     final String bossName = "Dark Reaper Of Hell";
     BufferedImage bossBarOverlay, bossBarUnderlay;
 
     public SkeletalReaper(int x, int y, String id, String subLvl) throws IOException {
-        super(x, y, 70, 175, subLvl);
+        super(x, y, 95, 160, subLvl);
         type = "SkeletalReaper";
         name = type+id;
         isEnemy = true;
@@ -108,34 +108,41 @@ public class SkeletalReaper extends Entity {
         sprite.setDirection(-direction);
         setAnimation(idle, idleAnimSpeed, offsetX, offsetY);
     }
+    public SkeletalReaper(SkeletalReaper s) {
+        super(s);
 
-    public SkeletalReaper(SkeletalReaper k) {
-        super(k);
+        run = s.run;
+        idle = s.idle;
+        damageAnim = s.damageAnim;
+        dying = s.dying;
+        dead = s.dead;
+        attack = s.attack;
+        summon = s.summon;
+        bossBarOverlay = s.bossBarOverlay;
+        bossBarUnderlay = s.bossBarUnderlay;
 
-        run = k.run;
-        idle = k.idle;
-        damageAnim = k.damageAnim;
-        dying = k.dying;
-        dead = k.dead;
-        attack = k.attack;
+        runAnimSpeed = s.runAnimSpeed;
+        acceleration = s.acceleration;
+        maxSpeed = s.maxSpeed;
 
-        runAnimSpeed = k.runAnimSpeed;
-        acceleration = k.acceleration;
-        maxSpeed = k.maxSpeed;
+        isChasing = s.isChasing;
+        isAttacking = s.isAttacking;
+        isSummoning = s.isSummoning;
+        hasAttacked = s.hasAttacked;
+        hasSummoned = s.hasSummoned;
+        atkCooldown = s.atkCooldown;
+        summonCooldown = s.summonCooldown;
+        summonPosX = s.summonPosX;
+        summonPosY = s.summonPosY;
+        direction = s.direction;
+        turnTimer = s.turnTimer;
+        initialPosX = s.initialPosX;
+        initialPosY = s.initialPosY;
+        initDirection = s.initDirection;
+        isVulnerable = s.isVulnerable;
+        isDead = s.isDead;
 
-        isChasing = k.isChasing;
-        isAttacking = k.isAttacking;
-        hasAttacked = k.hasAttacked;
-        atkCooldown = k.atkCooldown;
-        direction = k.direction;
-        turnTimer = k.turnTimer;
-        initialPosX = k.initialPosX;
-        initialPosY = k.initialPosY;
-        initDirection = k.initDirection;
-        isVulnerable = k.isVulnerable;
-        isDead = k.isDead;
-
-        exclamationMark = k.exclamationMark;
+        exclamationMark = s.exclamationMark;
     }
 
     public void setDirection(int newDirection){
@@ -176,12 +183,12 @@ public class SkeletalReaper extends Entity {
 
         //Draw boss Bar
         final int bossTxtX = this.bossTxtX - g2D.getFontMetrics(bossBarFont).stringWidth(bossName)/2;
-        final int bossBarY = bossTxtY + g2D.getFontMetrics(bossBarFont).getHeight()/2;
+        final int bossBarY = bossTxtY + g2D.getFontMetrics(bossBarFont).getHeight()/2 - 15;
 
         g2D.setFont(bossBarFont);
         g2D.setColor(Color.black);
         g2D.drawString(bossName, bossTxtX + 5, bossTxtY + 5);
-        g2D.setColor(Color.white);
+        g2D.setColor(Color.decode("#AD2A3C"));
         g2D.drawString(bossName, bossTxtX, bossTxtY);
 
         g2D.drawImage(bossBarUnderlay, bossBarX, bossBarY, (int) (bossBarWidth * hp/maxHealth), bossBarHeight, IO);
@@ -256,7 +263,7 @@ public class SkeletalReaper extends Entity {
                                 0, 0, 0, 0,
                                 0.5, 100,
                                 true, true,
-                                "DarkSpike", 4, 0, 1, 0.75,
+                                "DarkSpike", 4, 0, 1, 1,
                                 subLevelName);
                         if (p.isSafeGround(0)){
                             GamePanel.camera.addGOInGrid(p, true);
@@ -364,7 +371,7 @@ public class SkeletalReaper extends Entity {
     public void move() throws Exception {
         //x movement
         if (isVulnerable){
-            if (isSafeGround(-maxSpeed*direction) && !isWall(-maxSpeed*direction, false)) {
+            if (isSafeGround(-maxSpeed*3*direction) && !isWall(-maxSpeed*3*direction, false)) {
                 velocityX = Math.min(maxSpeed, Math.max(-maxSpeed, velocityX-acceleration*direction));
 
                 if ((!getAnimation().equals(run) || animationSpeed != runAnimSpeed) && !isAttacking && !isSummoning)
@@ -436,8 +443,12 @@ public class SkeletalReaper extends Entity {
         acceleration = walkAcceleration;
 
         atkCooldown = 0;
+        summonCooldown = maxSummonCooldown;
+        summonPosX = 0;
+        summonPosY = 0;
         isAttacking = false;
         hasAttacked = false;
+        isSummoning = false;
 
         turnTimer = 0;
         setDirection(initDirection);

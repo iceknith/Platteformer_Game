@@ -506,6 +506,13 @@ public class Player extends Entity{
                 prevY = getY();
                 GamePanel.camera.addGOInGrid(this, true);
 
+                isDying = false;
+
+                jumps = 0;
+                snowflakeCount = 0;
+                isPlacingIceBlock = false;
+                currentIceBlock = null;
+
                 // reset all objects
                 GamePanel.camera.level.resetAll = true;
 
@@ -514,12 +521,6 @@ public class Player extends Entity{
                     GamePanel.inGameTimer = 0;
                 }
 
-                isDying = false;
-
-                jumps = 0;
-                snowflakeCount = 0;
-                isPlacingIceBlock = false;
-                currentIceBlock = null;
             }
         }
     }
