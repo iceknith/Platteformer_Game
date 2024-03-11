@@ -305,6 +305,16 @@ public class Level {
                         d.dropsKey = reader.read() == 1;
                         objectsBuffer.add(d);
                     }
+                    case 'i' -> { //GiantKnight
+                        int x = reader.read()*256 + reader.read() - 32767;
+                        int y = reader.read()*256 + reader.read() - 32767;
+                        int direction = reader.read() - 2;
+
+                        GiantKnight g = new GiantKnight(x, y, "#" + i, "");
+                        g.setDirection(direction);
+                        g.dropsKey = reader.read() == 1;
+                        objectsBuffer.add(g);
+                    }
                     case 'o' -> { //key
                         int x = reader.read()*256 + reader.read() - 32767;
                         int y = reader.read()*256 + reader.read() - 32767;

@@ -449,6 +449,12 @@ public class LevelMaker extends GameObject2D{
             GamePanel.camera.level.addToMainSubLevel(d);
             objects.add(d);
         }
+        //GiantKnight
+        else if (nextObjType.equals("GiantKnight")){
+            GiantKnight g = new GiantKnight(x, y, "#"+id_counter, "");
+            GamePanel.camera.level.addToMainSubLevel(g);
+            objects.add(g);
+        }
         //Key
         else if (nextObjType.equals("Key")){
             KeyObject k = new KeyObject(x, y, false, "#"+id_counter, "");
@@ -1072,6 +1078,8 @@ public class LevelMaker extends GameObject2D{
         enemyImages.add(readImageBuffered("assets/Enemy/SkeletalReaper/idle/0.png"));
         enemyTypes.add("Dragon");
         enemyImages.add(readImageBuffered("assets/Enemy/Dragon/idle/0.png"));
+        enemyTypes.add("GiantKnight");
+        enemyImages.add(readImageBuffered("assets/Enemy/GiantKnight/idle/0.png"));
 
         //write utils
         utilsTypes.add("Key");
@@ -1557,13 +1565,15 @@ public class LevelMaker extends GameObject2D{
                 }
                 else if (go.getType().equals("Hyena") || go.getType().equals("Chicken") || go.getType().equals("Knight")
                         || go.getType().equals("DarkKnight") || go.getType().equals("Magician")
-                        || go.getType().equals("SkeletalReaper") || go.getType().equals("Dragon")){
+                        || go.getType().equals("SkeletalReaper") || go.getType().equals("Dragon")
+                        || go.getType().equals("GiantKnight")){
                     if (go.getType().equals("Hyena")) fw.write("h".getBytes());
                     else if (go.getType().equals("Knight")) fw.write("k".getBytes());
                     else if (go.getType().equals("DarkKnight")) fw.write("a".getBytes());
                     else if (go.getType().equals("Magician")) fw.write("g".getBytes());
                     else if (go.getType().equals("SkeletalReaper")) fw.write("s".getBytes());
                     else if (go.getType().equals("Dragon")) fw.write("r".getBytes());
+                    else if (go.getType().equals("GiantKnight")) fw.write("i".getBytes());
                     else fw.write("c".getBytes());
                     fw.write((go.getX() + 32767)/256);
                     fw.write((go.getX() + 32767)%256);
