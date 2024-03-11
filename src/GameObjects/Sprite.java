@@ -11,7 +11,7 @@ public class Sprite {
     int height;
     int offsetX;
     int offsetY;
-    int directionOffsetX;
+    public int directionOffsetX;
     int direction;
     double resizeFactor;
 

@@ -178,7 +178,7 @@ public class Entity extends GameObject2D{
         return false;
     }
 
-    protected void ragdolPhysics(double gravity) throws Exception {
+    protected boolean ragdolPhysics(double gravity) throws Exception {
         stop();
 
         velocityY -= gravity * GamePanel.deltaTime * 6;
@@ -196,13 +196,15 @@ public class Entity extends GameObject2D{
                 continue;
             }
             if(getY() + getHeight() >= go.getY() && getPreviousY() + getHeight() <= go.getPreviousY()){
-                if (go.hasPhysicalCollisions){
+                if (go.hasPhysicalCollisions
+                        && !(go.isEntity && (go.getThisEntity().isEnemy || go.getType().equals("Player")))){
                     setY(go.getY() - getHeight() - 1);
                     velocityY = go.getVelocityY();
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     protected void stop(){

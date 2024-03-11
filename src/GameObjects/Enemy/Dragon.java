@@ -49,7 +49,7 @@ public class Dragon extends Entity {
     final int runSpeed = 25;
     final int walkSpeed = 10;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 400;
+    final  int maxHealth = 450;
     final int knockBackForce = 20;
     final double flyForce = 20;
     boolean isChasing = false;
@@ -61,8 +61,8 @@ public class Dragon extends Entity {
     final int fireBallHeight = 66;
     final int fireBallOffsetX = 54;
     final int fireBallOffsetY = 120;
-    final int fireBallSpeed = 75;
-    final double maxFireBallCooldown = 5;
+    final int fireBallSpeed = 65;
+    final double maxFireBallCooldown = 4, minFireBallCooldown = 2.5;
     double fireBalCooldown = 0;
 
     int direction = 1;
@@ -172,7 +172,9 @@ public class Dragon extends Entity {
         animate();
 
         if (isDead) {
-            ragdolPhysics(groundGravity);
+            if (ragdolPhysics(groundGravity) && getAnimation().equals(dying) && animationSpeed == 100000){
+                animationSpeed = dyingAnimSpeed;
+            }
             return;
         }
 
@@ -303,7 +305,7 @@ public class Dragon extends Entity {
             if (!getAnimation().equals(attackGround)){
                 isLaunchingFireBall = false;
                 hasLaunchedFireBall = false;
-                fireBalCooldown = maxFireBallCooldown;
+                fireBalCooldown = minFireBallCooldown + (maxFireBallCooldown - minFireBallCooldown) * Math.random();
             }
             //launch attack
             else if (!hasLaunchedFireBall && getAnimationIndex() == 9){
@@ -354,7 +356,7 @@ public class Dragon extends Entity {
             if (!getAnimation().equals(attackAir)){
                 isLaunchingFireBall = false;
                 hasLaunchedFireBall = false;
-                fireBalCooldown = maxFireBallCooldown;
+                fireBalCooldown = minFireBallCooldown + (maxFireBallCooldown - minFireBallCooldown) * Math.random();
             }
             //launch attack
             else if (!hasLaunchedFireBall && getAnimationIndex() == 5){
@@ -430,18 +432,26 @@ public class Dragon extends Entity {
         if (hasHitboxAdjusted){
             hasHitboxAdjusted = false;
             if (isFlying){
+                final int imgX = sprite.getOffsetX(hitbox);
+                final int imgY = sprite.getOffsetY(hitbox);
                 hitbox.width = airWidth;
                 hitbox.height = airHeight;
-                setY(getY() - airHeight + groundHeight);
                 offsetX = airOffsetX;
                 offsetY = airOffsetY;
+                setAnimation(getAnimation(), animationSpeed, offsetX, offsetY);
                 setNextAnimation(nextAnimation, nextAnimationSpeed, offsetX, offsetY);
+                setX(imgX + offsetX*sprite.getDirection() - getWidth()/2 + sprite.getWidth()/2);
+                setY(imgY + offsetY  -  getHeight()/2 + sprite.getHeight()/2);
             }
             else {
+                final int imgX = sprite.getOffsetX(hitbox);
+                final int imgY = sprite.getOffsetY(hitbox);
                 hitbox.width = groundWidth;
                 hitbox.height = groundHeight;
                 offsetX = groundOffsetX;
                 offsetY = groundOffsetY;
+                setX(imgX + offsetX*sprite.getDirection() - getWidth()/2 + sprite.getWidth()/2);
+                setY(imgY + offsetY  -  getHeight()/2 + sprite.getHeight()/2);
                 setAnimation(getAnimation(), animationSpeed, offsetX, offsetY);
                 setNextAnimation(nextAnimation, nextAnimationSpeed, offsetX, offsetY);
             }
@@ -483,7 +493,12 @@ public class Dragon extends Entity {
             if (isFlying) setAnimation(damageAirAnim, damageAnimSpeed, offsetX, offsetY);
             else setAnimation(damageGroundAnim, damageAnimSpeed, offsetX, offsetY);
 
-            if (hp <= 0) setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);
+            if (hp <= 0) {
+                isFlying = false;
+                hasHitboxAdjusted = true;
+                setNextAnimation(dying, 100000, offsetX, offsetY);
+                move();
+            }
             else if (isChasing) {
                 if (isFlying) setNextAnimation(fly, flyAnimSpeed, offsetX, offsetY);
                 else setNextAnimation(run, runAnimSpeed, offsetX, offsetY);
