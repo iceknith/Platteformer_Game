@@ -4,6 +4,7 @@ import handlers.KeyHandler;
 import handlers.MouseHandler;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ConcurrentModificationException;
 
@@ -30,8 +31,6 @@ public class GamePanel extends JPanel implements Runnable {
     boolean is_painting = false;
     boolean is_updating = false;
 
-    int activeFps = 0;
-    int displayedFps = 0;
     double timeFps;
     static public int inGameTimer = 0;
 
@@ -117,14 +116,9 @@ public class GamePanel extends JPanel implements Runnable {
 
                 repaint();
 
-                activeFps += 1;
                 timeFps += deltaTime + (float) (System.nanoTime() - lastFrameTime)/100000000;
 
-                if (timeFps >= 10){
-                    displayedFps = activeFps;
-                    timeFps = 0;
-                    activeFps = 0;
-                }
+                if (timeFps >= 10) timeFps = 0;
 
                 dt = 0;
             }
@@ -184,7 +178,7 @@ public class GamePanel extends JPanel implements Runnable {
             //fps
             g2D.setColor(Color.white);
             g2D.setFont(new Font("Sans Serif", Font.BOLD, 17));
-            g2D.drawString("FPS : " + displayedFps, 15, 25);
+            g2D.drawString("FPS : " + Math.round(10/deltaTime), 15, 25);
 
             g2D.setFont(new Font("Sans Serif", Font.PLAIN, 12));
             if (!GameObject2D.hasNoPlayer()){

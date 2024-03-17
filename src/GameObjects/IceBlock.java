@@ -129,8 +129,8 @@ public class IceBlock extends Entity{
                 prevY = getY();
             }
             else if (getAnimation().equals(placingInvalid)){
-
                 super.killThisEntity();
+                return;
             }
 
             //break handler
