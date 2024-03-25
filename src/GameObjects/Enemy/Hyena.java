@@ -33,6 +33,7 @@ public class Hyena extends Entity {
     final  int maxHealth = 25;
     boolean isChasing = false;
     boolean hadSideCollision = false;
+    final int knockBackForce = 50;
 
     int direction = 1;
 
@@ -220,6 +221,7 @@ public class Hyena extends Entity {
 
             isChasing = false;
             isVulnerable = false;
+            velocityX += knockBackForce*direction;
             setAnimation(damageAnim, damageAnimSpeed, offsetX, offsetY);
             if (hp <= 0){
                 setNextAnimation(dying, dyingAnimSpeed, offsetX, offsetY);

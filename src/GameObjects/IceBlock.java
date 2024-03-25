@@ -1,6 +1,7 @@
 package GameObjects;
 
 import main.GamePanel;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -197,7 +198,7 @@ public class IceBlock extends Entity{
         playerCenterY = playerCY;
     }
 
-    boolean placingCollisionHandler(GameObject2D go) throws Exception {
+    boolean placingCollisionHandler(@NotNull GameObject2D go) throws Exception {
         //returns true if a modification occurred, else returns false
 
         final int centerX = getX() + getWidth()/2;

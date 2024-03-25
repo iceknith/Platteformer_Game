@@ -101,7 +101,7 @@ public class Player extends Entity{
     BufferedImage snowflakeImage;
     public final int iceBlockPlacingDistanceX = 75;
     public final int iceBlockPlacingDistanceY = 45;
-    int iceBlockDirectionX;
+    double iceBlockDirectionX;
     int iceBlockDirectionY;
     int nextIceBlockDirectionX;
     int nextIceBlockDirectionY;
@@ -111,6 +111,8 @@ public class Player extends Entity{
     public boolean isPlacingIceBlock;
     public IceBlock currentIceBlock;
     int iceBlockID = 0;
+    final double maxBufferTime = 0.1;
+    double bufferTime = maxBufferTime;
 
     public ArrayList<KeyObject> keys = new ArrayList<>();
 
@@ -448,25 +450,52 @@ public class Player extends Entity{
             currentIceBlock = new IceBlock(getX(), getY(), "main", iceBlockID++);
             GamePanel.camera.addGOInGrid(currentIceBlock, true);
             GamePanel.camera.updateGrid();
+
+            //iceBlockPos
+            if (KeyHandler.isRightPressed) iceBlockDirectionX = 1;
+            else if (KeyHandler.isLeftPressed) iceBlockDirectionX = -1;
+
+            if (KeyHandler.isDownPressed || KeyHandler.isPlaceDownPressed) {
+                iceBlockDirectionY = 1;
+                iceBlockDirectionX /= 4;
+            }
+            else if (KeyHandler.isUpPressed) iceBlockDirectionY = -1;
+
+            if (iceBlockDirectionX == 0 && iceBlockDirectionY == 0) iceBlockDirectionX = sprite.direction;
         }
 
         //Ice Block logic
         if (isPlacingIceBlock){
 
-            if (KeyHandler.isRightPressed) iceBlockDirectionX = 1;
-            else if (KeyHandler.isLeftPressed) iceBlockDirectionX = -1;
-            else iceBlockDirectionX = 0;
+            double newIceBlockDirX = 0; int newIceBlockDirY = 0;
 
-            if (KeyHandler.isDownPressed || KeyHandler.isPlaceDownPressed) iceBlockDirectionY = 1;
-            else if (KeyHandler.isUpPressed) iceBlockDirectionY = -1;
-            else iceBlockDirectionY = 0;
+            if (KeyHandler.isRightPressed) newIceBlockDirX = 1;
+            else if (KeyHandler.isLeftPressed) newIceBlockDirX = -1;
 
-            if (iceBlockDirectionX == 0 && iceBlockDirectionY == 0) iceBlockDirectionX = sprite.direction;
+            if (KeyHandler.isDownPressed || KeyHandler.isPlaceDownPressed) {
+                newIceBlockDirY = 1;
+                newIceBlockDirX /= 4;
+            }
+            else if (KeyHandler.isUpPressed) newIceBlockDirY = -1;
 
-            final int newX = getX()
+            if (newIceBlockDirX == 0 && newIceBlockDirY == 0) newIceBlockDirX = sprite.direction;
+
+            if (newIceBlockDirX != iceBlockDirectionX || newIceBlockDirY != iceBlockDirectionY){
+                bufferTime -= GamePanel.deltaTime/10;
+                if (bufferTime <= 0){
+                    bufferTime = maxBufferTime;
+                    iceBlockDirectionX = newIceBlockDirX;
+                    iceBlockDirectionY = newIceBlockDirY;
+                }
+            }
+            else if (bufferTime != maxBufferTime){
+                bufferTime = maxBufferTime;
+            }
+
+            final int newX = (int) (getX()
                     + (1+iceBlockDirectionX)*getWidth()/2
                     + (iceBlockDirectionX-1)*currentIceBlock.getWidth()/2
-                    + iceBlockDirectionX*iceBlockPlacingDistanceX;
+                    + iceBlockDirectionX*iceBlockPlacingDistanceX);
 
             int newY = getY()
                     + (1+iceBlockDirectionY)*getHeight()/2
@@ -474,7 +503,7 @@ public class Player extends Entity{
                     + iceBlockDirectionY*iceBlockPlacingDistanceY;
 
             //special case
-            if (iceBlockDirectionX == 0 && iceBlockDirectionY == 1)
+            if (iceBlockDirectionY == 1)
                 newY = getY()
                     + (1+iceBlockDirectionY)*getHeight()/2
                     + (iceBlockDirectionY-1)*currentIceBlock.getHeight()/2

@@ -39,7 +39,6 @@ public class SkeletalReaper extends Entity {
     final double walkAcceleration = 1;
     double acceleration = walkAcceleration;
     final int runSpeed = 35;
-    final int runFastSpeed = 42;
     final int walkSpeed = 15;
     int maxSpeed = walkSpeed;
     final  int maxHealth = 500;
@@ -55,12 +54,10 @@ public class SkeletalReaper extends Entity {
     final int atkRelativeY = 65;
     final int minSummonRange = 0;
     final int maxSummonRange = 2500;
-    final double maxAtkCooldownPhase1 = 3;
-    final double maxAtkCooldownPhase2 = 1.5;
+    final double maxAtkCooldown = 3;
     double atkCooldown = 0;
-    final double maxSummonCooldownPhase1 = 4;
-    final double maxSummonCooldownPhase2 = 2.5;
-    double summonCooldown = maxSummonCooldownPhase1;
+    final double maxSummonCooldown = 4;
+    double summonCooldown = maxSummonCooldown;
     int summonPosX, summonPosY;
 
     int direction = 1;
@@ -162,7 +159,7 @@ public class SkeletalReaper extends Entity {
     @Override
     public void update() throws Exception {
         super.update();
-        if (!GamePanel.camera.getVisible().contains(this)){
+        if (isChasing && !GamePanel.camera.getVisible().contains(this)){
             GamePanel.camera.getVisible().add(this);
         }
         if (exclamationMark != null) exclamationMark.update();
@@ -231,10 +228,6 @@ public class SkeletalReaper extends Entity {
                 runAnimSpeed = defaultRunAnimSpeed;
             }
 
-            if (hp <= maxHealth/2 && acceleration != runFastSpeed){
-                acceleration = runFastSpeed;
-            }
-
             //summon
             if (summonCooldown <= 0){
                 final double distX = getDistance(getPlayer());
@@ -258,8 +251,7 @@ public class SkeletalReaper extends Entity {
                 if (!getAnimation().equals(summon)){
                     isSummoning = false;
                     hasSummoned = false;
-                    if (hp <= maxHealth/2) summonCooldown = maxSummonCooldownPhase1;
-                    else summonCooldown = maxSummonCooldownPhase2;
+                    summonCooldown = maxSummonCooldown;
                 }
                 else if (getAnimationIndex() == 0 && !hasSummoned) {
                     final int w = 20, h = 115, s = w*3;
@@ -333,8 +325,7 @@ public class SkeletalReaper extends Entity {
                         setAnimation(attack, attackAnimSpeed);
                         setNextAnimation(idle, idleAnimSpeed);
                         isAttacking = true;
-                        if (hp <= maxHealth/2) atkCooldown = maxAtkCooldownPhase2;
-                        else atkCooldown = maxAtkCooldownPhase1;
+                        atkCooldown = maxAtkCooldown;
                         break;
                     }
                 }
@@ -452,7 +443,7 @@ public class SkeletalReaper extends Entity {
         acceleration = walkAcceleration;
 
         atkCooldown = 0;
-        summonCooldown = maxSummonCooldownPhase1;
+        summonCooldown = maxSummonCooldown;
         summonPosX = 0;
         summonPosY = 0;
         isAttacking = false;

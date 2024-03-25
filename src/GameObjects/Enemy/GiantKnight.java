@@ -140,7 +140,7 @@ public class GiantKnight extends Entity {
     @Override
     public void update() throws Exception {
         super.update();
-        if (!GamePanel.camera.getVisible().contains(this)){
+        if (isChasing && !GamePanel.camera.getVisible().contains(this)){
             GamePanel.camera.getVisible().add(this);
         }
         if (exclamationMark != null) exclamationMark.update();
