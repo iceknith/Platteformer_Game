@@ -123,6 +123,9 @@ public class LevelMaker extends GameObject2D{
                 //unload all loaded GO in level, and replace them with the saved ones
                 Level lvl = GamePanel.camera.level;
                 lvl.permanentUpdatable = new ArrayList<>();
+                lvl.permanentUpdatableAddBuffer = new ArrayList<>();
+                lvl.updatableBuffer = new ArrayList<>();
+                lvl.permanentUpdatableRemoveBuffer = new ArrayList<>();
                 lvl.getSubLvl("main").objectList = new ArrayList<>();
                 lvl.getSubLvl("main").permaDisplayedObjects = new ArrayList<>();
                 lvl.getSubLvl("main").buttons = new ArrayList<>();

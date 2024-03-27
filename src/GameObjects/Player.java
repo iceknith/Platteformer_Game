@@ -105,8 +105,6 @@ public class Player extends Entity{
     int iceBlockDirectionY;
     int nextIceBlockDirectionX;
     int nextIceBlockDirectionY;
-    double iceBlockPosXTimer;
-    double iceBlockPosYTimer;
 
     public boolean isPlacingIceBlock;
     public IceBlock currentIceBlock;
@@ -296,8 +294,6 @@ public class Player extends Entity{
         iceBlockDirectionY = p.iceBlockDirectionY;
         nextIceBlockDirectionX = p.nextIceBlockDirectionX;
         nextIceBlockDirectionY = p.nextIceBlockDirectionY;
-        iceBlockPosXTimer = p.iceBlockPosXTimer;
-        iceBlockPosYTimer = p.iceBlockPosYTimer;
         isPlacingIceBlock = p.isPlacingIceBlock;
         currentIceBlock = p.currentIceBlock;
     }
@@ -441,6 +437,9 @@ public class Player extends Entity{
             isPlacingIceBlock = false;
             currentIceBlock.isPlaced = true;
             currentIceBlock = null;
+
+            iceBlockDirectionX = 0;
+            iceBlockDirectionY = 0;
         }
 
         if ((KeyHandler.isPlacePressed || KeyHandler.isPlaceDownPressed) && snowflakeCount > 0 && !isPlacingIceBlock){
@@ -452,6 +451,7 @@ public class Player extends Entity{
             GamePanel.camera.updateGrid();
 
             //iceBlockPos
+            bufferTime = maxBufferTime;
             if (KeyHandler.isRightPressed) iceBlockDirectionX = 1;
             else if (KeyHandler.isLeftPressed) iceBlockDirectionX = -1;
 
