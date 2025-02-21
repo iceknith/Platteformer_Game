@@ -49,7 +49,7 @@ public class Dragon extends Entity {
     final int runSpeed = 25;
     final int walkSpeed = 10;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 450;
+    final  int maxHealth = 350;
     final int knockBackForce = 20;
     final double flyForce = 20;
     boolean isChasing = false;

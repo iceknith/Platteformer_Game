@@ -25,6 +25,7 @@ public class Platform extends GameObject2D{
 
         switch (animName){
             case "industrial/saw" -> animSpeed = 1;
+            case "base/invisibleKill" -> hasPhysicalCollisions = false;
             default ->  animSpeed = 5;
         }
 

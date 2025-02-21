@@ -202,8 +202,8 @@ public class LevelMaker extends GameObject2D{
                 h = 3;
             }
             else if (nextObjType.equals("Text")){
-                w = 0;
-                h = 0;
+                placeGo(mouseX, mouseY);
+                return;
             }
             else{
                 w = defaultObjWidth;
@@ -223,13 +223,18 @@ public class LevelMaker extends GameObject2D{
 
                 for (GameObject2D go : GamePanel.camera.grid.get(pos[0]).get(pos[1])){
                     if (potentialGOSpace.intersects(go)){
-
                         // Remove GO if on delete mode
                         if (nextObjType.equals("Delete") && !go.type.equals("Player")) {
                             objects.remove(go);
                             GamePanel.camera.level.getSubLvl("main").objectList.remove(go);
                             GamePanel.camera.deleteGOInGrid(go);
                             GamePanel.camera.updateGrid();
+                        }
+                        else {
+                            // If we want to place an Image, ignore what is already there (if it isn't the same image)
+                            // And vice-versa
+                            if (nextObjType.equals("Image") && !go.type.equals("ImageObject_" + nextObjTexture)) continue;
+                            if (!nextObjType.equals("Image") && (go.type.contains("ImageObject") || go.type.contains("TextObject"))) continue;
                         }
 
                         return;

@@ -10,6 +10,7 @@ public class ImageObject extends GameObject2D{
         super(x,y,0,0,subLvlName);
 
         type = "ImageObject_" + animName;
+        System.out.println(type);
         name = type+id;
         hasPhysicalCollisions = false;
 
@@ -23,6 +24,7 @@ public class ImageObject extends GameObject2D{
         super(x,y,w,h,subLvlName);
 
         type = "ImageObject_" + animName;
+        System.out.println(type);
         name = type+id;
         hasPhysicalCollisions = false;
 

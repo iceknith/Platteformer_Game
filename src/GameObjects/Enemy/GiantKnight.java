@@ -38,7 +38,7 @@ public class GiantKnight extends Entity {
     final int runSpeed = 30;
     final int walkSpeed = 12;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 200;
+    final  int maxHealth = 125;
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isAttacking = false;

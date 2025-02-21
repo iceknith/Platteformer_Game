@@ -46,7 +46,7 @@ public class DarkKnight extends Entity {
     final int runSpeed = 27;
     final int walkSpeed = 15;
     int maxSpeed = walkSpeed;
-    final  int maxHealth = 100;
+    final  int maxHealth = 75;
     final int knockBackForce = 20;
     boolean isChasing = false;
     boolean isAttacking = false;

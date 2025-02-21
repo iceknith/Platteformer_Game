@@ -263,7 +263,7 @@ public class SkeletalReaper extends Entity {
                                 0, 0, 0, 0,
                                 0.5, 100,
                                 true, true,
-                                "DarkSpike", 4, 0, 1, 1,
+                                "DarkSpike", 5, 0, 1, 1,
                                 subLevelName);
                         if (p.isSafeGround(0)){
                             GamePanel.camera.addGOInGrid(p, true);
