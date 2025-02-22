@@ -6,6 +6,7 @@ import handlers.MouseHandler;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ConcurrentModificationException;
 
 import javax.swing.JPanel;
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable {
 
     static GamePanel self;
+    public static boolean isArcadeVersion = false;
 
     // Screen Settings
     Dimension dim;

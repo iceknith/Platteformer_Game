@@ -1,5 +1,7 @@
 package handlers;
 
+import main.GamePanel;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
@@ -7,19 +9,19 @@ import java.io.*;
 public class KeyHandler implements KeyListener {
 
     static int rightKey = KeyEvent.VK_D;
-    static int leftKey = KeyEvent.VK_A;
-    static int upKey = KeyEvent.VK_W;
+    static int leftKey = KeyEvent.VK_Q;
+    static int upKey = KeyEvent.VK_Z;
     static int downKey = KeyEvent.VK_S;
-    static int selectKey = KeyEvent.VK_ENTER;
-    static int suicideKey = KeyEvent.VK_E;
-    static int resetKey = KeyEvent.VK_R;
-    static int jumpKey = KeyEvent.VK_SPACE;
-    static  int placeKey = KeyEvent.VK_SHIFT;
-    static int placeDownKey = KeyEvent.VK_NUMPAD0;
+    static int selectKey = KeyEvent.VK_N;
+    static int suicideKey = KeyEvent.VK_V;
+    static int resetKey = KeyEvent.VK_B;
+    static int jumpKey = KeyEvent.VK_W;
+    static  int placeKey = KeyEvent.VK_X;
+    static int placeDownKey = KeyEvent.VK_C;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
     static  int launchKey = KeyEvent.VK_F5;
-    static int[] instantQuitKeys = {KeyEvent.VK_ESCAPE, KeyEvent.VK_BACK_SPACE};
+    static int[] instantQuitKeys = {KeyEvent.VK_ENTER, KeyEvent.VK_BACK_SPACE};
 
     static int lastKeyPressed = -1;
     static String lastStrTyped = "";
@@ -43,6 +45,13 @@ public class KeyHandler implements KeyListener {
     public static long leftPressedTime = 0;
 
     public static void initialise() throws IOException {
+        if (GamePanel.isArcadeVersion){
+            menuKey = KeyEvent.VK_BACK_SPACE;
+            return;
+        }
+
+
+
         FileInputStream keyFile = new FileInputStream("settings/keys.settings");
         BufferedInputStream reader = new BufferedInputStream(keyFile);
 
@@ -196,6 +205,12 @@ public class KeyHandler implements KeyListener {
     }
 
     public static void changeKey(String keyName, int key) throws IOException {
+        // Check if key is a valid key (if we are in arcade mode)
+        if (GamePanel.isArcadeVersion) {
+            File keyImage = new File("assets/Image/arcadeButtons/"+key+".png");
+            if (!keyImage.exists()) return;
+        }
+
         switch (keyName){
             case "right" -> rightKey = key;
             case "left" -> leftKey = key;
@@ -211,7 +226,7 @@ public class KeyHandler implements KeyListener {
             case "menu" -> menuKey = key;
         }
 
-        saveKeys();
+        if (!GamePanel.isArcadeVersion) saveKeys();
     }
 
     public static int getKey(String keyName){

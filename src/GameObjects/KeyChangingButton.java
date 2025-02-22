@@ -5,13 +5,17 @@ import main.GamePanel;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 
 public class KeyChangingButton extends Button{
 
     String buttonKey;
-    boolean isWaitingKey;
+    String keyText;
+    BufferedImage arcadeKeyImage;
+    float arcadeButtonImageWidthRatio = 1.4f;
+    boolean keyChanged = true;
 
     public KeyChangingButton(int w, int h, int x, int y, String textureName, String messageName, String id, String key, String subLvlName) throws IOException, FontFormatException {
         super(w, h, x, y, textureName, messageName, id, subLvlName);
@@ -31,7 +35,7 @@ public class KeyChangingButton extends Button{
     void triggerHandler() throws IOException, FontFormatException {
         super.triggerHandler();
 
-        isWaitingKey = true;
+        keyChanged = true;
         KeyHandler.resetLastKeyPressed();
 
         //setting up key waiter
@@ -43,7 +47,23 @@ public class KeyChangingButton extends Button{
         s.permaDisplayedObjects.add(waiter);
         GamePanel.camera.level.addSubLvl(s);
         GamePanel.camera.level.openSubLevel("key waiter", false, true);
+    }
 
+    @Override
+    public void update() throws Exception {
+        super.update();
+
+        if (keyChanged) {
+            keyChanged = false;
+
+            int key = KeyHandler.getKey(buttonKey);
+            if (GamePanel.isArcadeVersion){
+                arcadeKeyImage = readImageBuffered(("assets/Image/arcadeButtons/"+key+".png"));
+            }
+            else {
+                keyText = KeyEvent.getKeyText(key);
+            }
+        }
     }
 
     @Override
@@ -54,23 +74,43 @@ public class KeyChangingButton extends Button{
     public void draw(Graphics2D g2D, ImageObserver imageObserver) {
         super.draw(g2D, imageObserver);
 
-        String key = KeyEvent.getKeyText(KeyHandler.getKey(buttonKey));
-        int keyWidth = GamePanel.getGamePannel().getFontMetrics(buttonFont).stringWidth(key);
-        int keyFontSize = Math.min((int) (getWidth() / ((float) keyWidth/buttonFontSize)), getHeight()-30);
 
-        if (isFocused()){
-            keyFontSize -= 10;
+        if (GamePanel.isArcadeVersion){
+            int height = getHeight() - 10;
+            if (isFocused()){
+                height -= 10;
+            }
+            if (isTriggered()){
+                height -= 20;
+            }
+            int width = (int) (height * arcadeButtonImageWidthRatio);
+
+            g2D.drawImage(arcadeKeyImage,
+                    getX() + (getWidth() - width)/2,
+                    getY(),
+                    width, height, imageObserver);
         }
-        if (isTriggered()){
-            keyFontSize -= 20;
+        else {
+
+            int keyWidth = GamePanel.getGamePannel().getFontMetrics(buttonFont).stringWidth(keyText);
+            int keyFontSize = Math.min((int) (getWidth() / ((float) keyWidth/buttonFontSize)), getHeight()-30);
+
+            if (isFocused()){
+                keyFontSize -= 10;
+            }
+            if (isTriggered()){
+                keyFontSize -= 20;
+            }
+
+            Font f = new Font(buttonFontName, Font.PLAIN, keyFontSize);
+            keyWidth = GamePanel.getGamePannel().getFontMetrics(f).stringWidth(keyText);
+
+            g2D.setFont(f);
+            g2D.setColor(new Color(196, 190, 0));
+
+            g2D.drawString(keyText,getX() + (getWidth() - keyWidth)/2,getY() + getHeight()/2 + keyFontSize/2);
         }
 
-        Font f = new Font(buttonFontName, Font.PLAIN, keyFontSize);
-        keyWidth = GamePanel.getGamePannel().getFontMetrics(f).stringWidth(key);
 
-        g2D.setFont(f);
-        g2D.setColor(new Color(196, 190, 0));
-
-        g2D.drawString(key,getX() + (getWidth() - keyWidth)/2,getY() + getHeight()/2 + keyFontSize/2);
     }
 }

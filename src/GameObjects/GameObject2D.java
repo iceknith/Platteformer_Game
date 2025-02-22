@@ -218,7 +218,7 @@ public class GameObject2D{
                 getY() - camera.getScreenY() <= y && y <= getY() + getHeight() - camera.getScreenY();
     }
 
-    public void draw(Graphics2D g2D, ImageObserver IO){
+    public void draw(Graphics2D g2D, ImageObserver IO) {
         if (isGUI){
             g2D.drawImage(getSprite().getImage(),
                     getSprite().getOffsetX(getHitbox()),

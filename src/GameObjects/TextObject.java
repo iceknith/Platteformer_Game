@@ -4,7 +4,9 @@ import handlers.KeyHandler;
 import main.GamePanel;
 
 import java.awt.*;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,12 @@ public class TextObject extends GameObject2D{
     ArrayList<String> text;
     int textSize;
     Font font;
+    ArrayList<Integer> keyValues;
+    ArrayList<String> keyTexts;
+    ArrayList<Boolean> keyChanged;
+
+    ArrayList<BufferedImage> arcadeButtonImages;
+    float arcadeButtonImageWidthRatio = 1.4f;
 
     int nextWidth = 0, nextHeight = 0;
 
@@ -55,6 +63,19 @@ public class TextObject extends GameObject2D{
 
             nextWidth = 0; nextHeight = 0;
         }
+
+        // Check if the keys changed
+        for (int i = 0; i < keyValues.size(); i++) {
+            if (keyChanged.get(i)){
+                if (GamePanel.isArcadeVersion) {
+                    System.out.println("assets/Image/arcadeButtons" + keyValues.get(i) + ".png");
+                    arcadeButtonImages.set(i, readImageBuffered("assets/Image/arcadeButtons/" + keyValues.get(i) + ".png"));
+                }
+                else {
+                    keyTexts.set(i, KeyEvent.getKeyText(keyValues.get(i)));
+                }
+            }
+        }
     }
 
     @Override
@@ -71,17 +92,39 @@ public class TextObject extends GameObject2D{
         }
 
         int xOffset = 0;
+        int index = 0;
         g2D.setFont(font);
         for (String txt : text){
             g2D.setColor(Color.decode(txt.substring(0, 8)));
+
             //draw key text
             if (txt.charAt(8) == '^'){
-                final String str = KeyEvent.getKeyText(KeyHandler.getKey(txt.substring(9)));
-                g2D.drawString(
-                        str,
-                        getX() + xOffset - GamePanel.camera.getScreenX(),
-                        getY() + getHeight() - GamePanel.camera.getScreenY());
-                xOffset += g2D.getFontMetrics(font).stringWidth(str);
+
+                // Check if the value changed
+                int currentKeyValue = KeyHandler.getKey(txt.substring(9));
+                if (currentKeyValue != keyValues.get(index)) {
+                    keyChanged.set(index, true);
+                    keyValues.set(index, currentKeyValue);
+                }
+
+                if (GamePanel.isArcadeVersion) {
+                    int height = getHeight();
+                    int width = (int) (textSize * arcadeButtonImageWidthRatio);
+                    g2D.drawImage(arcadeButtonImages.get(index),
+                            getX() + xOffset - GamePanel.camera.getScreenX(),
+                            getY() - GamePanel.camera.getScreenY(),
+                            width, height, IO);
+                    xOffset += width;
+                }
+                else if (keyTexts.get(index) != null) {
+                    g2D.drawString(
+                            keyTexts.get(index),
+                            getX() + xOffset - GamePanel.camera.getScreenX(),
+                            getY() + getHeight() - GamePanel.camera.getScreenY());
+                    xOffset += g2D.getFontMetrics(font).stringWidth(keyTexts.get(index));
+                }
+
+                index++;
             }
             //draw normal text
             else {
@@ -102,6 +145,11 @@ public class TextObject extends GameObject2D{
         return rawText;
     }
     public ArrayList<String> computeText(String text){
+
+        keyValues = new ArrayList<>();
+        keyChanged = new ArrayList<>();
+        if (GamePanel.isArcadeVersion) arcadeButtonImages = new ArrayList<>();
+        else keyTexts = new ArrayList<>();
 
         ArrayList<String> result = new ArrayList<>();
         int prevSavePoint = 0;
@@ -125,8 +173,14 @@ public class TextObject extends GameObject2D{
                     }
                     else if (text.charAt(prevSavePoint) == '#' && text.charAt(prevSavePoint + 8) == '<'){
                         result.add(subTxtFormatting(text.substring(prevSavePoint, prevSavePoint+8) + text.substring(prevSavePoint+9, i), true));
+
                         prevSavePoint = i+1;
                     }
+
+                    keyValues.add(-1);
+                    keyChanged.add(false);
+                    if (GamePanel.isArcadeVersion) arcadeButtonImages.add(null);
+                    else keyTexts.add(null);
                 }
             }
         }
