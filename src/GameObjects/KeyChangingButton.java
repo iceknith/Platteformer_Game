@@ -51,8 +51,6 @@ public class KeyChangingButton extends Button{
 
     @Override
     public void update() throws Exception {
-        super.update();
-
         if (keyChanged) {
             keyChanged = false;
 
@@ -64,6 +62,8 @@ public class KeyChangingButton extends Button{
                 keyText = KeyEvent.getKeyText(key);
             }
         }
+
+        super.update();
     }
 
     @Override
