@@ -69,7 +69,7 @@ public class TextObject extends GameObject2D{
             if (keyChanged.get(i)){
                 if (GamePanel.isArcadeVersion) {
                     System.out.println("assets/Image/arcadeButtons" + keyValues.get(i) + ".png");
-                    arcadeButtonImages.set(i, readImageBuffered("assets/Image/arcadeButtons/" + keyValues.get(i) + ".png"));
+                    //arcadeButtonImages.set(i, readImageBuffered("assets/Image/arcadeButtons/" + keyValues.get(i) + ".png"));
                 }
                 else {
                     keyTexts.set(i, KeyEvent.getKeyText(keyValues.get(i)));

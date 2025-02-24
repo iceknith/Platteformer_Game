@@ -75,8 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         try {
             camera = new Camera(width, height, 0, 0);
-            if (isArcadeVersion) camera.setNextLevel("menu-arcade");
-            else camera.setNextLevel("menu");
+            camera.setNextLevel("menu");
             camera.loadNextLevel();
 
             //initialise font
