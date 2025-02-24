@@ -1,0 +1,19 @@
+{
+  "name" : "Ice's Fantasy",
+  "desc" : "Un plateformer 2D où vous parcourez de nombreux niveaux en utilisant vos pouvoirs de glace.",
+  "author" : "Iceknith/Dimitri",
+  "category" : ["Solo", "Arcade", "Plateforme"],
+  "bindings" :
+  {
+    "joystick" : "Déplacement",
+    "red" : "Saut",
+    "orange" : "Placer block",
+    "yellow" : "Placer block sous soi",
+    "green" : "Revenir au checkpoint",
+    "blue" : "Réinistialiser le niveau",
+    "pink" : "Accepter"
+  },
+  "preview" : "preview.png",
+  "executable" : "Ice's Fantasy.exe",
+  "arguments" : ""
+}

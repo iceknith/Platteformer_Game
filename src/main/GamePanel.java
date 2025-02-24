@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable {
 
     static GamePanel self;
-    public static boolean isArcadeVersion = false;
+    public static boolean isArcadeVersion = true;
 
     // Screen Settings
     Dimension dim;
@@ -75,7 +75,8 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         try {
             camera = new Camera(width, height, 0, 0);
-            camera.setNextLevel("menu");
+            if (isArcadeVersion) camera.setNextLevel("menu-arcade");
+            else camera.setNextLevel("menu");
             camera.loadNextLevel();
 
             //initialise font
