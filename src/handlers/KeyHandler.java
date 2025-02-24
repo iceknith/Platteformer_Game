@@ -12,12 +12,12 @@ public class KeyHandler implements KeyListener {
     static int leftKey = KeyEvent.VK_Q;
     static int upKey = KeyEvent.VK_Z;
     static int downKey = KeyEvent.VK_S;
-    static int selectKey = KeyEvent.VK_N;
-    static int suicideKey = KeyEvent.VK_V;
-    static int resetKey = KeyEvent.VK_B;
-    static int jumpKey = KeyEvent.VK_W;
-    static  int placeKey = KeyEvent.VK_X;
-    static int placeDownKey = KeyEvent.VK_C;
+    static int selectKey = KeyEvent.VK_NUMPAD6;
+    static int suicideKey = KeyEvent.VK_NUMPAD4;
+    static int resetKey = KeyEvent.VK_NUMPAD5;
+    static int jumpKey = KeyEvent.VK_NUMPAD1;
+    static  int placeKey = KeyEvent.VK_NUMPAD3;
+    static int placeDownKey = KeyEvent.VK_NUMPAD2;
     static int debugKey = KeyEvent.VK_F3;
     static int menuKey = KeyEvent.VK_ESCAPE;
     static  int launchKey = KeyEvent.VK_F5;
@@ -167,13 +167,19 @@ public class KeyHandler implements KeyListener {
         if (k == menuKey) isMenuKeyPressed = true;
         if (k == selectKey) isSelectPressed = true;
         if (k == launchKey) isLaunchKeyPressed = true;
-        if (k == instantQuitKeys[0]){
-            isInstantQuitKeysPressed[0] = true;
-            if (isInstantQuitKeysPressed[1]) System.exit(0);
-        }
-        if (k == instantQuitKeys[1]){
-            isInstantQuitKeysPressed[1] = true;
-            if (isInstantQuitKeysPressed[0]) System.exit(0);
+        if (GamePanel.isArcadeVersion) {
+            if (k == instantQuitKeys[0]){
+                isMenuKeyPressed = true;
+
+                isInstantQuitKeysPressed[0] = true;
+                if (isInstantQuitKeysPressed[1]) System.exit(0);
+            }
+            if (k == instantQuitKeys[1]){
+                isMenuKeyPressed = true;
+
+                isInstantQuitKeysPressed[1] = true;
+                if (isInstantQuitKeysPressed[0]) System.exit(0);
+            }
         }
     }
 
@@ -199,8 +205,14 @@ public class KeyHandler implements KeyListener {
         if (k == menuKey) isMenuKeyPressed = false;
         if (k == selectKey) isSelectPressed = false;
         if (k == launchKey) isLaunchKeyPressed = false;
-        if (k == instantQuitKeys[0]) isInstantQuitKeysPressed[0] = false;
-        if (k == instantQuitKeys[1]) isInstantQuitKeysPressed[1] = false;
+        if (k == instantQuitKeys[0]) {
+            isInstantQuitKeysPressed[0] = false;
+            isMenuKeyPressed = false;
+        }
+        if (k == instantQuitKeys[1]) {
+            isInstantQuitKeysPressed[1] = false;
+            isMenuKeyPressed = false;
+        }
 
     }
 
